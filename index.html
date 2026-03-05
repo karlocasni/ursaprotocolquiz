@@ -821,7 +821,6 @@
             }
         }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body>
@@ -1192,11 +1191,8 @@
     </div><!-- /.quiz-wrapper -->
 
     <script>
-        // ── SUPABASE ── Replace with your project values
-        const SUPABASE_URL = 'https://YOUR_PROJECT.supabase.co';
-        const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY';
-        const _supabase = (window.supabase && SUPABASE_URL.includes('supabase.co') && !SUPABASE_URL.includes('YOUR_PROJECT'))
-            ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+        // ── GOOGLE SHEETS CONFIG ── Paste your Apps Script Web App URL below
+        const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbw2PFjFAa5jg-4feMIx55xyJtUxG45aGVldy_LoWfz1XPzy6Pde36n7_W4RK5cGNeaZ/exec';
 
         const state = { name: 'Prijatelju', email: '', gender: '', goal: '', goalLabel: '' };
         const navHistory = [];
@@ -1274,14 +1270,18 @@
             const val = document.getElementById('input-email').value.trim();
             if (!val || !val.includes('@')) { showError('input-email', 'Molimo unesi ispravnu email adresu.'); return; }
             state.email = val;
-            if (_supabase) {
+            if (SHEETS_URL && !SHEETS_URL.includes('YOUR_APPS_SCRIPT')) {
                 try {
-                    const { error } = await _supabase.from('leads').insert([{
-                        name: state.name, email: state.email, gender: state.gender,
-                        goal: state.goalLabel, created_at: new Date().toISOString()
-                    }]);
-                    if (error) console.warn('Supabase:', error.message);
-                } catch (e) { console.warn('Supabase unavailable:', e.message); }
+                    await fetch(SHEETS_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            name: state.name,
+                            email: state.email,
+                            gender: state.gender,
+                            goal: state.goalLabel
+                        })
+                    });
+                } catch (e) { console.warn('Sheets save failed:', e); }
             }
             navHistory.push('14');
             showLoader();

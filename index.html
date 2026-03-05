@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="hr">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tvoj Personalizirani Plan Transformacije</title>
+    <meta name="description"
+        content="Saznaj svoj personalizirani plan transformacije tijela za 90 dana. Odgovori na kratki kviz i dobij plan napravljen točno za tebe." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg-grad-start: #1D283B;
+            --bg-grad-end: #2D1D3B;
+            --container-bg: rgba(17, 17, 17, 0.75);
+            --text: #ffffff;
+            --accent1: #2596be;
+            --accent2: #08acd2;
+            --accent1-hover: #1d7fa3;
+            --accent2-hover: #069ab9;
+            --option-bg: rgba(255, 255, 255, 0.05);
+            --option-border: rgba(255, 255, 255, 0.12);
+            --option-hover-bg: rgba(37, 150, 190, 0.15);
+            --option-hover-border: #2596be;
+            --option-selected-bg: rgba(37, 150, 190, 0.25);
+            --option-selected-border: #2596be;
+            --green-check: #22c55e;
+            --card-radius: 20px;
+        }
+
+        html,
+        body {
+            min-height: 100%;
+            font-family: 'Outfit', sans-serif;
+            color: var(--text);
+            background: linear-gradient(135deg, var(--bg-grad-start) 0%, var(--bg-grad-end) 100%);
+            background-attachment: fixed;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 16px;
+        }
+
+        .quiz-wrapper {
+            width: 100%;
+            max-width: 600px;
+            position: relative;
+        }
+
+        /* ── CARD ── */
+        .card {
+            display: none;
+            background: var(--container-bg);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--card-radius);
+            padding: 40px 36px 44px;
+            animation: fadeSlideIn 0.45s cubic-bezier(0.34, 1.2, 0.64, 1) both;
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+        }
+
+        .card.active {
+            display: block;
+        }
+
+        @keyframes fadeSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(22px) scale(0.98);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* ── PROGRESS BAR ── */
+        .progress-wrap {
+            margin-bottom: 28px;
+        }
+
+        .progress-label {
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.45);
+            margin-bottom: 8px;
+            text-align: right;
+        }
+
+        .progress-track {
+            height: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 99px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent1), var(--accent2));
+            border-radius: 99px;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 10px rgba(8, 172, 210, 0.6);
+        }
+
+        /* ── TITLE / TEXT ── */
+        .card-title {
+            font-size: 1.55rem;
+            font-weight: 700;
+            line-height: 1.3;
+            margin-bottom: 28px;
+            text-align: center;
+        }
+
+        .card-title span.accent {
+            color: var(--accent2);
+        }
+
+        .card-header-label {
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--accent2);
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .card-text {
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.75);
+            line-height: 1.7;
+            margin-bottom: 22px;
+            text-align: center;
+        }
+
+        /* ── BULLET LIST ── */
+        .bullet-list {
+            list-style: none;
+            margin-bottom: 24px;
+        }
+
+        .bullet-list li {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.8);
+            padding: 8px 0;
+            padding-left: 20px;
+            position: relative;
+            line-height: 1.5;
+        }
+
+        .bullet-list li::before {
+            content: '›';
+            position: absolute;
+            left: 0;
+            color: var(--accent2);
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        /* ── CHECK LIST ── */
+        .check-list {
+            list-style: none;
+            margin-bottom: 28px;
+        }
+
+        .check-list li {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.85);
+            padding: 9px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .check-list li:last-child {
+            border-bottom: none;
+        }
+
+        .check-list .check-icon {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: rgba(34, 197, 94, 0.15);
+            border: 1.5px solid var(--green-check);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: var(--green-check);
+            font-size: 11px;
+        }
+
+        /* ── OPTIONS ── */
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .options-grid.two-col {
+            flex-direction: row;
+            gap: 14px;
+        }
+
+        .option-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+            padding: 16px 20px;
+            background: var(--option-bg);
+            border: 1.5px solid var(--option-border);
+            border-radius: 12px;
+            color: var(--text);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.22s ease;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        .option-btn:hover {
+            background: var(--option-hover-bg);
+            border-color: var(--option-hover-border);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37, 150, 190, 0.2);
+        }
+
+        .option-btn.selected {
+            background: var(--option-selected-bg);
+            border-color: var(--option-selected-border);
+            box-shadow: 0 0 0 1px var(--accent2) inset, 0 6px 20px rgba(37, 150, 190, 0.2);
+        }
+
+        .option-btn .opt-icon {
+            font-size: 1.5rem;
+            line-height: 1;
+        }
+
+        .option-body-img {
+            width: 48px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+
+        /* ── PRIMARY BUTTON ── */
+        .btn-primary {
+            display: block;
+            width: 100%;
+            padding: 17px 24px;
+            background: linear-gradient(135deg, var(--accent1), var(--accent2));
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            text-align: center;
+            box-shadow: 0 8px 24px rgba(8, 172, 210, 0.35);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, transparent 60%);
+            border-radius: 12px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(8, 172, 210, 0.5);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            display: block;
+            width: 100%;
+            padding: 15px 24px;
+            background: rgba(255, 255, 255, 0.07);
+            border: 1.5px solid rgba(255, 255, 255, 0.18);
+            border-radius: 12px;
+            color: rgba(255, 255, 255, 0.55);
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.22s ease;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.11);
+            color: rgba(255, 255, 255, 0.75);
+        }
+
+        /* ── INPUT FIELD ── */
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1.5px solid rgba(255, 255, 255, 0.14);
+            border-radius: 12px;
+            padding: 0 18px;
+            margin-bottom: 20px;
+            transition: border-color 0.2s;
+        }
+
+        .input-group:focus-within {
+            border-color: var(--accent2);
+            background: rgba(8, 172, 210, 0.06);
+        }
+
+        .input-group i {
+            color: rgba(255, 255, 255, 0.35);
+            font-size: 1rem;
+        }
+
+        .input-group input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #fff;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            padding: 17px 0;
+        }
+
+        .input-group input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* ── TRANSFORMATION IMAGES ── */
+        .transform-images {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+
+        .transform-img {
+            flex: 1;
+            aspect-ratio: 3/4;
+            background: rgba(255, 255, 255, 0.07);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 8px;
+            border: 1.5px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.5);
+            min-height: 180px;
+        }
+
+        .transform-img i {
+            font-size: 2.5rem;
+            opacity: 0.25;
+        }
+
+        .transform-label {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 4px 14px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            letter-spacing: 3px;
+        }
+
+        /* ── TESTIMONIAL ── */
+        .testimonial-icon-wrap {
+            text-align: center;
+            font-size: 3.5rem;
+            margin-bottom: 16px;
+        }
+
+        .testimonial-imgs {
+            width: 100%;
+            aspect-ratio: 16/7;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            border: 1.5px dashed rgba(255, 255, 255, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 8px;
+            margin: 20px 0;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 0.8rem;
+        }
+
+        .testimonial-imgs i {
+            font-size: 2rem;
+            opacity: 0.4;
+        }
+
+        /* ── LOADER CARD ── */
+        .loader-wrap {
+            text-align: center;
+            padding: 20px 0 10px;
+        }
+
+        .spinner {
+            width: 72px;
+            height: 72px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top-color: var(--accent2);
+            border-radius: 50%;
+            animation: spin 0.9s linear infinite;
+            margin: 0 auto 24px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loader-percent {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--accent2);
+            margin-bottom: 8px;
+        }
+
+        .loader-label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.55);
+            margin-bottom: 28px;
+        }
+
+        .loader-steps {
+            list-style: none;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .loader-steps li {
+            font-size: 0.8rem;
+            letter-spacing: 1.5px;
+            color: rgba(255, 255, 255, 0.35);
+            padding: 5px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-transform: uppercase;
+        }
+
+        .loader-steps li::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent2);
+            opacity: 0.4;
+        }
+
+        .loader-steps li.done {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .loader-steps li.done::before {
+            opacity: 1;
+            background: var(--green-check);
+        }
+
+        /* ── FINAL RESULTS CARD (16) ── */
+        .results-header {
+            text-align: center;
+            font-size: 1.4rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            line-height: 1.3;
+        }
+
+        .results-block {
+            background: rgba(37, 150, 190, 0.12);
+            border: 1.5px solid rgba(37, 150, 190, 0.3);
+            border-radius: 16px;
+            padding: 28px 24px;
+            margin-bottom: 24px;
+        }
+
+        .results-block-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.6);
+            text-align: center;
+            margin-bottom: 18px;
+        }
+
+        .results-action-title {
+            font-size: 1.65rem;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 22px;
+            line-height: 1.3;
+        }
+
+        .results-action-btns {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .date-goal-box {
+            background: rgba(8, 172, 210, 0.08);
+            border: 1.5px solid rgba(8, 172, 210, 0.25);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin: 18px 0;
+            text-align: center;
+        }
+
+        .date-goal-box p {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--accent2);
+        }
+
+        .date-goal-box .goal-sub {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.55);
+            margin-top: 4px;
+            font-weight: 400;
+        }
+
+        .graph-placeholder {
+            width: 100%;
+            aspect-ratio: 16/7;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1.5px dashed rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 8px;
+            color: rgba(255, 255, 255, 0.25);
+            font-size: 0.8rem;
+            margin: 8px 0 6px;
+        }
+
+        .graph-placeholder i {
+            font-size: 2.5rem;
+            opacity: 0.3;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin: 28px 0 16px;
+            text-align: center;
+        }
+
+        .value-stack-box {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1.5px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            padding: 24px;
+            margin-bottom: 28px;
+        }
+
+        .value-stack-heading {
+            font-size: 0.7rem;
+            font-weight: 800;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: var(--accent2);
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .value-item {
+            display: flex;
+            gap: 14px;
+            margin-bottom: 16px;
+            align-items: flex-start;
+        }
+
+        .value-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .value-check {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(34, 197, 94, 0.15);
+            border: 1.5px solid var(--green-check);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: var(--green-check);
+            font-size: 11px;
+            margin-top: 2px;
+        }
+
+        .value-text {
+            font-size: 0.92rem;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.55;
+        }
+
+        .value-text strong {
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .video-placeholder {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1.5px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 14px;
+            cursor: pointer;
+            transition: border-color 0.2s, background 0.2s;
+            margin-bottom: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .video-placeholder::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(37, 150, 190, 0.08), rgba(45, 29, 59, 0.3));
+        }
+
+        .play-btn-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: rgba(37, 150, 190, 0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            color: #fff;
+            position: relative;
+            z-index: 1;
+            box-shadow: 0 4px 24px rgba(37, 150, 190, 0.5);
+        }
+
+        .video-label {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.4);
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ── DIVIDER ── */
+        .divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.08);
+            margin: 24px 0;
+        }
+
+        /* ── BODY TYPE BUTTONS ── */
+        .body-type-btn {
+            position: relative;
+            display: flex;
+            align-items: center;
+            width: 100%;
+            padding: 16px 20px;
+            padding-right: 100px;
+            background: var(--option-bg);
+            border: 1.5px solid var(--option-border);
+            border-radius: 12px;
+            color: var(--text);
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.22s ease;
+            text-align: left;
+            min-height: 64px;
+            overflow: visible;
+            line-height: 1.3;
+        }
+
+        .body-type-btn:hover {
+            background: var(--option-hover-bg);
+            border-color: var(--option-hover-border);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37, 150, 190, 0.2);
+        }
+
+        .body-type-btn.selected {
+            background: var(--option-selected-bg);
+            border-color: var(--option-selected-border);
+            box-shadow: 0 0 0 1px var(--accent2) inset, 0 6px 20px rgba(37, 150, 190, 0.2);
+        }
+
+        .body-type-btn .bt-img {
+            position: absolute;
+            right: 10px;
+            bottom: 0;
+            height: 100px;
+            width: auto;
+            object-fit: contain;
+            pointer-events: none;
+            filter: drop-shadow(0 -2px 6px rgba(0, 0, 0, 0.15));
+        }
+
+        .body-type-btn .bt-sub {
+            font-size: 0.75rem;
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.45);
+            display: block;
+            margin-top: 2px;
+        }
+
+        /* ── BACK BUTTON ── */
+        .back-btn {
+            display: none;
+            align-items: center;
+            gap: 7px;
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.38);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.82rem;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 0;
+            margin-bottom: 18px;
+            transition: color 0.2s;
+            letter-spacing: 0.2px;
+        }
+
+        .back-btn:hover {
+            color: rgba(255, 255, 255, 0.75);
+        }
+
+        .back-btn i {
+            font-size: 0.78rem;
+        }
+
+        .back-btn.visible {
+            display: flex;
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 480px) {
+            .card {
+                padding: 28px 20px 36px;
+            }
+
+            .card-title {
+                font-size: 1.3rem;
+            }
+
+            .results-action-title {
+                font-size: 1.35rem;
+            }
+
+            .options-grid.two-col {
+                flex-direction: column;
+            }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+    <div class="quiz-wrapper">
+
+        <button class="back-btn" id="global-back-btn" onclick="goBack()"><i class="fa-solid fa-arrow-left"></i>
+            Nazad</button>
+
+        <!-- CARD 1 -->
+        <div class="card active" id="card-1">
+            <h1 class="card-title">Želiš bolji izgled, ali nemaš pojma što zapravo donosi rezultate?</h1>
+            <ul class="bullet-list">
+                <li>Dosadilo ti je pokušavati?</li>
+                <li>Nova dijeta. Novi plan. Novi trening.</li>
+                <li>I opet nema rezultata.</li>
+                <li>Vodiš se sam i radiš pogrešne stvari za svoje tijelo.</li>
+                <li>Zato stojiš na mjestu dok drugi napreduju.</li>
+            </ul>
+            <ul class="check-list">
+                <li><span class="check-icon"><i class="fa-solid fa-check"></i></span> Bez generičkih savjeta</li>
+                <li><span class="check-icon"><i class="fa-solid fa-check"></i></span> Bez pogađanja</li>
+                <li><span class="check-icon"><i class="fa-solid fa-check"></i></span> Samo jasan plan za tebe.</li>
+            </ul>
+            <button class="btn-primary" onclick="goTo(2)" id="btn-card1-start">Saznaj svoj plan →</button>
+            <p style="text-align:center;font-size:0.78rem;color:rgba(255,255,255,0.35);margin-top:12px;">🔒 Anonimno ·
+                traje 2 minute</p>
+        </div>
+
+        <!-- CARD 2 — Q1 -->
+        <div class="card" id="card-2">
+            <div class="progress-wrap">
+                <div class="progress-label">PITANJE 1/13</div>
+                <div class="progress-track">
+                    <div class="progress-fill" style="width:8%"></div>
+                </div>
+            </div>
+            <h2 class="card-title">Koji si spol?</h2>
+            <div class="options-grid two-col">
+                <button class="option-btn" id="btn-spol-musko" onclick="selectGender(this,'Muško'); goTo(3)"><span
+                        class="opt-icon"><i class="fa-solid fa-mars"></i></span><span>Muško</span></button>
+                <button class="option-btn" id="btn-spol-zensko" onclick="selectGender(this,'Žensko'); goTo(3)"><span
+                        class="opt-icon"><i class="fa-solid fa-venus"></i></span><span>Žensko</span></button>
+            </div>
+        </div>
+
+        <!-- CARD 3 — Q2 -->
+        <div class="card" id="card-3">
+            <div class="progress-wrap">
+                <div class="progress-label">PITANJE 2/13</div>
+                <div class="progress-track">
+                    <div class="progress-fill" style="width:15%"></div>
+                </div>
+            </div>
+            <h2 class="card-title">Što želiš postići?</h2>
+            <div class="options-grid">
+                <button class="option-btn" id="btn-cilj-1" onclick="selectOption(this,'goal'); goTo(4)">Izgubiti višak
+                    kilograma</button>
+                <button class="option-btn" id="btn-cilj-2" onclick="selectOption(this,'goal'); goTo(4)">Dobiti mišiće i
+                    izgledati bolje</button>
+                <button class="option-btn" id="btn-cilj-3" onclick="selectOption(this,'goal'); goTo(4)">Oboje navedeno u
+                    isto vrijeme</button>
+                <button class="option-btn" id="btn-cilj-4" onclick="selectOption(this,'goal'); goTo(4)">Ne znam točno,
+                    ali želim početak</button>
+            </div>
+        </div>
+
+        <!-- CARD 4 — Q3 -->
+        <div class="card" id="card-4">
+            <div class="progress-wrap">
+                <div class="progress-label">PITANJE 3/13</div>
+                <div class="progress-track">
+                    <div class="progress-fill" style="width:23%"></div>
+                </div>
+            </div>
+            <h2 class="card-title">Koliko imaš godina?</h2>
+            <div class="options-grid">
+                <button class="option-btn" id="btn-god-1" onclick="selectOption(this,'age'); goTo(5)">18–24</button>
+                <button class="option-btn" id="btn-god-2" onclick="selectOption(this,'age'); goTo(5)">25–34</button>
+                <button class="option-btn" id="btn-god-3" onclick="selectOption(this,'age'); goTo(5)">35–44</button>
+                <button class="option-btn" id="btn-god-4" onclick="selectOption(this,'age'); goTo(5)">45+</button>
+            </div>
+        </div>
+
+        <!-- CARD 5 — Q4 body type -->
+        <div class="card" id="card-5">
+            <div class="progress-wrap">
+                <div class="progress-label">PITANJE 4/13</div>
+                <div class="progress-track">
+                    <div class="progress-fill" style="width:31%"></div>
+                </div>
+            </div>
+            <h2 class="card-title">Koji tip tijela najbolje opisuje tvoju trenutnu građu?</h2>
+            <div class="options-grid" style="padding-top:8px;">
+                <button class="body-type-btn" id="btn-tip-1" onclick="selectOption(this,'bodytype'); goTo(6)"><span
+                        data-male="Mršav" data-female="Mršava">Mršav</span><img class="bt-img" src="images/mrsav.png"
+                        alt="Mršav" /></button>
+                <button class="body-type-btn" id="btn-tip-2" onclick="selectOption(this,'bodytype'); goTo(6)"><span
+                        data-male="Prosječan" data-female="Prosječna">Prosječan</span><img class="bt-img"
+                        src="images/prosjecan.png" alt="Prosječan" /></button>
+                <button class="body-type-btn" id="btn-tip-3" onclick="selectOption(this,'bodytype'); goTo(6)"><span
+                        data-male="Krupan" data-female="Krupna">Krupan</span><img class="bt-img" src="images/krupan.png"
+                        alt="Krupan" /></button>
+                <button class="body-type-btn" id="btn-tip-4" onclick="selectOption(this,'bodytype'); goTo(6)"><span
+                        data-male="Pretežak" data-female="Preteška">Pretežak</span><img class="bt-img"
+                        src="images/pretezak.png" alt="Pretežak" /></button>
+            </div>
+        </div>
+
+        <!-- CARD 6 — Q5 name -->
+        <div class="card" id="card-6">
+            <div class="progress-wrap">
+                <div class="progress-label">PITANJE 5/13</div>
+                <div class="progress-track">
+                    <div class="progress-fill" style="width:38%"></div>
+                </div>
+            </div>
+            <h2 class="card-title">Kako se zoveš?</h2>
+            <div class="input-group"><i class="fa-solid fa-user"></i><input type="text" id="input-name"
+                    placeholder="Unesi svoje ime" autocomplete="given-name" /></div>
+            <button class="btn-primary" id="btn-ime-nastavi" onclick="submitName()">Nastavi →</button>
+        </div>
+
+        <!-- CARD 7 — Q6 -->
+        <div class="card" id="card-7">
+            <div class="progress-wrap">
+                <div class="progress-label">PITANJE 6/13</div>
+                <div class="progress-track">
+                    <div class="progress-fill" style="width:46%"></div>
+                </div>
+            </div>
+            <h2 class="card-title">Zamisli sebe za 90 dana s tijelom kakvo zaista želiš. Što bi ti to promijenilo?</h2>
+            <div class="options-grid">
+                <button class="option-btn" id="btn-90d-1"
+                    data-male="Konačno bih bio zadovoljan kada se pogledam u ogledalo"
+                    data-female="Konačno bih bila zadovoljna kada se pogledam u ogledalo"
+                    onclick="selectOption(this,'motivation'); goTo(8)">Konačno bih bio zadovoljan kada se pogledam u
+                    ogledalo</button>
+                <button class="option-btn" id="btn-90d-2" data-male="Skinuo bih majicu bez da me bude sram"
+                    data-female="Skinula bih majicu bez da me bude sram"
+                    onclick="selectOption(this,'motivation'); goTo(8)">Skinuo bih majicu bez da me bude sram</button>
+                <button class="option-btn" id="btn-90d-3" onclick="selectOption(this,'motivation'); goTo(8)">Ljudi oko
+                    mene bi konačno primjetili promjenu</button>
+                <button class="option-btn" id="btn-90d-4" data-male="Osjećao bih se kao druga osoba"
+                    data-female="Osjećala bih se kao druga osoba"
+                    onclick="selectOption(this,'motivation'); goTo(8)">Osjećao bih se kao druga osoba</button>
+            </div>
+        </div>
+
+        <!-- CARD 8 — Q7 -->
+        <div class="card" id="card-8">
+            <div class="progress-wrap">
+                <div class="progress-label">PITANJE 7/13</div>
+                <div class="progress-track">
+                    <div class="progress-fill" style="width:54%"></div>
+                </div>
+            </div>
+            <h2 class="card-title">Koliko dugo se već boriš s treningom?</h2>
+            <div class="options-grid">
+                <button class="option-btn" id="btn-borba-1" data-male="Nikad nisam ozbiljno ni počeo"
+                    data-female="Nikad nisam ozbiljno ni počela" onclick="selectOption(this,'struggle'); goTo(9)">Nikad
+                    nisam ozbiljno ni počeo</button>
+                <button class="option-btn" id="btn-borba-2"
+                    data-male="Pokušavao sam, ali nikada nisam izdržao dovoljno dugo"
+                    data-female="Pokušavala sam, ali nikada nisam izdržala dovoljno dugo"
+                    onclick="selectOption(this,'struggle'); goTo(9)">Pokušavao sam, ali nikada nisam izdržao dovoljno
+                    dugo</button>
+                <button class="option-btn" id="btn-borba-3" onclick="selectOption(this,'struggle'); goTo(9)">Treniram
+                    već duže vrijeme, ali moje tijelo se ne mijenja</button>
+                <button class="option-btn" id="btn-borba-4" data-male="Imam iskustva, ali sam potpuno zastao"
+                    data-female="Imam iskustva, ali sam potpuno zastala"
+                    onclick="selectOption(this,'struggle'); goTo(9)">Imam iskustva, ali sam potpuno zastao</button>
+            </div>
+        </div>
+
+        <!-- CARD 9 — Q8 -->
+        <div class="card" id="card-9">
+            <div class="progress-wrap">
+                <div class="progress-label">PITANJE 8/13</div>
+                <div class="progress-track">
+                    <div class="progress-fill" style="width:62%"></div>
+                </div>
+            </div>
+            <h2 class="card-title" id="c9-title">Što si sve već probao da bi došao do rezultata?</h2>
+            <div class="options-grid">
+                <button class="option-btn" id="btn-prob-1" onclick="selectOption(this,'tried'); goTo(10)">Ništa
+                    konkretno, dugo samo razmišljam o tome</button>
+                <button class="option-btn" id="btn-prob-2" onclick="selectOption(this,'tried'); goTo(10)">Pratio sam
+                    savjete s interneta i društvenih mreža, ali ništa nije upalilo do sada</button>
+                <button class="option-btn" id="btn-prob-3"
+                    data-male="Probao sam razne programe i dijete, ali ništa nije trajalo"
+                    data-female="Probala sam razne programe i dijete, ali ništa nije trajalo"
+                    onclick="selectOption(this,'tried'); goTo(10)">Probao sam razne programe i dijete, ali ništa nije
+                    trajalo</button>
+                <button class="option-btn" id="btn-prob-4" data-male="Trenirao sam sam, bez plana, i vrtio se u krug"
+                    data-female="Trenirala sam sama, bez plana, i vrtjela se u krug"
+                    onclick="selectOption(this,'tried'); goTo(10)">Trenirao sam sam, bez plana, i vrtio se u
+                    krug</button>
+            </div>
+        </div>
+
+        <!-- CARD 10 — Q9 -->
+        <div class="card" id="card-10">
+            <div class="progress-wrap">
+                <div class="progress-label">PITANJE 9/13</div>
+                <div class="progress-track">
+                    <div class="progress-fill" style="width:69%"></div>
+                </div>
+            </div>
+            <h2 class="card-title" id="c10-title">Ako si potpuno iskren sa sobom, kakva ti je prehrana?</h2>
+            <div class="options-grid">
+                <button class="option-btn" id="btn-preh-1" onclick="selectOption(this,'diet'); goTo('10b')">Nemam pojma
+                    što jesti ni koliko, za svoje ciljeve</button>
+                <button class="option-btn" id="btn-preh-2" onclick="selectOption(this,'diet'); goTo('10b')">Znam što bih
+                    trebao, ali se toga ne držim</button>
+                <button class="option-btn" id="btn-preh-3" onclick="selectOption(this,'diet'); goTo('10b')">Jednog dana
+                    jedem čisto, drugog dana sve pada u vodu</button>
+                <button class="option-btn" id="btn-preh-4"
+                    data-male="Prehrana mi je najveći problem i toga sam svjestan"
+                    data-female="Prehrana mi je najveći problem i toga sam svjesna"
+                    onclick="selectOption(this,'diet'); goTo('10b')">Prehrana mi je najveći problem i toga sam
+                    svjestan</button>
+            </div>
+        </div>
+
+        <!-- CARD 10b — Q10 -->
+        <div class="card" id="card-10b">
+            <div class="progress-wrap">
+                <div class="progress-label">PITANJE 10/13</div>
+                <div class="progress-track">
+                    <div class="progress-fill" style="width:77%"></div>
+                </div>
+            </div>
+            <h2 class="card-title">Što te NAJVIŠE frustrira?</h2>
+            <div class="options-grid">
+                <button class="option-btn" id="btn-frus-1" onclick="selectOption(this,'frustration'); goTo('10c')">Ne
+                    znam odakle početi i to me paralizira</button>
+                <button class="option-btn" id="btn-frus-2" onclick="selectOption(this,'frustration'); goTo('10c')">Imam
+                    previše informacija i ne znam čemu vjerovati</button>
+                <button class="option-btn" id="btn-frus-3"
+                    data-male="Uložio sam trud i vrijeme, ali rezultati nisu došli"
+                    data-female="Uložila sam trud i vrijeme, ali rezultati nisu došli"
+                    onclick="selectOption(this,'frustration'); goTo('10c')">Uložio sam trud i vrijeme, ali rezultati
+                    nisu došli</button>
+                <button class="option-btn" id="btn-frus-4"
+                    onclick="selectOption(this,'frustration'); goTo('10c')">Gledam kako drugi napreduju dok ja stojim na
+                    mjestu</button>
+            </div>
+        </div>
+
+        <!-- CARD 10c — Q11 -->
+        <div class="card" id="card-10c">
+            <div class="progress-wrap">
+                <div class="progress-label">PITANJE 11/13</div>
+                <div class="progress-track">
+                    <div class="progress-fill" style="width:85%"></div>
+                </div>
+            </div>
+            <h2 class="card-title" id="c10c-title">Što bi rekao da te netko pita zašto još nisi postigao svoj cilj?</h2>
+            <div class="options-grid">
+                <button class="option-btn" id="btn-zasto-1" data-male="Jer nisam imao nikoga da mi pokaže pravi put"
+                    data-female="Jer nisam imala nikoga da mi pokaže pravi put"
+                    onclick="selectOption(this,'whynot'); goTo(12)">Jer nisam imao nikoga da mi pokaže pravi
+                    put</button>
+                <button class="option-btn" id="btn-zasto-2" data-male="Jer sam stalno mijenjao pristup bez pravog plana"
+                    data-female="Jer sam stalno mijenjala pristup bez pravog plana"
+                    onclick="selectOption(this,'whynot'); goTo(12)">Jer sam stalno mijenjao pristup bez pravog
+                    plana</button>
+                <button class="option-btn" id="btn-zasto-3" data-male="Jer sam pokušavao sam i to očito ne funkcionira"
+                    data-female="Jer sam pokušavala sama i to očito ne funkcionira"
+                    onclick="selectOption(this,'whynot'); goTo(12)">Jer sam pokušavao sam i to očito ne
+                    funkcionira</button>
+                <button class="option-btn" id="btn-zasto-4"
+                    data-male="Jer nikada nisam dao sebi pravu šansu s pravom podrškom"
+                    data-female="Jer nikada nisam dala sebi pravu šansu s pravom podrškom"
+                    onclick="selectOption(this,'whynot'); goTo(12)">Jer nikada nisam dao sebi pravu šansu s pravom
+                    podrškom</button>
+            </div>
+        </div>
+
+        <!-- CARD 11 — LOADER -->
+        <div class="card" id="card-11">
+            <div class="loader-wrap">
+                <div class="spinner" id="loader-spinner"></div>
+                <div class="loader-percent" id="loader-percent">0%</div>
+                <div class="loader-label" id="loader-name-label">ANALIZIRAMO TVOJE ODGOVORE...</div>
+                <ul class="loader-steps">
+                    <li id="lstep-1">PREGLEDAVAMO TVOJE CILJEVE...</li>
+                    <li id="lstep-2">PRILAGOĐAVAMO PLAN TVOJOJ SITUACIJI...</li>
+                    <li id="lstep-3">PRIPREMAMO TVOJ PERSONALIZIRANI PLAN...</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- CARD 12 — Q12 -->
+        <div class="card" id="card-12">
+            <div class="progress-wrap">
+                <div class="progress-label">PITANJE 12/13</div>
+                <div class="progress-track">
+                    <div class="progress-fill" style="width:92%"></div>
+                </div>
+            </div>
+            <h2 class="card-title">Čega se najviše bojiš?</h2>
+            <div class="options-grid">
+                <button class="option-btn" id="btn-boj-1" onclick="selectOption(this,'fear'); goTo(13)">Da ću zauvijek
+                    izgledati ovako i nikada se neću promijeniti</button>
+                <button class="option-btn" id="btn-boj-2" onclick="selectOption(this,'fear'); goTo(13)">Da ću nastaviti
+                    gubiti vrijeme radeći krive stvari</button>
+                <button class="option-btn" id="btn-boj-3" onclick="selectOption(this,'fear'); goTo(13)">Da ću odustati
+                    prije nego dam sebi pravu šansu</button>
+                <button class="option-btn" id="btn-boj-4" onclick="selectOption(this,'fear'); goTo(13)">Da nikada neću
+                    znati kako zapravo izgleda moj puni potencijal</button>
+            </div>
+        </div>
+
+        <!-- CARD 13 — Q13 -->
+        <div class="card" id="card-13">
+            <div class="progress-wrap">
+                <div class="progress-label">PITANJE 13/13</div>
+                <div class="progress-track">
+                    <div class="progress-fill" style="width:100%"></div>
+                </div>
+            </div>
+            <h2 class="card-title" id="c13-title">Kad bi mogao birati jednu stvar koja bi promijenila sve, što bi to
+                bilo?</h2>
+            <div class="options-grid">
+                <button class="option-btn" id="btn-stvar-1" onclick="selectOption(this,'change'); goTo(14)">Plan
+                    napravljen točno za mene, bez nagađanja</button>
+                <button class="option-btn" id="btn-stvar-2" onclick="selectOption(this,'change'); goTo(14)">Nekoga tko
+                    me vodi i ne dopušta mi da odustajem</button>
+                <button class="option-btn" id="btn-stvar-3" onclick="selectOption(this,'change'); goTo(14)">Sustav koji
+                    zaista daje rezultate, a ne još jedan bezuspješan pokušaj</button>
+                <button class="option-btn" id="btn-stvar-4" onclick="selectOption(this,'change'); goTo(14)">Kompletnu
+                    transformaciju tijela u sljedećih 90 dana</button>
+            </div>
+        </div>
+
+        <!-- CARD 14 — EMAIL -->
+        <div class="card" id="card-14">
+            <div class="progress-wrap">
+                <div class="progress-label">ZADNJI KORAK</div>
+                <div class="progress-track">
+                    <div class="progress-fill" style="width:100%"></div>
+                </div>
+            </div>
+            <div class="card-header-label">ZADNJI KORAK</div>
+            <h2 class="card-title">Još samo jedan korak. Upiši email i vidi što je sljedeće za tvoju transformaciju.
+            </h2>
+            <div class="input-group"><i class="fa-solid fa-envelope"></i><input type="email" id="input-email"
+                    placeholder="Upiši svoju mail adresu" autocomplete="email" /></div>
+            <button class="btn-primary" id="btn-email-submit" onclick="submitEmail()"
+                style="background:linear-gradient(135deg,#2596be,#22c55e);">Pokaži mi →</button>
+        </div>
+
+        <!-- CARD SPREMAN -->
+        <div class="card" id="card-spreman">
+            <div class="card-header-label">Još malo...</div>
+            <h2 class="card-title" id="spreman-title">Jesi li napokon spreman napraviti promjenu?</h2>
+            <div class="options-grid" style="margin-top:8px;">
+                <button class="btn-primary" id="btn-spreman-1" data-male="Da, spreman sam 💪"
+                    data-female="Da, spremna sam 💪" onclick="handleSpreman()">Da, spreman sam 💪</button>
+                <button class="btn-primary" id="btn-spreman-2" onclick="handleSpreman()"
+                    style="background:linear-gradient(135deg,#1d7fa3,#2596be);">Da, pokaži mi kako 🔥</button>
+                <button class="btn-secondary" id="btn-spreman-3" data-male="Ne, nisam spreman"
+                    data-female="Ne, nisam spremna">Ne, nisam spreman</button>
+            </div>
+        </div>
+
+    </div><!-- /.quiz-wrapper -->
+
+    <script>
+        // ── SUPABASE ── Replace with your project values
+        const SUPABASE_URL = 'https://YOUR_PROJECT.supabase.co';
+        const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY';
+        const _supabase = (window.supabase && SUPABASE_URL.includes('supabase.co') && !SUPABASE_URL.includes('YOUR_PROJECT'))
+            ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+        const state = { name: 'Prijatelju', email: '', gender: '', goal: '', goalLabel: '' };
+        const navHistory = [];
+        const NO_BACK = new Set([1, 11]);
+
+        function updateBackBtn(id) {
+            const btn = document.getElementById('global-back-btn');
+            const num = parseInt(String(id));
+            (navHistory.length > 0 && !NO_BACK.has(num)) ? btn.classList.add('visible') : btn.classList.remove('visible');
+        }
+
+        function goBack() {
+            if (!navHistory.length) return;
+            const prev = navHistory.pop();
+            document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+            const t = document.getElementById('card-' + prev);
+            if (t) { t.classList.add('active'); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+            applyGender(); updateBackBtn(prev);
+        }
+
+        function goTo(id) {
+            const cur = document.querySelector('.card.active');
+            if (cur) navHistory.push(cur.id.replace('card-', ''));
+            document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+            if (id === 11) { showLoader(); updateBackBtn(11); return; }
+            const t = document.getElementById('card-' + id);
+            if (t) { t.classList.add('active'); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+            applyGender(); updateBackBtn(id);
+        }
+
+        function applyGender() {
+            const f = state.gender === 'Žensko';
+            document.querySelectorAll('.card.active [data-male]').forEach(el => {
+                el.textContent = f ? el.dataset.female : el.dataset.male;
+            });
+            [
+                ['c9-title', 'Što si sve već probala da bi došla do rezultata?', 'Što si sve već probao da bi došao do rezultata?'],
+                ['c10-title', 'Ako si potpuno iskrena sa sobom, kakva ti je prehrana?', 'Ako si potpuno iskren sa sobom, kakva ti je prehrana?'],
+                ['c10c-title', 'Što bi rekla da te netko pita zašto još nisi postigla svoj cilj?', 'Što bi rekao da te netko pita zašto još nisi postigao svoj cilj?'],
+                ['c13-title', 'Kad bi mogla birati jednu stvar koja bi promijenila sve, što bi to bilo?', 'Kad bi mogao birati jednu stvar koja bi promijenila sve, što bi to bilo?'],
+                ['spreman-title', state.name + ', jesi li napokon spremna napraviti promjenu?', state.name + ', jesi li napokon spreman napraviti promjenu?'],
+            ].forEach(([id, fm, m]) => { const el = document.getElementById(id); if (el) el.textContent = f ? fm : m; });
+        }
+
+        function selectOption(btn, group) {
+            btn.closest('.options-grid').querySelectorAll('.option-btn,.body-type-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            if (group === 'goal') { state.goal = btn.textContent.trim(); state.goalLabel = btn.textContent.trim(); }
+        }
+
+        function selectGender(btn, gender) {
+            state.gender = gender;
+            btn.closest('.options-grid').querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+        }
+
+        function showError(inputId, msg) {
+            const el = document.getElementById(inputId);
+            el.style.borderColor = '#e55';
+            let err = el.parentElement.querySelector('.input-error');
+            if (!err) { err = document.createElement('p'); err.className = 'input-error'; err.style.cssText = 'color:#ff6b6b;font-size:0.78rem;margin-top:6px;'; el.parentElement.appendChild(err); }
+            err.textContent = msg;
+            setTimeout(() => { el.style.borderColor = ''; if (err.parentNode) err.remove(); }, 3000);
+        }
+
+        function submitName() {
+            const val = document.getElementById('input-name').value.trim();
+            if (!val) { showError('input-name', 'Molimo unesi svoje ime.'); return; }
+            state.name = val;
+            document.getElementById('loader-name-label').textContent = state.name.toUpperCase() + ', ANALIZIRAMO TVOJE ODGOVORE...';
+            goTo(7);
+        }
+
+        async function submitEmail() {
+            const val = document.getElementById('input-email').value.trim();
+            if (!val || !val.includes('@')) { showError('input-email', 'Molimo unesi ispravnu email adresu.'); return; }
+            state.email = val;
+            if (_supabase) {
+                try {
+                    const { error } = await _supabase.from('leads').insert([{
+                        name: state.name, email: state.email, gender: state.gender,
+                        goal: state.goalLabel, created_at: new Date().toISOString()
+                    }]);
+                    if (error) console.warn('Supabase:', error.message);
+                } catch (e) { console.warn('Supabase unavailable:', e.message); }
+            }
+            navHistory.push('14');
+            showLoader();
+        }
+
+        function showLoader() {
+            document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+            const card11 = document.getElementById('card-11');
+            card11.classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            const pEl = document.getElementById('loader-percent');
+            const s = [document.getElementById('lstep-1'), document.getElementById('lstep-2'), document.getElementById('lstep-3')];
+            s.forEach(x => x.classList.remove('done'));
+            let pct = 0;
+            const iv = setInterval(() => {
+                pct += 2; pEl.textContent = pct + '%';
+                if (pct === 34) s[0].classList.add('done');
+                if (pct === 67) s[1].classList.add('done');
+                if (pct === 99) s[2].classList.add('done');
+                if (pct >= 100) {
+                    clearInterval(iv); pEl.textContent = '100%';
+                    setTimeout(() => {
+                        document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+                        document.getElementById('card-spreman').classList.add('active');
+                        applyGender();
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        updateBackBtn('spreman');
+                    }, 500);
+                }
+            }, 35);
+        }
+
+        function handleSpreman() { alert('Odlično! Tvoj personalizirani plan je na putu.'); }
+
+        document.getElementById('input-name').addEventListener('keydown', e => { if (e.key === 'Enter') submitName(); });
+        document.getElementById('input-email').addEventListener('keydown', e => { if (e.key === 'Enter') submitEmail(); });
+    </script>
+</body>
+
+</html>

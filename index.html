@@ -20,6 +20,7 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            -webkit-tap-highlight-color: transparent;
         }
 
         :root {
@@ -243,6 +244,9 @@
             transition: all 0.22s ease;
             text-align: center;
             line-height: 1.4;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
         }
 
         .option-btn:hover {
@@ -738,6 +742,9 @@
             min-height: 64px;
             overflow: visible;
             line-height: 1.3;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
         }
 
         .body-type-btn:hover {

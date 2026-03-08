@@ -1321,7 +1321,18 @@
             }, 35);
         }
 
-        function handleSpreman() { alert('Odlično! Tvoj personalizirani plan je na putu.'); }
+        function handleSpreman() {
+            // Save to sessionStorage as backup
+            sessionStorage.setItem('ursa_name', state.name);
+            sessionStorage.setItem('ursa_goal', state.goalLabel || state.goal);
+
+            // Build URL with params
+            const params = new URLSearchParams({
+                name: state.name,
+                goal: state.goalLabel || state.goal
+            });
+            window.location.href = 'vsl.html?' + params.toString();
+        }
 
         document.getElementById('input-name').addEventListener('keydown', e => { if (e.key === 'Enter') submitName(); });
         document.getElementById('input-email').addEventListener('keydown', e => { if (e.key === 'Enter') submitEmail(); });

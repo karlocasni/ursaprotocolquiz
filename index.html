@@ -9,9 +9,10 @@
         content="Saznaj svoj personalizirani plan transformacije tijela za 90 dana. Odgovori na kratki kviz i dobij plan napravljen točno za tebe." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
         rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="icon" type="image/png" href="images/favicon.png" />
 
     <style>
         *,
@@ -44,25 +45,29 @@
 
         html,
         body {
-            min-height: 100%;
-            font-family: 'Outfit', sans-serif;
+            height: 100%;
+            font-family: 'Inter', sans-serif;
             color: var(--text);
             background: linear-gradient(135deg, var(--bg-grad-start) 0%, var(--bg-grad-end) 100%);
             background-attachment: fixed;
+            overflow: hidden;
         }
 
         body {
-            min-height: 100vh;
+            height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 24px 16px;
+            padding: 16px;
         }
 
         .quiz-wrapper {
             width: 100%;
             max-width: 600px;
             position: relative;
+            max-height: 92vh;
+            display: flex;
+            flex-direction: column;
         }
 
         /* ── CARD ── */
@@ -76,6 +81,13 @@
             padding: 40px 36px 44px;
             animation: fadeSlideIn 0.45s cubic-bezier(0.34, 1.2, 0.64, 1) both;
             box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+            overflow-y: auto;
+            max-height: 100%;
+            scrollbar-width: none; /* Firefox */
+        }
+
+        .card::-webkit-scrollbar {
+            display: none; /* Safari and Chrome */
         }
 
         .card.active {
@@ -126,8 +138,8 @@
 
         /* ── TITLE / TEXT ── */
         .card-title {
-            font-size: 1.55rem;
-            font-weight: 700;
+            font-size: 1.85rem;
+            font-weight: 800;
             line-height: 1.3;
             margin-bottom: 28px;
             text-align: center;
@@ -177,6 +189,15 @@
             color: var(--accent2);
             font-weight: 700;
             font-size: 1.2rem;
+        }
+
+        .bullet-list.no-arrows li::before {
+            content: none;
+        }
+
+        .bullet-list.no-arrows li {
+            padding-left: 0;
+            text-align: center;
         }
 
         /* ── CHECK LIST ── */
@@ -237,7 +258,7 @@
             border: 1.5px solid var(--option-border);
             border-radius: 12px;
             color: var(--text);
-            font-family: 'Outfit', sans-serif;
+            font-family: 'Inter', sans-serif;
             font-size: 0.95rem;
             font-weight: 500;
             cursor: pointer;
@@ -289,7 +310,7 @@
             border: none;
             border-radius: 12px;
             color: #fff;
-            font-family: 'Outfit', sans-serif;
+            font-family: 'Inter', sans-serif;
             font-size: 1.05rem;
             font-weight: 700;
             letter-spacing: 0.5px;
@@ -326,7 +347,7 @@
             border: 1.5px solid rgba(255, 255, 255, 0.18);
             border-radius: 12px;
             color: rgba(255, 255, 255, 0.55);
-            font-family: 'Outfit', sans-serif;
+            font-family: 'Inter', sans-serif;
             font-size: 1rem;
             font-weight: 500;
             cursor: pointer;
@@ -369,7 +390,7 @@
             border: none;
             outline: none;
             color: #fff;
-            font-family: 'Outfit', sans-serif;
+            font-family: 'Inter', sans-serif;
             font-size: 1rem;
             padding: 17px 0;
         }
@@ -512,7 +533,7 @@
         }
 
         .loader-steps li.done {
-            color: rgba(255, 255, 255, 0.7);
+            color: var(--green-check);
         }
 
         .loader-steps li.done::before {
@@ -733,7 +754,7 @@
             border: 1.5px solid var(--option-border);
             border-radius: 12px;
             color: var(--text);
-            font-family: 'Outfit', sans-serif;
+            font-family: 'Inter', sans-serif;
             font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
@@ -787,7 +808,7 @@
             background: transparent;
             border: none;
             color: rgba(255, 255, 255, 0.38);
-            font-family: 'Outfit', sans-serif;
+            font-family: 'Inter', sans-serif;
             font-size: 0.82rem;
             font-weight: 500;
             cursor: pointer;
@@ -816,7 +837,7 @@
             }
 
             .card-title {
-                font-size: 1.3rem;
+                font-size: 1.5rem;
             }
 
             .results-action-title {
@@ -838,8 +859,8 @@
 
         <!-- CARD 1 -->
         <div class="card active" id="card-1">
-            <h1 class="card-title">Želiš bolji izgled, ali nemaš pojma što zapravo donosi rezultate?</h1>
-            <ul class="bullet-list">
+            <h1 class="card-title">Želiš bolji izgled, ali nemaš pojma što zapravo donosi rezultate?🤔</h1>
+            <ul class="bullet-list no-arrows">
                 <li>Dosadilo ti je pokušavati?</li>
                 <li>Nova dijeta. Novi plan. Novi trening.</li>
                 <li>I opet nema rezultata.</li>
@@ -926,7 +947,7 @@
                         alt="Mršav" /></button>
                 <button class="body-type-btn" id="btn-tip-2" onclick="selectOption(this,'bodytype'); goTo(6)"><span
                         data-male="Prosječan" data-female="Prosječna">Prosječan</span><img class="bt-img"
-                        src="images/prosjecan.png" alt="Prosječan" /></button>
+                        src="images/prosjEcan.png" alt="Prosječan" /></button>
                 <button class="body-type-btn" id="btn-tip-3" onclick="selectOption(this,'bodytype'); goTo(6)"><span
                         data-male="Krupan" data-female="Krupna">Krupan</span><img class="bt-img" src="images/krupan.png"
                         alt="Krupan" /></button>
@@ -1304,9 +1325,9 @@
             s.forEach(x => x.classList.remove('done'));
             let pct = 0;
             const iv = setInterval(() => {
-                pct += 2; pEl.textContent = pct + '%';
-                if (pct === 34) s[0].classList.add('done');
-                if (pct === 67) s[1].classList.add('done');
+                pct += 1; pEl.textContent = pct + '%';
+                if (pct === 33) s[0].classList.add('done');
+                if (pct === 66) s[1].classList.add('done');
                 if (pct === 99) s[2].classList.add('done');
                 if (pct >= 100) {
                     clearInterval(iv); pEl.textContent = '100%';
@@ -1318,7 +1339,7 @@
                         updateBackBtn('spreman');
                     }, 500);
                 }
-            }, 35);
+            }, 80);
         }
 
         function handleSpreman() {

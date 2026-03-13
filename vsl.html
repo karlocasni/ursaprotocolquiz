@@ -9,9 +9,10 @@
         content="Personalizirani video napravljen na temelju tvojih odgovora. 90-dnevni plan transformacije." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
         rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="icon" type="image/png" href="images/favicon.png" />
     <style>
         *,
         *::before,
@@ -41,7 +42,7 @@
         }
 
         body {
-            font-family: 'Outfit', sans-serif;
+            font-family: 'Inter', sans-serif;
             color: var(--text);
             background: linear-gradient(135deg, var(--bg-grad-start), var(--bg-grad-end));
             background-attachment: fixed;
@@ -101,7 +102,7 @@
 
         .hero-sub {
             text-align: center;
-            font-size: 1.2rem;
+            font-size: 1.45rem;
             font-weight: 500;
             color: rgba(255, 255, 255, 0.78);
             line-height: 1.7;
@@ -534,7 +535,7 @@
             border: none;
             border-radius: 12px;
             color: #fff;
-            font-family: 'Outfit', sans-serif;
+            font-family: 'Inter', sans-serif;
             font-size: 1.05rem;
             font-weight: 700;
             cursor: pointer;
@@ -651,7 +652,7 @@
             gap: 16px;
             padding: 18px 0;
             cursor: pointer;
-            font-family: 'Outfit', sans-serif;
+            font-family: 'Inter', sans-serif;
             font-size: 0.95rem;
             font-weight: 600;
             color: var(--text);
@@ -1251,13 +1252,8 @@ X
 
             <!-- 8. FOOTER -->
             <footer style="text-align:center;padding:32px 0 20px;">
-                <div style="margin-bottom:16px;">
-                    <div
-                        style="font-size:1.4rem;font-weight:900;letter-spacing:3px;text-transform:uppercase;color:#fff;">
-                        URSA</div>
-                    <div
-                        style="font-size:0.65rem;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:var(--accent2);">
-                        PROTOCOL</div>
+                <div style="margin-bottom:24px;">
+                    <img src="images/logo.png" alt="URSA PROTOCOL" style="height: 60px;">
                 </div>
                 <div style="display:flex;justify-content:center;gap:20px;flex-wrap:wrap;margin-bottom:14px;">
                     <a href="#"
@@ -1396,7 +1392,7 @@ X
                 afterDraw(chart, args, options) {
                     const { ctx, data, chartArea: { top, right, bottom, left, width, height } } = chart;
                     ctx.save();
-                    ctx.font = '700 13px Outfit';
+                    ctx.font = '700 13px Inter';
 
                     data.datasets.forEach((dataset, i) => {
                         const meta = chart.getDatasetMeta(i);
@@ -1496,8 +1492,8 @@ X
                             backgroundColor: '#08acd2',
                             titleColor: '#fff',
                             bodyColor: '#fff',
-                            titleFont: { family: 'Outfit', size: 14, weight: 'bold' },
-                            bodyFont: { family: 'Outfit', size: 12 },
+                            titleFont: { family: 'Inter', size: 14, weight: 'bold' },
+                            bodyFont: { family: 'Inter', size: 12 },
                             padding: 10,
                             cornerRadius: 8,
                             displayColors: false,
@@ -1523,7 +1519,7 @@ X
                             },
                             ticks: {
                                 color: 'rgba(255,255,255,0.4)',
-                                font: { family: 'Outfit', size: 13, weight: '600' },
+                                font: { family: 'Inter', size: 13, weight: '600' },
                                 maxRotation: 0,
                                 callback: function (val, index) {
                                     if (index === 0) return 'Sad';

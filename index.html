@@ -61,6 +61,30 @@
             padding: 16px;
         }
 
+        @media (max-width: 600px) {
+            body {
+                align-items: flex-start;
+                padding-top: 16px;
+                padding-bottom: 16px;
+                height: auto;
+                min-height: 100vh;
+                overflow: auto;
+            }
+
+            html, body {
+                overflow: auto;
+            }
+
+            .quiz-wrapper {
+                max-height: none;
+            }
+
+            .card {
+                max-height: none;
+                overflow-y: visible;
+            }
+        }
+
         .quiz-wrapper {
             width: 100%;
             max-width: 600px;

@@ -793,9 +793,11 @@
 
             <!-- 1. VALUE STACK -->
             <div class="section-card">
-                <h2 class="section-title">Evo sve što dobijaš da za 90 dana imaš<br>tijelo koje si oduvijek htio:</h2>
+                <h2 class="section-title">Evo sve što dobivaš da za 90 dana imaš<br>tijelo koje si oduvijek htio:</h2>
                 <div class="value-stack">
-                    <div class="value-stack-header">VALUE STACK ZA VECU PERCIPIRANU VRIJEDNOST</div>
+                    <div class="value-stack-header" style="padding-bottom:0;border-bottom:none;">
+                        <img src="images/stack.png" alt="Ursa Protocol Stack" style="width:100%;border-radius:12px;display:block;" onerror="this.style.display='none'">
+                    </div>
 
                     <div class="value-item">
                         <div class="value-check"><i class="fa-solid fa-check"></i></div>
@@ -819,7 +821,7 @@
                     </div>
                     <div class="value-item">
                         <div class="value-check"><i class="fa-solid fa-check"></i></div>
-                        <div class="value-text"><strong>Stjepan osobno pregledava tvoj napredak</strong> — Ispravlja
+                        <div class="value-text"><strong>Ursa osobno pregledava tvoj napredak</strong> — Ispravlja
                             greške, odgovara na pitanja i ne dopušta ti da odustaneš. Ovo nije neki random trener. Ovo
                             je direktan pristup njemu.</div>
                     </div>
@@ -848,7 +850,7 @@
 
             <!-- 2. GALLERY + TESTIMONIALS -->
             <div class="section-card">
-                <h2 class="section-title">Krenuli su iz iste točke kao ti.<br>Pogledaj ih sada.</h2>
+                <h2 class="section-title" style="font-size:clamp(1.6rem,5vw,2.4rem);">Krenuli su iz iste točke kao ti.<br>Pogledaj ih sada.</h2>
 
                 <div class="gallery-grid">
                     <div class="gallery-item">
@@ -906,7 +908,9 @@
                 <h2 class="section-title">Dobit ćeš i 4 ekskluzivna neviđena<br>bonusa potpuno besplatno.</h2>
 
                 <div class="bonus-item">
-                    <div class="bonus-icon">🎁</div>
+                    <div class="bonus-icon" style="padding:0;overflow:hidden;background:transparent;border:none;">
+                        <img src="images/bonus1.png" alt="Bonus 1" style="width:52px;height:52px;object-fit:cover;border-radius:14px;" onerror="this.outerHTML='🎁'">
+                    </div>
                     <div class="bonus-body">
                         <div class="bonus-title">BESPLATAN BONUS #1 — Privatni video trening "Neprobojni mindset"</div>
                         <div class="bonus-desc">Mentalni operativni sustav koji koristim ja i koji koriste moji
@@ -915,7 +919,9 @@
                     </div>
                 </div>
                 <div class="bonus-item">
-                    <div class="bonus-icon">🎁</div>
+                    <div class="bonus-icon" style="padding:0;overflow:hidden;background:transparent;border:none;">
+                        <img src="images/bonus2.png" alt="Bonus 2" style="width:52px;height:52px;object-fit:cover;border-radius:14px;" onerror="this.outerHTML='🎁'">
+                    </div>
                     <div class="bonus-body">
                         <div class="bonus-title">BESPLATAN BONUS #2 — Vodič za teške dane</div>
                         <div class="bonus-desc">Moj osobni sustav za dane kad bi najradije sve poslao u pm. Jer
@@ -924,7 +930,9 @@
                     </div>
                 </div>
                 <div class="bonus-item">
-                    <div class="bonus-icon">🎁</div>
+                    <div class="bonus-icon" style="padding:0;overflow:hidden;background:transparent;border:none;">
+                        <img src="images/bonus3.png" alt="Bonus 3" style="width:52px;height:52px;object-fit:cover;border-radius:14px;" onerror="this.outerHTML='🎁'">
+                    </div>
                     <div class="bonus-body">
                         <div class="bonus-title">BESPLATAN BONUS #3 — Vodič za suplemente</div>
                         <div class="bonus-desc">Znam koliko para ljudi bacaju na gluposti, BCAA-e, fat burnere i sto
@@ -934,7 +942,9 @@
                     </div>
                 </div>
                 <div class="bonus-item">
-                    <div class="bonus-icon">🎁</div>
+                    <div class="bonus-icon" style="padding:0;overflow:hidden;background:transparent;border:none;">
+                        <img src="images/bonus4.png" alt="Bonus 4" style="width:52px;height:52px;object-fit:cover;border-radius:14px;" onerror="this.outerHTML='🎁'">
+                    </div>
                     <div class="bonus-body">
                         <div class="bonus-title">BESPLATAN BONUS #4 — 2 mjesečna grupna LIVE Q&A poziva</div>
                         <div class="bonus-desc">Sa mnom i s ostalim polaznicima URSA Protocol-a. Trening, prehrana,
@@ -947,8 +957,103 @@
             <div class="section-card">
                 <h2 class="section-title">Odaberi svoj plan:</h2>
 
+                <div class="pricing-grid">
+
+                    <div class="pricing-card featured" id="premium-plan">
+                        <div class="pricing-badge">🔥 Najpopularniji odabir</div>
+                        <div class="pricing-name">Potpuna transformacija</div>
+                        <div style="font-size:0.72rem;color:var(--text-muted);text-align:center;">90 dana programa</div>
+                        <p style="font-size:0.78rem;color:rgba(255,255,255,0.6);text-align:center;line-height:1.5;">Za
+                            one koji žele ekskluzivni pristup Ursi i rezultate koji ostaju.</p>
+                        <ul class="pricing-features">
+                            <li><i class="fa-solid fa-check fi"></i> Kompletni program transformacije</li>
+                            <li><i class="fa-solid fa-check fi"></i> Plan treninga i prehrane</li>
+                            <li><i class="fa-solid fa-check fi"></i> Pristup aplikaciji</li>
+                            <li><i class="fa-solid fa-check fi"></i> Ursa pregledava tvoj napredak</li>
+                            <li><i class="fa-solid fa-check fi"></i> 24/7 podrška</li>
+                            <li><i class="fa-solid fa-check fi"></i> Privatna zajednica</li>
+                            <li><i class="fa-solid fa-check fi"></i> 4x bonus</li>
+                            <li><i class="fa-solid fa-check fi"></i> Garantirana transformacija i novi izgled</li>
+                        </ul>
+                        <div
+                            style="background:rgba(245,200,66,0.08);border:1px solid rgba(245,200,66,0.25);border-radius:10px;padding:12px 14px;margin-top:4px;">
+                            <div
+                                style="font-size:0.7rem;font-weight:800;letter-spacing:1.5px;color:var(--gold);margin-bottom:8px;text-transform:uppercase;">
+                                Ekskluzivno uz Premium:</div>
+                            <ul style="list-style:none;display:flex;flex-direction:column;gap:5px;">
+                                <li
+                                    style="font-size:0.75rem;color:rgba(255,255,255,0.8);display:flex;gap:7px;align-items:flex-start;">
+                                    <i class="fa-solid fa-check"
+                                        style="color:var(--gold);margin-top:2px;font-size:0.65rem;"></i>Ursa te prati
+                                    punih 6 mjeseci
+                                </li>
+                                <li
+                                    style="font-size:0.75rem;color:rgba(255,255,255,0.8);display:flex;gap:7px;align-items:flex-start;">
+                                    <i class="fa-solid fa-check"
+                                        style="color:var(--gold);margin-top:2px;font-size:0.65rem;"></i>Prioritetni
+                                    odgovor od Urse
+                                </li>
+                                <li
+                                    style="font-size:0.75rem;color:rgba(255,255,255,0.8);display:flex;gap:7px;align-items:flex-start;">
+                                    <i class="fa-solid fa-check"
+                                        style="color:var(--gold);margin-top:2px;font-size:0.65rem;"></i>Privatni 1-na-1
+                                    poziv sa Ursom kada god trebaš
+                                </li>
+                                <li
+                                    style="font-size:0.75rem;color:rgba(255,255,255,0.8);display:flex;gap:7px;align-items:flex-start;">
+                                    <i class="fa-solid fa-check"
+                                        style="color:var(--gold);margin-top:2px;font-size:0.65rem;"></i>Doživotni popust
+                                    na sve buduće programe
+                                </li>
+                                <li
+                                    style="font-size:0.75rem;color:rgba(255,255,255,0.8);display:flex;gap:7px;align-items:flex-start;">
+                                    <i class="fa-solid fa-check"
+                                        style="color:var(--gold);margin-top:2px;font-size:0.65rem;"></i>Zajednički
+                                    trening sa Ursom uživo
+                                </li>
+                                <li
+                                    style="font-size:0.75rem;color:rgba(255,255,255,0.8);display:flex;gap:7px;align-items:flex-start;">
+                                    <i class="fa-solid fa-check"
+                                        style="color:var(--gold);margin-top:2px;font-size:0.65rem;"></i>Karta za
+                                    godišnji URSA Giveaway (500€+)
+                                </li>
+                            </ul>
+                        </div>
+                        <div style="text-align:center;margin-top:6px;"><span
+                                style="font-size:0.82rem;color:var(--text-muted);text-decoration:line-through;">797€</span>
+                        </div>
+                        <div class="pricing-price">597<span>€</span></div>
+                        <a href="https://nemaneide.ursaprotocol.com/checkout/" class="btn-primary btn-gold"
+                            id="btn-buy-797" onclick="handleBuy(event,'premium')">Želim krenuti →</a>
+                    </div>
+
+                    <div class="pricing-card">
+                        <div class="pricing-name">Spreman za promjenu</div>
+                        <div style="font-size:0.72rem;color:var(--text-muted);text-align:center;">90 dana programa</div>
+                        <p style="font-size:0.78rem;color:rgba(255,255,255,0.6);text-align:center;line-height:1.5;">Sve
+                            što trebaš za plan transformacije u 90 dana.</p>
+                        <ul class="pricing-features">
+                            <li><i class="fa-solid fa-check fi"></i> Kompletni program transformacije</li>
+                            <li><i class="fa-solid fa-check fi"></i> Plan treninga i prehrane</li>
+                            <li><i class="fa-solid fa-check fi"></i> Pristup aplikaciji</li>
+                            <li><i class="fa-solid fa-check fi"></i> Ursa pregledava tvoj napredak</li>
+                            <li><i class="fa-solid fa-check fi"></i> 24/7 podrška</li>
+                            <li><i class="fa-solid fa-check fi"></i> Privatna zajednica</li>
+                            <li><i class="fa-solid fa-check fi"></i> 4x bonus</li>
+                            <li><i class="fa-solid fa-check fi"></i> Garantirana transformacija i novi izgled</li>
+                        </ul>
+                        <div style="text-align:center;margin-top:8px;"><span
+                                style="font-size:0.82rem;color:var(--text-muted);text-decoration:line-through;">497€</span>
+                        </div>
+                        <div class="pricing-price">397<span>€</span></div>
+                        <a href="https://nemaneide.ursaprotocol.com/checkout/" class="btn-primary" id="btn-buy-497"
+                            onclick="handleBuy(event,'standard')">Započni →</a>
+                    </div>
+
+                </div>
+
                 <div class="discount-countdown-container"
-                    style="background: rgba(245, 200, 66, 0.08); border: 1.5px solid rgba(245, 200, 66, 0.2); border-radius: 14px; padding: 16px; margin-bottom: 24px;">
+                    style="background: rgba(245, 200, 66, 0.08); border: 1.5px solid rgba(245, 200, 66, 0.2); border-radius: 14px; padding: 16px; margin-top: 24px; margin-bottom: 8px;">
                     <div
                         style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                         <span
@@ -965,101 +1070,7 @@
                     </div>
                 </div>
 
-                <div class="pricing-grid">
-
-                    <div class="pricing-card featured" id="premium-plan">
-                        <div class="pricing-badge">🔥 Najpopularniji odabir</div>
-                        <div class="pricing-name">Potpuna transformacija</div>
-                        <div style="font-size:0.72rem;color:var(--text-muted);text-align:center;">90 dana programa</div>
-                        <p style="font-size:0.78rem;color:rgba(255,255,255,0.6);text-align:center;line-height:1.5;">Za
-                            one koji žele ekskluzivni pristup Stjepanu i rezultate koji ostaju.</p>
-                        <ul class="pricing-features">
-                            <li><i class="fa-solid fa-check fi"></i> Kompletni program transformacije</li>
-                            <li><i class="fa-solid fa-check fi"></i> Plan treninga i prehrane</li>
-                            <li><i class="fa-solid fa-check fi"></i> Pristup aplikaciji</li>
-                            <li><i class="fa-solid fa-check fi"></i> Stjepan pregledava tvoj napredak</li>
-                            <li><i class="fa-solid fa-check fi"></i> 24/7 podrška</li>
-                            <li><i class="fa-solid fa-check fi"></i> Privatna zajednica</li>
-                            <li><i class="fa-solid fa-check fi"></i> 4x bonus</li>
-                            <li><i class="fa-solid fa-check fi"></i> Garantirana transformacija i novi izgled</li>
-                        </ul>
-                        <div
-                            style="background:rgba(245,200,66,0.08);border:1px solid rgba(245,200,66,0.25);border-radius:10px;padding:12px 14px;margin-top:4px;">
-                            <div
-                                style="font-size:0.7rem;font-weight:800;letter-spacing:1.5px;color:var(--gold);margin-bottom:8px;text-transform:uppercase;">
-                                Ekskluzivno uz Premium:</div>
-                            <ul style="list-style:none;display:flex;flex-direction:column;gap:5px;">
-                                <li
-                                    style="font-size:0.75rem;color:rgba(255,255,255,0.8);display:flex;gap:7px;align-items:flex-start;">
-                                    <i class="fa-solid fa-check"
-                                        style="color:var(--gold);margin-top:2px;font-size:0.65rem;"></i>Stjepan te prati
-                                    punih 6 mjeseci
-                                </li>
-                                <li
-                                    style="font-size:0.75rem;color:rgba(255,255,255,0.8);display:flex;gap:7px;align-items:flex-start;">
-                                    <i class="fa-solid fa-check"
-                                        style="color:var(--gold);margin-top:2px;font-size:0.65rem;"></i>Prioritetni
-                                    odgovor od Stjepana
-                                </li>
-                                <li
-                                    style="font-size:0.75rem;color:rgba(255,255,255,0.8);display:flex;gap:7px;align-items:flex-start;">
-                                    <i class="fa-solid fa-check"
-                                        style="color:var(--gold);margin-top:2px;font-size:0.65rem;"></i>Privatni 1-na-1
-                                    poziv sa Stjepanonom kada god trebaš
-                                </li>
-                                <li
-                                    style="font-size:0.75rem;color:rgba(255,255,255,0.8);display:flex;gap:7px;align-items:flex-start;">
-                                    <i class="fa-solid fa-check"
-                                        style="color:var(--gold);margin-top:2px;font-size:0.65rem;"></i>Doživotni popust
-                                    na sve buduće programe
-                                </li>
-                                <li
-                                    style="font-size:0.75rem;color:rgba(255,255,255,0.8);display:flex;gap:7px;align-items:flex-start;">
-                                    <i class="fa-solid fa-check"
-                                        style="color:var(--gold);margin-top:2px;font-size:0.65rem;"></i>Zajednički
-                                    trening sa Stjepanonom uživo
-                                </li>
-                                <li
-                                    style="font-size:0.75rem;color:rgba(255,255,255,0.8);display:flex;gap:7px;align-items:flex-start;">
-                                    <i class="fa-solid fa-check"
-                                        style="color:var(--gold);margin-top:2px;font-size:0.65rem;"></i>Karta za
-                                    godišnji URSA Giveaway (500€+)
-                                </li>
-                            </ul>
-                        </div>
-                        <div style="text-align:center;margin-top:6px;"><span
-                                style="font-size:0.82rem;color:var(--text-muted);text-decoration:line-through;">797€</span>
-                        </div>
-                        <div class="pricing-price">597<span>€</span></div>
-                        <a href="https://nemaneide.ursaprotocol.com/checkout/" class="btn-primary btn-gold" id="btn-buy-797"
-                            onclick="handleBuy(event,'premium')">Želim krenuti →</a>
-                    </div>
-
-                    <div class="pricing-card">
-                        <div class="pricing-name">Spreman za promjenu</div>
-                        <div style="font-size:0.72rem;color:var(--text-muted);text-align:center;">90 dana programa</div>
-                        <p style="font-size:0.78rem;color:rgba(255,255,255,0.6);text-align:center;line-height:1.5;">Sve
-                            što trebaš za plan transformacije u 90 dana.</p>
-                        <ul class="pricing-features">
-                            <li><i class="fa-solid fa-check fi"></i> Kompletni program transformacije</li>
-                            <li><i class="fa-solid fa-check fi"></i> Plan treninga i prehrane</li>
-                            <li><i class="fa-solid fa-check fi"></i> Pristup aplikaciji</li>
-                            <li><i class="fa-solid fa-check fi"></i> Stjepan pregledava tvoj napredak</li>
-                            <li><i class="fa-solid fa-check fi"></i> 24/7 podrška</li>
-                            <li><i class="fa-solid fa-check fi"></i> Privatna zajednica</li>
-                            <li><i class="fa-solid fa-check fi"></i> 4x bonus</li>
-                            <li><i class="fa-solid fa-check fi"></i> Garantirana transformacija i novi izgled</li>
-                        </ul>
-                        <div style="text-align:center;margin-top:8px;"><span
-                                style="font-size:0.82rem;color:var(--text-muted);text-decoration:line-through;">497€</span>
-                        </div>
-                        <div class="pricing-price">397<span>€</span></div>
-                        <a href="https://nemaneide.ursaprotocol.com/checkout/" class="btn-primary" id="btn-buy-497"
-                            onclick="handleBuy(event,'standard')">Započni →</a>
-                    </div>
-
-                </div>
-                <p style="text-align:center;font-size:0.78rem;color:var(--text-muted);">
+                <p style="text-align:center;font-size:0.78rem;color:var(--text-muted);margin-top:12px;">
                     <i class="fa-solid fa-lock"></i> &nbsp;Sigurna naplata · SureCart
                 </p>
             </div>
@@ -1139,12 +1150,8 @@
                     style="margin-top:20px;">Želim krenuti →</a>
 
                 <div class="social-proof">
-                    <div class="sp-avatars">
-                        <div class="sp-avatar">👤</div>
-                        <div class="sp-avatar">👤</div>
-                        <div class="sp-avatar">👤</div>
-                    </div>
-                    <p class="sp-text">Petar, Matej, Josip i još 512 muškaraca je počelo<br>iz iste točke kao ti. Danas
+                    <img src="images/socialproof.png" alt="Uspješni polaznici" style="height:44px;width:auto;object-fit:contain;" onerror="this.style.display='none'">
+                    <p class="sp-text">Petar, Matej, Josip i još 1012 muškaraca je počelo<br>iz iste točke kao ti. Danas
                         izgledaju najbolje ikad.</p>
                 </div>
             </div>
@@ -1167,10 +1174,10 @@
                         drugačije, a onda napravio apsolutno ništa?</p>
                     <p>To nije manjak volje. To je manjak sustava. I to se danas može promijeniti.</p>
                     <p><strong>Imaš 2 opcije.</strong></p>
-X
+                    X
                     <p style="color:var(--accent2);font-weight:700;font-size:1.2rem;">Opcija 1:</p>
                     <p>Klikneš gumb ispod i prestaješ lagati samome sebi.</p>
-                    <p>Dobivaš točan plan. Stjepana osobno. Podršku svaki dan. Zajednicu koja te drži. I prvi put u
+                    <p>Dobivaš točan plan. Ursu osobno. Podršku svaki dan. Zajednicu koja te drži. I prvi put u
                         životu ovo ne radiš sam.</p>
                     <p style="background:rgba(8,172,210,0.1);border:1.5px solid rgba(8,172,210,0.25);border-radius:10px;padding:12px 16px;font-weight:600;color:#fff;"
                         id="date-badge">
@@ -1199,12 +1206,8 @@ X
                     style="margin-top:24px;">Želim krenuti →</a>
 
                 <div class="social-proof">
-                    <div class="sp-avatars">
-                        <div class="sp-avatar">👤</div>
-                        <div class="sp-avatar">👤</div>
-                        <div class="sp-avatar">👤</div>
-                    </div>
-                    <p class="sp-text">Petar, Matej, Josip i još 512 muškaraca je počelo<br>iz iste točke kao ti. Danas
+                    <img src="images/socialproof.png" alt="Uspješni polaznici" style="height:44px;width:auto;object-fit:contain;" onerror="this.style.display='none'">
+                    <p class="sp-text">Petar, Matej, Josip i još 1012 muškaraca je počelo<br>iz iste točke kao ti. Danas
                         izgledaju najbolje ikad.</p>
                 </div>
             </div>
@@ -1214,25 +1217,69 @@ X
                 <h2 class="section-title">Česta pitanja</h2>
 
                 <div class="faq-item" id="faq-1">
-                    <button class="faq-question" onclick="toggleFaq('faq-1')">Pitanje<div class="faq-icon"><i
-                                class="fa-solid fa-plus"></i></div></button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-inner">Odgovor</div>
-                    </div>
+                    <button class="faq-question" onclick="toggleFaq('faq-1')">Trebam li iskustvo s treningom?<div class="faq-icon"><i class="fa-solid fa-plus"></i></div></button>
+                    <div class="faq-answer"><div class="faq-answer-inner">Ne. Uopće nije bitno jesi li ikad ušao u teretanu ili treniraš godinama. Program se prilagođava tebi. Dobiješ plan za svoju razinu i kreneš od tamo. Neke od naših najboljih transformacija napravili su muškarci koji nikada prije nisu ozbiljno trenirali.</div></div>
                 </div>
                 <div class="faq-item" id="faq-2">
-                    <button class="faq-question" onclick="toggleFaq('faq-2')">Pitanje<div class="faq-icon"><i
-                                class="fa-solid fa-plus"></i></div></button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-inner">Odgovor</div>
-                    </div>
+                    <button class="faq-question" onclick="toggleFaq('faq-2')">Trebam li teretanu?<div class="faq-icon"><i class="fa-solid fa-plus"></i></div></button>
+                    <div class="faq-answer"><div class="faq-answer-inner">Za najbolje rezultate da. Ali ako nemaš pristup teretani, imamo verzije treninga za kod kuće s minimalnom opremom. Neće biti isti rezultat kao u punoj teretani, ali možeš napraviti ozbiljan napredak.</div></div>
                 </div>
                 <div class="faq-item" id="faq-3">
-                    <button class="faq-question" onclick="toggleFaq('faq-3')">Pitanje<div class="faq-icon"><i
-                                class="fa-solid fa-plus"></i></div></button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-inner">Odgovor</div>
-                    </div>
+                    <button class="faq-question" onclick="toggleFaq('faq-3')">Nemam vremena, radim cijeli dan.<div class="faq-icon"><i class="fa-solid fa-plus"></i></div></button>
+                    <div class="faq-answer"><div class="faq-answer-inner">Treninzi traju 45 do 60 minuta, 3 do 5 puta tjedno. Priprema obroka 15 do 20 minuta. I iskreno, imaš vremena. Svi imamo ista 24 sata. Pitanje je samo što staviš na listu prioriteta. Ako imaš vremena navečer za serije, društvene mreže i gledanje videa, imaš vremena i za trening.</div></div>
+                </div>
+                <div class="faq-item" id="faq-4">
+                    <button class="faq-question" onclick="toggleFaq('faq-4')">Što ako ne mogu jesti određenu hranu?<div class="faq-icon"><i class="fa-solid fa-plus"></i></div></button>
+                    <div class="faq-answer"><div class="faq-answer-inner">Plan prehrane se prilagođava tebi. Alergije, netolerancije i preferencije uzimaju se u obzir. Nema namirnica koje moraš jesti. Sve se može zamijeniti.</div></div>
+                </div>
+                <div class="faq-item" id="faq-5">
+                    <button class="faq-question" onclick="toggleFaq('faq-5')">Koliko brzo ću vidjeti rezultate?<div class="faq-icon"><i class="fa-solid fa-plus"></i></div></button>
+                    <div class="faq-answer"><div class="faq-answer-inner">Većina polaznika vidi prve promjene unutar 2 do 3 tjedna. Ozbiljnije vidljive promjene dolaze oko 4. do 6. tjedna. Za 90 dana možeš očekivati veliku promjenu. Ali puno ovisi o tebi. Koliko si dosljedan, toliko će rezultati brže doći.</div></div>
+                </div>
+                <div class="faq-item" id="faq-6">
+                    <button class="faq-question" onclick="toggleFaq('faq-6')">Već sam probao sve i ništa ne radi.<div class="faq-icon"><i class="fa-solid fa-plus"></i></div></button>
+                    <div class="faq-answer"><div class="faq-answer-inner">Nisi probao ovo. Probao si sam. Probao si razne planove s interneta. Probao si bez nekoga tko te vodi i prilagođava plan tebi svaki tjedan. Ovo nije još jedan pokušaj. Ovo je sustav koji je transformirao stotine muškaraca. Razlika je što ovaj put nisi sam.</div></div>
+                </div>
+                <div class="faq-item" id="faq-7">
+                    <button class="faq-question" onclick="toggleFaq('faq-7')">Mislim da sam prestar za ovo.<div class="faq-icon"><i class="fa-solid fa-plus"></i></div></button>
+                    <div class="faq-answer"><div class="faq-answer-inner">Imamo polaznike od 18 do 50 i više godina. Plan se prilagođava tvojoj dobi, razini i cilju. Godine nisu problem. Nedostatak plana je problem.</div></div>
+                </div>
+                <div class="faq-item" id="faq-8">
+                    <button class="faq-question" onclick="toggleFaq('faq-8')">Koja je razlika između 90 i 180 dana?<div class="faq-icon"><i class="fa-solid fa-plus"></i></div></button>
+                    <div class="faq-answer"><div class="faq-answer-inner">90 dana je dovoljno za ozbiljnu transformaciju. 180 dana daje ti duplo više vremena s Ursom, mjesečne individualne pozive, prioritetnu podršku i doživotni pristup budućim pogodnostima. Muškarci koji odaberu 180 dana često postižu bolje rezultate jer imaju dovoljno vremena da promjena postane trajna navika.</div></div>
+                </div>
+                <div class="faq-item" id="faq-9">
+                    <button class="faq-question" onclick="toggleFaq('faq-9')">Kako izgleda aplikacija?<div class="faq-icon"><i class="fa-solid fa-plus"></i></div></button>
+                    <div class="faq-answer"><div class="faq-answer-inner">Otvoriš ujutro i točno piše što radiš taj dan. Koji trening. Koji obroci. Koliko čega. Praćenje napretka, slike i brojke, sve na jednom mjestu. Nema razmišljanja. Samo otvoriš i pratiš plan.</div></div>
+                </div>
+                <div class="faq-item" id="faq-10">
+                    <button class="faq-question" onclick="toggleFaq('faq-10')">Što ako imam pitanje usred dana ili navečer?<div class="faq-icon"><i class="fa-solid fa-plus"></i></div></button>
+                    <div class="faq-answer"><div class="faq-answer-inner">Imaš podršku cijeli dan. Pošalji poruku kad god ti treba. U 7 ujutro ili u 11 navečer dobit ćeš odgovor.</div></div>
+                </div>
+                <div class="faq-item" id="faq-11">
+                    <button class="faq-question" onclick="toggleFaq('faq-11')">Što ako nisam zadovoljan?<div class="faq-icon"><i class="fa-solid fa-plus"></i></div></button>
+                    <div class="faq-answer"><div class="faq-answer-inner">Prati plan do kraja. Ako ne vidiš rezultate, vraćamo ti svaki cent. I Ursa ti daje 200 eura iz vlastitog džepa kao ispriku za izgubljeno vrijeme. Ti dobiješ sve nazad, mi gubimo novac. Spreman je to napraviti jer nijedan muškarac koji je pratio protokol do kraja nije ostao isti.</div></div>
+                </div>
+                <div class="faq-item" id="faq-12">
+                    <button class="faq-question" onclick="toggleFaq('faq-12')">Je li plaćanje sigurno?<div class="faq-icon"><i class="fa-solid fa-plus"></i></div></button>
+                    <div class="faq-answer"><div class="faq-answer-inner">Potpuno. Plaćanje ide preko sigurnog sustava za naplatu koji koriste najveće svjetske tvrtke. Podaci tvoje kartice idu direktno tom sustavu. Mi ih nikada ne vidimo, ne spremamo i nemamo pristup njima. Sve je zaštićeno bankarskom razinom sigurnosti.</div></div>
+                </div>
+                <div class="faq-item" id="faq-13">
+                    <button class="faq-question" onclick="toggleFaq('faq-13')">Mogu li plaćati na rate?<div class="faq-icon"><i class="fa-solid fa-plus"></i></div></button>
+                    <div class="faq-answer"><div class="faq-answer-inner">Da. Prihvaćamo i druge načine plaćanja. Javi nam se porukom i dogovorit ćemo opciju koja ti najviše odgovara.</div></div>
+                </div>
+                <div class="faq-item" id="faq-14">
+                    <button class="faq-question" onclick="toggleFaq('faq-14')">Kad mogu početi?<div class="faq-icon"><i class="fa-solid fa-plus"></i></div></button>
+                    <div class="faq-answer"><div class="faq-answer-inner">Odmah. Čim se prijaviš, dobiješ pristup aplikaciji i svoj plan. Ne čekaš nikoga. Ne čekaš ponedjeljak.</div></div>
+                </div>
+                <div class="faq-item" id="faq-15">
+                    <button class="faq-question" onclick="toggleFaq('faq-15')">Imam još pitanja.<div class="faq-icon"><i class="fa-solid fa-plus"></i></div></button>
+                    <div class="faq-answer"><div class="faq-answer-inner" style="display:flex;flex-direction:column;gap:14px;">
+                        <p>Javi nam se porukom klikom na gumb ispod. Odgovaramo brzo.</p>
+                        <a href="https://wa.me/385992088022?text=%20URSAPROTOCOL" target="_blank" style="display:inline-flex;align-items:center;justify-content:center;gap:10px;background:#25D366;color:#fff;font-family:'Inter',sans-serif;font-size:1rem;font-weight:700;padding:14px 24px;border-radius:12px;text-decoration:none;box-shadow:0 6px 20px rgba(37,211,102,0.4);transition:all 0.2s;">
+                            <i class="fa-brands fa-whatsapp" style="font-size:1.3rem;"></i> Pošalji poruku na WhatsApp
+                        </a>
+                    </div></div>
                 </div>
 
                 <a href="#premium-plan" class="btn-primary btn-gold"
@@ -1240,12 +1287,8 @@ X
                     style="margin-top:24px;">Želim krenuti →</a>
 
                 <div class="social-proof">
-                    <div class="sp-avatars">
-                        <div class="sp-avatar">👤</div>
-                        <div class="sp-avatar">👤</div>
-                        <div class="sp-avatar">👤</div>
-                    </div>
-                    <p class="sp-text">Petar, Matej, Josip i još 512 muškaraca je počelo<br>iz iste točke kao ti. Danas
+                    <img src="images/socialproof.png" alt="Uspješni polaznici" style="height:44px;width:auto;object-fit:contain;" onerror="this.style.display='none'">
+                    <p class="sp-text">Petar, Matej, Josip i još 1012 muškaraca je počelo<br>iz iste točke kao ti. Danas
                         izgledaju najbolje ikad.</p>
                 </div>
             </div>
@@ -1294,7 +1337,7 @@ X
 
             const d = new Date();
             d.setDate(d.getDate() + 90);
-            const formatted = d.toLocaleDateString('hr-HR', { day: 'numeric', month: 'long', year: 'numeric' });
+            const formatted = d.toLocaleDateString('hr-HR', { day: 'numeric', month: 'numeric', year: 'numeric' });
             document.getElementById('hero-date').textContent = formatted;
 
             const badge = document.getElementById('date-badge');
@@ -1302,18 +1345,13 @@ X
         })();
 
         var videoTimer = null;
-        var GATE_MS = 480000;
+        var PAGE_GATE_MS = 750000; /* 12 minutes 30 seconds after page load */
+
+        /* Unlock pitch 12:30 after page load, regardless of video */
+        setTimeout(revealPitch, PAGE_GATE_MS);
 
         function onVideoPlay() {
             document.getElementById('video-overlay').classList.add('hidden');
-
-            var remaining = GATE_MS / 1000;
-            videoTimer = setInterval(function () {
-                remaining--;
-                if (remaining <= 0) { clearInterval(videoTimer); revealPitch(); }
-            }, 1000);
-
-            setTimeout(revealPitch, GATE_MS);
         }
 
         function revealPitch() {

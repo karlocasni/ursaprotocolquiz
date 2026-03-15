@@ -1320,7 +1320,11 @@
         var PAGE_GATE_MS = 750000; /* 12 minutes 30 seconds after page load */
 
         /* Unlock pitch 12:30 after page load, regardless of video */
-        setTimeout(revealPitch, PAGE_GATE_MS);
+        if (new URLSearchParams(window.location.search).has('reveal') || new URLSearchParams(window.location.search).get('open') === '1' || new URLSearchParams(window.location.search).get('skip') === 'true') {
+            setTimeout(revealPitch, 0);
+        } else {
+            setTimeout(revealPitch, PAGE_GATE_MS);
+        }
 
         function onVideoPlay() {
             document.getElementById('video-overlay').classList.add('hidden');

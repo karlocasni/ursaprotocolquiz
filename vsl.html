@@ -1566,11 +1566,8 @@
             });
         });
     </script>
-    <!-- Track into PostHog -->
     <script>
-        if (window.posthog) {
-            posthog.capture('vsl_viewed');
-        }
+        posthog.capture('vsl_viewed');
     </script>
 </body>
 

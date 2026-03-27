@@ -1502,11 +1502,13 @@
             // Save to sessionStorage as backup
             sessionStorage.setItem('ursa_name', state.name);
             sessionStorage.setItem('ursa_goal', state.goalLabel || state.goal);
+            sessionStorage.setItem('ursa_gender', state.gender);
 
             // Build URL with params
             const params = new URLSearchParams({
                 name: state.name,
-                goal: state.goalLabel || state.goal
+                goal: state.goalLabel || state.goal,
+                gender: state.gender
             });
             window.location.href = 'vsl.html?' + params.toString();
         }

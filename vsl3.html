@@ -228,7 +228,7 @@
         }
 
         #vsl-pitch {
-            display: none;
+            display: block;
         }
 
         .section-label {
@@ -1304,8 +1304,8 @@
             const params = new URLSearchParams(window.location.search);
             const name = params.get('name') || sessionStorage.getItem('ursa_name') || 'Prijatelju';
             const goal = params.get('goal') || sessionStorage.getItem('ursa_goal') || 'postici cilj';
-            const gender = params.get('gender') || sessionStorage.getItem('ursa_gender') || 'Muško';
-            const isFemale = (gender === 'Žensko' || gender === 'Žensko');
+            const gender = 'Žensko';
+            const isFemale = true; // Always female version for vsl3.html
 
             if (document.getElementById('hero-goal')) document.getElementById('hero-goal').textContent = goal;
 
@@ -1351,35 +1351,7 @@
             if (badge) badge.textContent = '🗓️ ' + formatted + ' → To je datum. Točno 90 dana od danas.';
         })();
 
-        var videoTimer = null;
-        var PAGE_GATE_MS = 750000; /* 12 minutes 30 seconds after page load */
-
-        /* Unlock pitch 12:30 after page load, regardless of video */
-        if (new URLSearchParams(window.location.search).has('reveal') || new URLSearchParams(window.location.search).get('open') === '1' || new URLSearchParams(window.location.search).get('skip') === 'true') {
-            setTimeout(revealPitch, 0);
-        } else {
-            setTimeout(revealPitch, PAGE_GATE_MS);
-        }
-
-        function onVideoPlay() {
-            document.getElementById('video-overlay').classList.add('hidden');
-        }
-
-        function revealPitch() {
-            var pitch = document.getElementById('vsl-pitch');
-            if (pitch.style.display === 'block') return;
-            pitch.style.display = 'block';
-            pitch.style.opacity = '0';
-            pitch.style.transform = 'translateY(20px)';
-            pitch.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-            requestAnimationFrame(function () {
-                requestAnimationFrame(function () {
-                    pitch.style.opacity = '1';
-                    pitch.style.transform = 'translateY(0)';
-                });
-            });
-            setTimeout(function () { pitch.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 400);
-        }
+        // VSL Reveal Logic removed - page is fully visible instantly.
 
         function updateCountdown() {
             var targetDate = new Date("2026-03-28T23:59:59+01:00").getTime();

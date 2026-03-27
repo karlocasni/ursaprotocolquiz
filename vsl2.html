@@ -771,17 +771,9 @@
         <!-- ═══ HERO — always visible ═══ -->
         <div class="section-card">
             <div class="hero-eyebrow">✦ Personalizirani plan je spreman</div>
-            <h1 class="hero-headline">
-                <span id="hero-name">Prijatelju</span>, tvoj cilj je ostvariv do<br>
-                <span class="accent" id="hero-date">— — —</span>!
-            </h1>
+            <!-- Removed hero-headline and graph as per request -->
 
-            <div class="graph-placeholder"
-                style="background:transparent; border:none; border-radius:14px; display:block; padding:0; overflow:visible; position:relative; min-height: 220px; text-transform:none; margin-bottom: 40px;">
-                <canvas id="transformationChart"></canvas>
-            </div>
-
-            <p class="hero-sub">
+            <p class="hero-sub" id="hero-sub-text">
                 Rekao si da želiš <span class="goal-highlight" id="hero-goal">postići cilj</span>.<br><br>
                 Ovaj kratki video je napravljen na temelju tvojih odgovora.<br>
                 <strong>Pogledaj ga do kraja ↓</strong>
@@ -1312,14 +1304,15 @@
             const params = new URLSearchParams(window.location.search);
             const name = params.get('name') || sessionStorage.getItem('ursa_name') || 'Prijatelju';
             const goal = params.get('goal') || sessionStorage.getItem('ursa_goal') || 'postici cilj';
-            document.getElementById('hero-name').textContent = name;
-            document.getElementById('hero-goal').textContent = goal;
+            const gender = params.get('gender') || sessionStorage.getItem('ursa_gender') || 'Muško';
+            const isFemale = false; // Always male version for vsl2.html
+
+            if (document.getElementById('hero-goal')) document.getElementById('hero-goal').textContent = goal;
 
             const d = new Date();
             d.setDate(d.getDate() + 90);
             const formatted = d.toLocaleDateString('hr-HR', { day: 'numeric', month: 'numeric', year: 'numeric' });
-            document.getElementById('hero-date').textContent = formatted;
-
+            
             const badge = document.getElementById('date-badge');
             if (badge) badge.textContent = '🗓️ ' + formatted + ' → To je datum. Točno 90 dana od danas.';
         })();
@@ -1375,169 +1368,7 @@
             }
         }
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const ctx = document.getElementById('transformationChart').getContext('2d');
-
-            // Custom plugin to draw labels at the end of the lines
-            const endLabelsPlugin = {
-                id: 'endLabels',
-                afterDraw(chart, args, options) {
-                    const { ctx, data, chartArea: { top, right, bottom, left, width, height } } = chart;
-                    ctx.save();
-                    ctx.font = '700 13px Inter';
-
-                    data.datasets.forEach((dataset, i) => {
-                        const meta = chart.getDatasetMeta(i);
-                        if (!meta.data || meta.data.length === 0) return;
-
-                        // We only want to draw at the very last point
-                        const lastPoint = meta.data[meta.data.length - 1];
-                        const isMasti = dataset.label === '% masti';
-
-                        if (isMasti) {
-                            // Brand Accent pill for % masti
-                            ctx.fillStyle = '#08acd2';
-                            ctx.beginPath();
-                            ctx.roundRect(lastPoint.x - 70, lastPoint.y + 15, 70, 26, 6);
-                            ctx.fill();
-
-                            ctx.fillStyle = '#ffffff';
-                            ctx.textAlign = 'center';
-                            ctx.textBaseline = 'middle';
-                            ctx.fillText(dataset.label, lastPoint.x - 35, lastPoint.y + 28);
-                        } else {
-                            // White text for Mišićna masa
-                            ctx.fillStyle = '#ffffff';
-                            ctx.textAlign = 'right';
-                            ctx.textBaseline = 'bottom';
-                            ctx.fillText(dataset.label, lastPoint.x - 10, lastPoint.y - 15);
-                        }
-                    });
-                    ctx.restore();
-                }
-            };
-
-            // Create gradient for the area under the fat curve
-            let gradientFill = ctx.createLinearGradient(0, 0, 0, 300);
-            gradientFill.addColorStop(0, 'rgba(8, 172, 210, 0.4)'); // Brand gradient
-            gradientFill.addColorStop(1, 'rgba(8, 172, 210, 0.0)');
-
-            const labels = ['Sad', '1. tjedan', '2. tjedan', '3. tjedan', '1 mjesec', '5. tjedan', '6. tjedan', '7. tjedan', '2 mjeseca', '9. tjedan', '10. tjedan', '11. tjedan', '3 mjeseca'];
-            const fatData = [100, 97, 91, 82, 70, 58, 48, 40, 33, 28, 24, 22, 21];
-            const muscleData = [20, 23, 29, 39, 52, 65, 75, 83, 89, 93, 96, 98, 100];
-
-            new Chart(ctx, {
-                type: 'line',
-                plugins: [endLabelsPlugin],
-                data: {
-                    labels: labels,
-                    datasets: [
-                        {
-                            label: '% masti',
-                            data: fatData,
-                            borderColor: '#08acd2', // Brand color matching "use our colors"
-                            borderWidth: 3,
-                            tension: 0.4,
-                            fill: true,
-                            backgroundColor: gradientFill,
-                            pointBackgroundColor: '#08acd2',
-                            pointBorderColor: '#fff',
-                            pointBorderWidth: 2,
-                            pointRadius: 0,
-                            pointHoverRadius: 6
-                        },
-                        {
-                            label: 'Mišićna masa',
-                            data: muscleData,
-                            borderColor: '#ffffff',
-                            borderWidth: 3,
-                            tension: 0.4,
-                            fill: false,
-                            pointBackgroundColor: '#ffffff',
-                            pointBorderColor: 'rgba(255,255,255,0.5)',
-                            pointBorderWidth: 2,
-                            pointRadius: 0,
-                            pointHoverRadius: 6
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: {
-                        mode: 'index',
-                        intersect: false,
-                    },
-                    layout: {
-                        padding: {
-                            right: 15,
-                            left: 10,
-                            top: 30,
-                            bottom: 10
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            backgroundColor: '#08acd2',
-                            titleColor: '#fff',
-                            bodyColor: '#fff',
-                            titleFont: { family: 'Inter', size: 14, weight: 'bold' },
-                            bodyFont: { family: 'Inter', size: 12 },
-                            padding: 10,
-                            cornerRadius: 8,
-                            displayColors: false,
-                            callbacks: {
-                                title: function (context) {
-                                    let label = context[0].label;
-                                    if (label.includes('tjedan')) return label + ' 🔥';
-                                    return label;
-                                },
-                                label: function (context) {
-                                    return ''; // Hide individual values, keep it mysterious and illustrative like the picture
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            grid: {
-                                color: function (context) {
-                                    return [0, 4, 8, 12].includes(context.index) ? 'rgba(255,255,255,0.08)' : 'transparent';
-                                },
-                                drawBorder: false
-                            },
-                            ticks: {
-                                color: 'rgba(255,255,255,0.4)',
-                                font: { family: 'Inter', size: 13, weight: '600' },
-                                maxRotation: 0,
-                                callback: function (val, index) {
-                                    if (index === 0) return 'Sad';
-                                    if (index === 4) return '1 mjesec';
-                                    if (index === 8) return '2 mjeseca';
-                                    if (index === 12) return '3 mjeseca';
-                                    return '';
-                                }
-                            }
-                        },
-                        y: {
-                            display: false,
-                            min: 0,
-                            max: 110
-                        }
-                    },
-                    animation: {
-                        duration: 2000,
-                        easing: 'easeOutQuart'
-                    }
-                }
-            });
-        });
-    </script>
+    <!-- Removed Chart.js and chart initialization as per request -->
     <script>
         posthog.capture('vsl_viewed');
     </script>

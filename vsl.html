@@ -1382,7 +1382,7 @@
         }
 
         function updateCountdown() {
-            var targetDate = new Date("2026-03-28T23:59:59+01:00").getTime();
+            var targetDate = new Date("2026-04-05T23:59:59+01:00").getTime();
             var now = new Date().getTime();
             var diff = targetDate - now;
 
@@ -1405,7 +1405,7 @@
             function pad(n) { return (n < 10 ? '0' : '') + n; }
             timerEl.textContent = days + "d " + pad(hours) + "h " + pad(mins) + "m " + pad(secs) + "s";
 
-            var totalMs = 10 * 24 * 60 * 60 * 1000;
+            var totalMs = 7 * 24 * 60 * 60 * 1000;
             var progress = (diff / totalMs) * 100;
             if (progress > 100) progress = 100;
             progressEl.style.width = progress + "%";

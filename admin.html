@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ursa Protocol - Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --primary: #08acd2;
+            --primary-hover: #069ab9;
+            --border: #334155;
+            --success: #22c55e;
+            --error: #ef4444;
+            --table-hover: #334155;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Login Screen */
+        #loginScreen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            padding: 20px;
+        }
+
+        .login-box {
+            background: var(--bg-card);
+            padding: 40px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            text-align: center;
+        }
+
+        .login-box h2 {
+            margin-bottom: 24px;
+            font-weight: 700;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            margin-bottom: 16px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .input-field:focus {
+            border-color: var(--primary);
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 14px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.2s, transform 0.1s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            background: var(--primary-hover);
+        }
+        
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 14px;
+            width: auto;
+        }
+
+        /* Dashboard */
+        #dashboardScreen {
+            display: none;
+            flex-direction: column;
+            padding: 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            margin-bottom: 24px;
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        /* Table */
+        .table-container {
+            background: var(--bg-card);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            background: rgba(0,0,0,0.2);
+            padding: 16px;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            font-size: 15px;
+            transition: background 0.2s;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr.data-row:hover td {
+            background: var(--table-hover);
+        }
+
+        .copyable {
+            cursor: pointer;
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .copyable:hover {
+            color: var(--primary);
+        }
+
+        .copyable:hover::after {
+            content: '\f24d';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 400;
+            font-size: 12px;
+        }
+
+        /* Group Divider */
+        tr.group-divider td {
+            background: rgba(8, 172, 210, 0.1);
+            color: var(--primary);
+            font-weight: 700;
+            padding: 20px 16px;
+            cursor: pointer;
+            border-top: 2px solid var(--primary);
+        }
+
+        tr.group-divider:hover td {
+            background: rgba(8, 172, 210, 0.15);
+        }
+        
+        .group-stats {
+            float: right;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-main);
+            background: rgba(0,0,0,0.3);
+            padding: 4px 12px;
+            border-radius: 20px;
+        }
+
+        /* Edit Mode */
+        .edit-input {
+            width: 100%;
+            background: var(--bg-dark);
+            border: 1px solid var(--primary);
+            color: white;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .loader {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255,255,255,0.1);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s infinite linear;
+            margin: 0 auto;
+        }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* Toast */
+        #toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--success);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        #toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        #toast.error {
+            background: var(--error);
+        }
+
+        .hidden-row {
+            display: none !important;
+        }
+
+        .edit-col-header, .edit-col-cell {
+            display: none;
+            width: 80px;
+            text-align: center;
+        }
+
+        .action-icon {
+            cursor: pointer;
+            color: var(--primary);
+            font-size: 14px;
+            margin-right: 8px;
+            padding: 4px;
+        }
+        
+        .action-icon:hover {
+            color: var(--text-main);
+        }
+
+        .checkbox-cell {
+            display: none;
+            width: 40px;
+            text-align: center;
+        }
+        .row-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- LOGIN SCREEN -->
+    <div id="loginScreen">
+        <div class="login-box">
+            <h2>Admin Login</h2>
+            <input type="password" id="passInput" class="input-field" placeholder="Unesi lozinku" onkeydown="if(event.key==='Enter') login()" />
+            <button class="btn" onclick="login()">Prijavi se <i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+    </div>
+
+    <!-- DASHBOARD SCREEN -->
+    <div id="dashboardScreen">
+        <div class="header">
+            <div>
+                <h1 style="margin-bottom: 8px;">Transakcije</h1>
+                <p style="color: var(--text-muted);">Pregled i upravljanje SureCart narudžbama</p>
+            </div>
+            <button class="btn btn-secondary btn-small" onclick="logout()"><i class="fa-solid fa-sign-out"></i> Odjava</button>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-small" onclick="loadData()"><i class="fa-solid fa-rotate-right"></i> Osvježi</button>
+            <button class="btn btn-secondary btn-small" onclick="toggleSortMode()" id="sortBtn"><i class="fa-solid fa-arrow-down-z-a"></i> Novije na vrhu</button>
+            <button class="btn btn-secondary btn-small" onclick="toggleEditMode()" id="editModeBtn"><i class="fa-solid fa-pen"></i> Uredi</button>
+            
+            <div id="editControls" style="display: none; gap: 16px;">
+                <div style="width: 1px; background: var(--border); height: 30px; margin: 0 8px;"></div>
+                <button class="btn btn-small" style="background: var(--success)" onclick="addNewRow()"><i class="fa-solid fa-plus"></i> Dodaj Narudžbu (na kraj)</button>
+                <button class="btn btn-secondary btn-small" onclick="groupSelectedRows()"><i class="fa-solid fa-object-group"></i> Grupiraj označeno (Mjesec)</button>
+                <button class="btn btn-small" onclick="saveChanges()"><i class="fa-solid fa-save"></i> Spremi Promjene</button>
+            </div>
+            
+            <div style="flex-grow: 1"></div>
+            <!-- APPS SCRIPT URL INPUT (For setting up) -->
+            <input type="text" id="apiUrlInput" class="input-field" style="max-width: 300px; margin-bottom:0;" placeholder="Apps Script Web App URL" onchange="saveApiUrl()" />
+        </div>
+
+        <div class="loader" id="loader">
+            <div class="spinner"></div>
+            <p style="margin-top: 16px; color: var(--text-muted);">Učitavanje podataka iz baze...</p>
+        </div>
+
+        <div class="table-container" id="tableContainer" style="display: none;">
+            <table id="dataTable">
+                <thead>
+                    <tr>
+                        <th class="checkbox-cell"></th>
+                        <th>Order ID</th>
+                        <th>Ime i Prezime</th>
+                        <th>Email</th>
+                        <th>Mobitel</th>
+                        <th>Vrsta Plaćanja / Paket</th>
+                        <th>Datum</th>
+                        <th class="edit-col-header">Akcije</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- Data will be injected here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast">Poruka spremljena</div>
+
+    <script>
+        const VALID_PASS = "Ursakis357982";
+        let isEditMode = false;
+        let sortMode = 'desc'; // 'desc' or 'asc'
+        let tableData = []; 
+        let headerRow = ["Order ID", "Ime i Prezime", "Email", "Mobitel", "Vrsta Plaćanja / Paket", "Datum"];
+        let groupMeta = []; // format: { name: "Travanj", orderIds: ["id1", "id2"] }
+        let apiUrl = localStorage.getItem('ursaAdminApiUrl') || '';
+        let lastCheckedBox = null;
+
+        // Shift-click logic for bulk selection
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('tableBody').addEventListener('click', function(e) {
+                if (e.target && e.target.classList.contains('row-checkbox')) {
+                    if (e.shiftKey && lastCheckedBox) {
+                        const checkboxes = Array.from(document.querySelectorAll('.row-checkbox'));
+                        const start = checkboxes.indexOf(lastCheckedBox);
+                        const end = checkboxes.indexOf(e.target);
+                        if (start > -1 && end > -1) {
+                            const min = Math.min(start, end);
+                            const max = Math.max(start, end);
+                            for (let i = min; i <= max; i++) {
+                                checkboxes[i].checked = true; // Always check on shift click assuming intent to select
+                            }
+                        }
+                    }
+                    lastCheckedBox = e.target;
+                }
+            });
+        });
+
+        // --- AUTH ---
+        function checkAuth() {
+            if (localStorage.getItem('ursaAdminAuth') === 'true') {
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('dashboardScreen').style.display = 'flex';
+                document.getElementById('apiUrlInput').value = apiUrl;
+                if(apiUrl) loadData();
+            }
+        }
+
+        function login() {
+            const pass = document.getElementById('passInput').value;
+            if (pass === VALID_PASS) {
+                localStorage.setItem('ursaAdminAuth', 'true');
+                checkAuth();
+            } else {
+                showToast("Neispravna lozinka!", true);
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('ursaAdminAuth');
+            window.location.reload();
+        }
+
+        function saveApiUrl() {
+            apiUrl = document.getElementById('apiUrlInput').value;
+            localStorage.setItem('ursaAdminApiUrl', apiUrl);
+            if(apiUrl) loadData();
+        }
+
+        // --- TOAST ---
+        function showToast(msg, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.className = isError ? 'show error' : 'show';
+            setTimeout(() => toast.className = toast.className.replace('show', ''), 3000);
+        }
+
+        // --- COPY ---
+        function copyText(el, text) {
+            if (isEditMode) return;
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = el.innerHTML;
+                el.innerHTML = '<i class="fa-solid fa-check" style="color:var(--success)"></i> Kopirano';
+                el.style.color = 'var(--success)';
+                setTimeout(() => {
+                    el.innerHTML = originalText;
+                    el.style.color = '';
+                }, 1500);
+            });
+        }
+
+        async function loadData() {
+            if (!apiUrl) {
+                showToast("Unesi Apps Script URL gore desno!", true);
+                return;
+            }
+
+            document.getElementById('loader').style.display = 'block';
+            document.getElementById('tableContainer').style.display = 'none';
+
+            try {
+                const res = await fetch(apiUrl + "?action=getOrders");
+                const result = await res.json();
+                
+                if (result.status === 'success') {
+                    let fullData = result.data || [];
+                    if (fullData.length > 0) headerRow = fullData.shift(); // Ukloni i sačuvaj 1. red iz sheetova (header)
+
+                    tableData = fullData.filter(r => r[0] && !String(r[0]).startsWith('###GROUP###'));
+                    
+                    groupMeta = [];
+                    if (result.meta && result.meta.length > 0) {
+                        for(let mRow of result.meta) {
+                            if (!mRow[0]) continue;
+                            groupMeta.push({
+                                name: String(mRow[0]),
+                                orderIds: mRow.slice(1).filter(id => id.trim() !== '')
+                            });
+                        }
+                    }
+
+                    renderTable();
+                    document.getElementById('tableContainer').style.display = 'block';
+                } else {
+                    showToast("Greška pri učitavanju baze", true);
+                }
+            } catch (err) {
+                console.error(err);
+                showToast("Network error. Provjeri URL.", true);
+            } finally {
+                document.getElementById('loader').style.display = 'none';
+            }
+        }
+
+        // --- TOGGLE SORT ---
+        function toggleSortMode() {
+            sortMode = sortMode === 'desc' ? 'asc' : 'desc';
+            const btn = document.getElementById('sortBtn');
+            if(sortMode === 'desc') {
+                btn.innerHTML = `<i class="fa-solid fa-arrow-down-z-a"></i> Novije na vrhu`;
+            } else {
+                btn.innerHTML = `<i class="fa-solid fa-arrow-up-a-z"></i> Starije na vrhu`;
+            }
+            renderTable();
+        }
+
+        // --- RENDER TABLE ---
+        function renderTable() {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            
+            // Track which orders have been rendered in groups
+            const renderedIds = new Set();
+            
+            // Map tableData by ID for fast lookup
+            const getRowId = (r, idx) => r[0] ? String(r[0]) : "INDEX_"+idx;
+            const dataMap = new Map();
+            tableData.forEach((row, idx) => {
+                dataMap.set(getRowId(row, idx), {row, idx});
+            });
+
+            // Helper to render a single row
+            function createRowHtml(rowObj, groupId) {
+                const {row, idx} = rowObj;
+                const tr = document.createElement('tr');
+                tr.className = `data-row ${groupId}`;
+                if(sortMode !== 'desc' && !isEditMode && groupId !== 'unassigned') tr.classList.add('hidden-row'); // Folded
+                const orderIdStr = getRowId(row, idx);
+
+                if (isEditMode) {
+                    tr.innerHTML = `
+                        <td class="checkbox-cell" style="display:table-cell">
+                            <input type="checkbox" class="row-checkbox" data-id="${orderIdStr}">
+                        </td>
+                        <td><input type="text" class="edit-input" value="${row[0] || ''}" onchange="updateData(${idx}, 0, this.value)"></td>
+                        <td><input type="text" class="edit-input" value="${row[1] || ''}" onchange="updateData(${idx}, 1, this.value)"></td>
+                        <td><input type="text" class="edit-input" value="${row[2] || ''}" onchange="updateData(${idx}, 2, this.value)"></td>
+                        <td><input type="text" class="edit-input" value="${row[3] || ''}" onchange="updateData(${idx}, 3, this.value)"></td>
+                        <td><input type="text" class="edit-input" value="${row[4] || ''}" onchange="updateData(${idx}, 4, this.value)"></td>
+                        <td><input type="text" class="edit-input" value="${row[5] || ''}" onchange="updateData(${idx}, 5, this.value)"></td>
+                        <td class="edit-col-cell" style="display:table-cell">
+                            <button class="btn-secondary btn-small" style="color:var(--error); border-color:var(--error)" onclick="deleteRow(${idx})"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    `;
+                } else {
+                    tr.innerHTML = `
+                        <td class="checkbox-cell"></td>
+                        <td><span class="copyable" onclick="copyText(this, '${row[0]}')">${row[0] || '-'}</span></td>
+                        <td><span class="copyable" onclick="copyText(this, '${row[1]}')"><strong>${row[1] || '-'}</strong></span></td>
+                        <td><span class="copyable" onclick="copyText(this, '${row[2]}')">${row[2] || '-'}</span></td>
+                        <td><span class="copyable" onclick="copyText(this, '${row[3]}')">${row[3] || '-'}</span></td>
+                        <td><span class="copyable" onclick="copyText(this, '${row[4]}')">${row[4] || '-'}</span></td>
+                        <td>${formatDate(row[5]) || '-'}</td>
+                        <td class="edit-col-cell"></td>
+                    `;
+                }
+                return tr;
+            }
+
+            // Helper for counting valid stats (Spreman.. or Potpuna..)
+            function getValidCount(items) {
+                return items.filter(item => {
+                    const vrsta = item.row[4] ? String(item.row[4]).trim() : '';
+                    return vrsta.startsWith('Spreman') || vrsta.startsWith('Potpuna');
+                }).length;
+            }
+
+            // 1. DYNAMICALLY BUILD UI
+            const groupsToRender = sortMode === 'desc' ? [...groupMeta].reverse() : groupMeta;
+            
+            const groupSections = [];
+
+            for (let g = 0; g < groupsToRender.length; g++) {
+                const grp = groupsToRender[g];
+                const validItems = grp.orderIds.map(id => dataMap.get(id)).filter(item => item !== undefined);
+                
+                // Obavezno sortiraj kronološki prema Google Sheetu prije reversea!
+                validItems.sort((a, b) => a.idx - b.idx);
+                
+                const groupId = 'group-div-' + g;
+                
+                const tr = document.createElement('tr');
+                tr.className = 'group-divider';
+                
+                const validStatsCount = getValidCount(validItems);
+
+                if (isEditMode) {
+                    const originalGrpIndex = sortMode === 'desc' ? groupMeta.length - 1 - g : g;
+                    tr.innerHTML = `
+                        <td colspan="6">
+                            <i class="fa-solid fa-folder"></i> &nbsp; 
+                            <input type="text" style="background:rgba(0,0,0,0.5); border:1px solid var(--primary); color:var(--primary); font-weight:bold; padding:4px 8px; border-radius:4px" 
+                                value="${grp.name}" 
+                                onchange="updateGroupName(${originalGrpIndex}, this.value)">
+                        </td>
+                        <td class="edit-col-cell" style="display:table-cell"><button class="btn-secondary btn-small" style="color:var(--error); border-color:var(--error)" onclick="deleteGroup(${originalGrpIndex})"><i class="fa-solid fa-trash"></i></button></td>
+                    `;
+                } else {
+                    tr.setAttribute('onclick', `toggleGroup('${groupId}')`);
+                    tr.innerHTML = `
+                        <td colspan="8">
+                            <i class="fa-solid fa-chevron-${sortMode === 'desc' ? 'down' : 'right'}"></i> &nbsp; ${grp.name}
+                            <span class="group-stats">${validStatsCount} klijent(a)</span>
+                        </td>
+                    `;
+                }
+
+                const domNodes = [tr];
+                const itemsToRender = sortMode === 'desc' ? [...validItems].reverse() : validItems;
+                itemsToRender.forEach(item => {
+                    domNodes.push(createRowHtml(item, groupId));
+                    renderedIds.add(getRowId(item.row, item.idx));
+                });
+
+                groupSections.push(domNodes);
+            }
+
+            // 2. UNASSIGNED ITEMS (Nove Narudžbe)
+            const unassignedItems = [];
+            tableData.forEach((row, idx) => {
+                if (!renderedIds.has(getRowId(row, idx))) {
+                    unassignedItems.push({row, idx});
+                }
+            });
+
+            const unassignedDomNodes = [];
+            if (unassignedItems.length > 0) {
+                const tr = document.createElement('tr');
+                tr.className = 'group-divider';
+                const unassignedValid = getValidCount(unassignedItems);
+                tr.innerHTML = `
+                    <td colspan="8" style="background:rgba(34, 197, 94, 0.1); border-top:2px solid var(--success); color:var(--success)">
+                        <i class="fa-solid fa-inbox"></i> &nbsp; Najnovije (Nove narudžbe / Nema grupe)
+                        <span class="group-stats" style="background:var(--success); color:white">${unassignedValid} klijent(a)</span>
+                    </td>
+                `;
+                
+                unassignedDomNodes.push(tr);
+                const iterItems = sortMode === 'desc' ? [...unassignedItems].reverse() : unassignedItems;
+                iterItems.forEach(item => {
+                    unassignedDomNodes.push(createRowHtml(item, 'unassigned'));
+                });
+            }
+
+            // APPEND TO DOM RESPECTING SORT ORDER
+            if (sortMode === 'desc') {
+                // If DESC: Newest Unassigned at top, then Newest Groups below
+                unassignedDomNodes.forEach(node => tbody.appendChild(node));
+                groupSections.forEach(nodesArray => {
+                    nodesArray.forEach(node => tbody.appendChild(node));
+                });
+            } else {
+                // If ASC: Oldest Groups at top, then Oldest Unassigned items at bottom
+                groupSections.forEach(nodesArray => {
+                    nodesArray.forEach(node => tbody.appendChild(node));
+                });
+                unassignedDomNodes.forEach(node => tbody.appendChild(node));
+            }
+
+            // Headers
+            document.querySelectorAll('.edit-col-header').forEach(h => h.style.display = isEditMode ? 'table-cell' : 'none');
+            document.querySelectorAll('.checkbox-cell').forEach(h => h.style.display = isEditMode ? 'table-cell' : 'none');
+            
+            // Clean up lastCheckedBox tracking when re-rendering
+            lastCheckedBox = null;
+        }
+
+        function toggleGroup(groupId) {
+            if (isEditMode) return;
+            const rows = document.querySelectorAll(`.${groupId}`);
+            if(rows.length === 0) return;
+            
+            const isHidden = rows[0].classList.contains('hidden-row');
+            const eventTarget = event.currentTarget.querySelector('i');
+            
+            rows.forEach(r => {
+                if(isHidden) r.classList.remove('hidden-row');
+                else r.classList.add('hidden-row');
+            });
+            
+            if(isHidden) {
+                eventTarget.className = 'fa-solid fa-chevron-down';
+            } else {
+                eventTarget.className = 'fa-solid fa-chevron-right';
+            }
+        }
+
+        function toggleEditMode() {
+            isEditMode = !isEditMode;
+            const btn = document.getElementById('editModeBtn');
+            const controls = document.getElementById('editControls');
+            
+            if (isEditMode) {
+                btn.classList.add('btn-secondary');
+                btn.style.background = 'rgba(8, 172, 210, 0.2)';
+                controls.style.display = 'flex';
+                document.querySelectorAll('.hidden-row').forEach(r => r.classList.remove('hidden-row'));
+            } else {
+                btn.classList.remove('btn-secondary');
+                btn.style.background = '';
+                controls.style.display = 'none';
+            }
+            
+            renderTable();
+        }
+
+        function formatDate(dateStr) {
+            try {
+                if(!dateStr) return '';
+                const d = new Date(dateStr);
+                if (isNaN(d.valueOf())) return dateStr; // Ako nije datum (već neka napomena) vrati čisti tekst
+                return d.toLocaleDateString('hr-HR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute:'2-digit' });
+            } catch(e) { return dateStr; }
+        }
+
+        function updateData(rowIndex, colIndex, value) {
+            tableData[rowIndex][colIndex] = value;
+        }
+
+        function updateGroupName(metaIndex, value) {
+            groupMeta[metaIndex].name = value;
+        }
+
+        function deleteRow(index) {
+            if(confirm("Sigurno želiš obrisati ovaj red?")) {
+                const deletedRowArr = tableData.splice(index, 1);
+                // Also remove it from any existing groupMeta mappings so it doesn't leave ghost ids
+                const deletedId = deletedRowArr[0][0];
+                groupMeta.forEach(g => {
+                    g.orderIds = g.orderIds.filter(id => id !== deletedId);
+                });
+                renderTable();
+            }
+        }
+
+        function deleteGroup(metaIndex) {
+            if(confirm("Sigurno želiš otkačiti ovu grupu? Svi klijenti u njoj vratit će se u Nepoznato / Nedodijeljeno (gore), ali neće se obrisati!")) {
+                groupMeta.splice(metaIndex, 1);
+                renderTable();
+            }
+        }
+
+        function addNewRow() {
+            // Assign a temporary unique ID for grouping functionality
+            tableData.push(["URSA_"+Math.floor(Math.random()*1000000), "", "", "", "", new Date().toISOString()]);
+            renderTable();
+        }
+
+        function groupSelectedRows() {
+            const checkboxes = document.querySelectorAll('.row-checkbox:checked');
+            if(checkboxes.length === 0) {
+                showToast("Nisi označio nijedan redak!", true);
+                return;
+            }
+            
+            const name = prompt("Unesi ime nove Mjesečne Grupe (npr. 'Svibanj 2026'):");
+            if (!name) return;
+            
+            const selectedIds = Array.from(checkboxes).map(cb => cb.getAttribute('data-id'));
+            
+            // Remove them from other groups if they already belonged to one
+            groupMeta.forEach(g => {
+                g.orderIds = g.orderIds.filter(id => !selectedIds.includes(id));
+            });
+
+            // Create new group
+            groupMeta.push({
+                name: name,
+                orderIds: selectedIds
+            });
+            
+            renderTable();
+        }
+
+        async function saveChanges() {
+            if (!apiUrl) return;
+            document.getElementById('loader').style.display = 'block';
+
+            const padArray = (arr, minLength) => {
+                const maxCols = Math.max(...arr.map(r => r.length), minLength);
+                return arr.map(r => {
+                    const mapped = [...r];
+                    while(mapped.length < maxCols) mapped.push("");
+                    return mapped;
+                });
+            };
+
+            const paddedTableData = tableData.length > 0 ? padArray(tableData, 6) : [["","","","","",""]];
+            const dataToSave = [headerRow, ...paddedTableData]; // Prependaj zaglavlje nazad na vrh sheeta!
+            
+            let metaArr = groupMeta.map(g => [g.name, ...g.orderIds]);
+            if (metaArr.length === 0) metaArr = [["_NO_GROUPS_"]];
+            
+            const paddedMeta = padArray(metaArr, 2);
+            
+            try {
+                const res = await fetch(apiUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'syncSheet',
+                        data: dataToSave,
+                        meta: paddedMeta
+                    })
+                });
+                
+                showToast("Promjene uspješno spremljene!");
+                toggleEditMode();
+                setTimeout(() => loadData(), 1000); // Reload fresh data
+                
+            } catch (err) {
+                console.error(err);
+                showToast("Spremljeno (CORS opomena), osvježavam...", false);
+                setTimeout(() => loadData(), 1500);
+            }
+        }
+
+        // Init
+        checkAuth();
+    </script>
+</body>
+</html>

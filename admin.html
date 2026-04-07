@@ -33,6 +33,7 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            overflow-y: scroll;
         }
 
         /* Login Screen */
@@ -157,8 +158,10 @@
 
         table {
             width: 100%;
+            min-width: 1000px;
             border-collapse: collapse;
             text-align: left;
+            table-layout: fixed;
         }
 
         th {
@@ -176,6 +179,9 @@
             border-bottom: 1px solid var(--border);
             font-size: 15px;
             transition: background 0.2s;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         tr:last-child td {
@@ -221,13 +227,32 @@
         
         .group-stats {
             float: right;
-            font-size: 13px;
-            font-weight: 500;
-            color: var(--text-main);
-            background: rgba(0,0,0,0.3);
-            padding: 4px 12px;
-            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
+
+        .stats-badge {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .stats-badge:hover {
+            transform: scale(1.05);
+            opacity: 0.8;
+        }
+        .active-filter {
+            box-shadow: 0 0 0 2px white;
+            transform: scale(1.05);
+        }
+        .stats-total { background: rgba(0,0,0,0.3); color: var(--text-main); }
+        .stats-jednokratno { background: rgba(34, 197, 94, 0.15); color: #4ade80; }
+        .stats-2rate { background: rgba(168, 85, 247, 0.15); color: #c084fc; }
+        .stats-90 { background: rgba(56, 189, 248, 0.15); color: #7dd3fc; }
+        .stats-180 { background: rgba(251, 146, 60, 0.15); color: #fdba74; }
 
         /* Edit Mode */
         .edit-input {
@@ -366,13 +391,13 @@
                 <thead>
                     <tr>
                         <th class="checkbox-cell"></th>
-                        <th>Order ID</th>
-                        <th>Ime i Prezime</th>
-                        <th>Email</th>
-                        <th>Mobitel</th>
-                        <th>Vrsta Plaćanja / Paket</th>
-                        <th>Datum</th>
-                        <th class="edit-col-header">Akcije</th>
+                        <th style="width: 10%">Order ID</th>
+                        <th style="width: 18%">Ime i Prezime</th>
+                        <th style="width: 18%">Email</th>
+                        <th style="width: 14%">Mobitel</th>
+                        <th style="width: 25%">Vrsta Plaćanja / Paket</th>
+                        <th style="width: 15%">Datum</th>
+                        <th class="edit-col-header" style="width: 80px">Akcije</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody">
@@ -394,6 +419,7 @@
         let groupMeta = []; // format: { name: "Travanj", orderIds: ["id1", "id2"] }
         let apiUrl = localStorage.getItem('ursaAdminApiUrl') || 'https://script.google.com/macros/s/AKfycbxiSYQZCqQIOXNOAmsT2xV2gnVUfVzRS-uWJv9qVp2mfUDvEwGO5rXYeTFzqrdsDasiBg/exec';
         let lastCheckedBox = null;
+        let groupFilters = {}; // { 'groupId': 'filterType' }
 
         // Shift-click logic for bulk selection
         document.addEventListener('DOMContentLoaded', () => {
@@ -512,6 +538,17 @@
             }
         }
 
+        // --- FILTERS ---
+        function setFilter(groupId, filterType, e) {
+            e.stopPropagation();
+            if (groupFilters[groupId] === filterType) {
+                delete groupFilters[groupId];
+            } else {
+                groupFilters[groupId] = filterType;
+            }
+            renderTable();
+        }
+
         // --- TOGGLE SORT ---
         function toggleSortMode() {
             sortMode = sortMode === 'desc' ? 'asc' : 'desc';
@@ -577,12 +614,37 @@
                 return tr;
             }
 
-            // Helper for counting valid stats (Spreman.. or Potpuna..)
-            function getValidCount(items) {
-                return items.filter(item => {
+            // Helper for generating detailed stats
+            function getStats(items) {
+                let s = { jednokratno: 0, rate2: 0, dana90: 0, dana180: 0, total: 0 };
+                items.forEach(item => {
                     const vrsta = item.row[4] ? String(item.row[4]).trim() : '';
-                    return vrsta.startsWith('Spreman') || vrsta.startsWith('Potpuna');
-                }).length;
+                    if (!vrsta) return;
+                    
+                    const isSpreman = vrsta.startsWith('Spreman');
+                    const isPotpuna = vrsta.startsWith('Potpuna');
+                    
+                    // We check if it's a valid client through Spreman/Potpuna but count specific other flags
+                    if (isSpreman || isPotpuna || vrsta.toLowerCase().includes('jednokratno') || vrsta.toLowerCase().includes('2 rate')) {
+                        s.total++;
+                        if (vrsta.toLowerCase().includes('jednokratno')) s.jednokratno++;
+                        if (vrsta.toLowerCase().includes('2 rate')) s.rate2++;
+                        if (vrsta.includes('90 dana')) s.dana90++;
+                        if (vrsta.includes('180 dana')) s.dana180++;
+                    }
+                });
+                return s;
+            }
+
+            function renderStatsHtml(s, groupId) {
+                let html = '';
+                const active = groupFilters[groupId];
+                if(s.jednokratno > 0) html += `<span class="stats-badge stats-jednokratno ${active==='jednokratno'?'active-filter':''}" onclick="setFilter('${groupId}', 'jednokratno', event)">Jednokratno: ${s.jednokratno}</span>`;
+                if(s.rate2 > 0) html += `<span class="stats-badge stats-2rate ${active==='2rate'?'active-filter':''}" onclick="setFilter('${groupId}', '2rate', event)">2 rate: ${s.rate2}</span>`;
+                if(s.dana90 > 0) html += `<span class="stats-badge stats-90 ${active==='90'?'active-filter':''}" onclick="setFilter('${groupId}', '90', event)">90d: ${s.dana90}</span>`;
+                if(s.dana180 > 0) html += `<span class="stats-badge stats-180 ${active==='180'?'active-filter':''}" onclick="setFilter('${groupId}', '180', event)">180d: ${s.dana180}</span>`;
+                html += `<span class="stats-badge stats-total ${active==='client'?'active-filter':''}" onclick="setFilter('${groupId}', 'client', event)">${s.total} UKUPNO</span>`;
+                return html;
             }
 
             // 1. DYNAMICALLY BUILD UI
@@ -602,7 +664,7 @@
                 const tr = document.createElement('tr');
                 tr.className = 'group-divider';
                 
-                const validStatsCount = getValidCount(validItems);
+                const stats = getStats(validItems);
 
                 if (isEditMode) {
                     const originalGrpIndex = sortMode === 'desc' ? groupMeta.length - 1 - g : g;
@@ -618,9 +680,9 @@
                 } else {
                     tr.setAttribute('onclick', `toggleGroup('${groupId}')`);
                     tr.innerHTML = `
-                        <td colspan="8">
+                        <td colspan="8" style="overflow: visible; white-space: normal;">
                             <i class="fa-solid fa-chevron-${sortMode === 'desc' ? 'down' : 'right'}"></i> &nbsp; ${grp.name}
-                            <span class="group-stats">${validStatsCount} klijent(a)</span>
+                            <span class="group-stats">${renderStatsHtml(stats, groupId)}</span>
                         </td>
                     `;
                 }
@@ -628,8 +690,20 @@
                 const domNodes = [tr];
                 const itemsToRender = sortMode === 'desc' ? [...validItems].reverse() : validItems;
                 itemsToRender.forEach(item => {
-                    domNodes.push(createRowHtml(item, groupId));
+                    // MUST BE AT THE TOP! Otherwise filtered items spill out into Unassigned group due to missing renderedIds tracking!
                     renderedIds.add(getRowId(item.row, item.idx));
+                    
+                    const active = groupFilters[groupId];
+                    if (active) {
+                        const v = item.row[4] ? String(item.row[4]).toLowerCase() : '';
+                        if (active === 'jednokratno' && !v.includes('jednokratno')) return;
+                        if (active === '2rate' && !v.includes('2 rate')) return;
+                        if (active === '90' && !v.includes('90 dana')) return;
+                        if (active === '180' && !v.includes('180 dana')) return;
+                        if (active === 'client' && !(v.startsWith('spreman') || v.startsWith('potpuna') || v.includes('jednokratno') || v.includes('2 rate'))) return;
+                    }
+
+                    domNodes.push(createRowHtml(item, groupId));
                 });
 
                 groupSections.push(domNodes);
@@ -647,17 +721,26 @@
             if (unassignedItems.length > 0) {
                 const tr = document.createElement('tr');
                 tr.className = 'group-divider';
-                const unassignedValid = getValidCount(unassignedItems);
+                const unassignedStats = getStats(unassignedItems);
                 tr.innerHTML = `
-                    <td colspan="8" style="background:rgba(34, 197, 94, 0.1); border-top:2px solid var(--success); color:var(--success)">
+                    <td colspan="8" style="background:rgba(34, 197, 94, 0.1); border-top:2px solid var(--success); color:var(--success); overflow: visible; white-space: normal;">
                         <i class="fa-solid fa-inbox"></i> &nbsp; Najnovije (Nove narudžbe / Nema grupe)
-                        <span class="group-stats" style="background:var(--success); color:white">${unassignedValid} klijent(a)</span>
+                        <span class="group-stats">${renderStatsHtml(unassignedStats, 'unassigned')}</span>
                     </td>
                 `;
                 
                 unassignedDomNodes.push(tr);
                 const iterItems = sortMode === 'desc' ? [...unassignedItems].reverse() : unassignedItems;
                 iterItems.forEach(item => {
+                    const active = groupFilters['unassigned'];
+                    if (active) {
+                        const v = item.row[4] ? String(item.row[4]).toLowerCase() : '';
+                        if (active === 'jednokratno' && !v.includes('jednokratno')) return;
+                        if (active === '2rate' && !v.includes('2 rate')) return;
+                        if (active === '90' && !v.includes('90 dana')) return;
+                        if (active === '180' && !v.includes('180 dana')) return;
+                        if (active === 'client' && !(v.startsWith('spreman') || v.startsWith('potpuna') || v.includes('jednokratno') || v.includes('2 rate'))) return;
+                    }
                     unassignedDomNodes.push(createRowHtml(item, 'unassigned'));
                 });
             }

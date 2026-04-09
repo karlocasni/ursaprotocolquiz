@@ -369,11 +369,14 @@
             <button class="btn btn-secondary btn-small" onclick="toggleSortMode()" id="sortBtn"><i class="fa-solid fa-arrow-down-z-a"></i> Novije na vrhu</button>
             <button class="btn btn-secondary btn-small" onclick="toggleEditMode()" id="editModeBtn"><i class="fa-solid fa-pen"></i> Uredi</button>
             
-            <div id="editControls" style="display: none; gap: 16px;">
-                <div style="width: 1px; background: var(--border); height: 30px; margin: 0 8px;"></div>
-                <button class="btn btn-small" style="background: var(--success)" onclick="addNewRow()"><i class="fa-solid fa-plus"></i> Dodaj Narudžbu (na kraj)</button>
-                <button class="btn btn-secondary btn-small" onclick="groupSelectedRows()"><i class="fa-solid fa-object-group"></i> Grupiraj označeno (Mjesec)</button>
-                <button class="btn btn-small" onclick="saveChanges()"><i class="fa-solid fa-save"></i> Spremi Promjene</button>
+            <div id="editControls" style="display: none; gap: 8px; flex-wrap: wrap;">
+                <div style="width: 1px; background: var(--border); height: 30px; margin: 0 4px;"></div>
+                <button class="btn btn-small" style="background: var(--success)" onclick="addNewRow()"><i class="fa-solid fa-plus"></i> Dodaj Narudžbu</button>
+                <button class="btn btn-secondary btn-small" onclick="groupSelectedRows()"><i class="fa-solid fa-object-group"></i> Nova Grupa</button>
+                <button class="btn btn-secondary btn-small" onclick="addSelectedToGroup()"><i class="fa-solid fa-folder-plus"></i> Dodaj u Grupu</button>
+                <button class="btn btn-secondary btn-small" onclick="removeSelectedFromGroup()"><i class="fa-solid fa-folder-minus"></i> Makni iz Grupe</button>
+                <button class="btn btn-small" style="background: var(--error)" onclick="deleteSelectedRows()"><i class="fa-solid fa-trash-can"></i> Obriši Označeno</button>
+                <button class="btn btn-small" onclick="saveChanges()"><i class="fa-solid fa-save"></i> Spremi</button>
             </div>
             
             <div style="flex-grow: 1"></div>
@@ -391,12 +394,12 @@
                 <thead>
                     <tr>
                         <th class="checkbox-cell"></th>
-                        <th style="width: 10%">Order ID</th>
                         <th style="width: 18%">Ime i Prezime</th>
                         <th style="width: 18%">Email</th>
                         <th style="width: 14%">Mobitel</th>
-                        <th style="width: 25%">Vrsta Plaćanja / Paket</th>
-                        <th style="width: 15%">Datum</th>
+                        <th style="width: 22%">Vrsta Plaćanja / Paket</th>
+                        <th style="width: 12%">Datum</th>
+                        <th style="width: 10%">Order ID</th>
                         <th class="edit-col-header" style="width: 80px">Akcije</th>
                     </tr>
                 </thead>
@@ -417,7 +420,7 @@
         let tableData = []; 
         let headerRow = ["Order ID", "Ime i Prezime", "Email", "Mobitel", "Vrsta Plaćanja / Paket", "Datum"];
         let groupMeta = []; // format: { name: "Travanj", orderIds: ["id1", "id2"] }
-        let apiUrl = localStorage.getItem('ursaAdminApiUrl') || 'https://script.google.com/macros/s/AKfycbxiSYQZCqQIOXNOAmsT2xV2gnVUfVzRS-uWJv9qVp2mfUDvEwGO5rXYeTFzqrdsDasiBg/exec';
+        let apiUrl = localStorage.getItem('ursaAdminApiUrl') || 'https://script.google.com/macros/s/AKfycbwd8vOJmy0mBenmMVPY5ZEXDtXKOok3judM3xDmWxKmJpuPj6h-ZGpe1dtHngEdcQrlfg/exec';
         let lastCheckedBox = null;
         let groupFilters = {}; // { 'groupId': 'filterType' }
 
@@ -589,12 +592,12 @@
                         <td class="checkbox-cell" style="display:table-cell">
                             <input type="checkbox" class="row-checkbox" data-id="${orderIdStr}">
                         </td>
-                        <td><input type="text" class="edit-input" value="${row[0] || ''}" onchange="updateData(${idx}, 0, this.value)"></td>
                         <td><input type="text" class="edit-input" value="${row[1] || ''}" onchange="updateData(${idx}, 1, this.value)"></td>
                         <td><input type="text" class="edit-input" value="${row[2] || ''}" onchange="updateData(${idx}, 2, this.value)"></td>
                         <td><input type="text" class="edit-input" value="${row[3] || ''}" onchange="updateData(${idx}, 3, this.value)"></td>
                         <td><input type="text" class="edit-input" value="${row[4] || ''}" onchange="updateData(${idx}, 4, this.value)"></td>
                         <td><input type="text" class="edit-input" value="${row[5] || ''}" onchange="updateData(${idx}, 5, this.value)"></td>
+                        <td><input type="text" class="edit-input" value="${row[0] || ''}" onchange="updateData(${idx}, 0, this.value)"></td>
                         <td class="edit-col-cell" style="display:table-cell">
                             <button class="btn-secondary btn-small" style="color:var(--error); border-color:var(--error)" onclick="deleteRow(${idx})"><i class="fa-solid fa-trash"></i></button>
                         </td>
@@ -602,12 +605,12 @@
                 } else {
                     tr.innerHTML = `
                         <td class="checkbox-cell"></td>
-                        <td><span class="copyable" onclick="copyText(this, '${row[0]}')">${row[0] || '-'}</span></td>
                         <td><span class="copyable" onclick="copyText(this, '${row[1]}')"><strong>${row[1] || '-'}</strong></span></td>
                         <td><span class="copyable" onclick="copyText(this, '${row[2]}')">${row[2] || '-'}</span></td>
                         <td><span class="copyable" onclick="copyText(this, '${row[3]}')">${row[3] || '-'}</span></td>
                         <td><span class="copyable" onclick="copyText(this, '${row[4]}')">${row[4] || '-'}</span></td>
                         <td>${formatDate(row[5]) || '-'}</td>
+                        <td><span class="copyable" onclick="copyText(this, '${row[0]}')">${row[0] || '-'}</span></td>
                         <td class="edit-col-cell"></td>
                     `;
                 }
@@ -849,17 +852,42 @@
             renderTable();
         }
 
-        function groupSelectedRows() {
+        function getSelectedIds() {
             const checkboxes = document.querySelectorAll('.row-checkbox:checked');
-            if(checkboxes.length === 0) {
+            return Array.from(checkboxes).map(cb => cb.getAttribute('data-id'));
+        }
+
+        function deleteSelectedRows() {
+            const selectedIds = getSelectedIds();
+            if (selectedIds.length === 0) {
+                showToast("Nisi označio nijedan redak!", true);
+                return;
+            }
+            if (!confirm(`Sigurno želiš obrisati ${selectedIds.length} označenih redaka?`)) return;
+
+            // Remove from tableData
+            const idSet = new Set(selectedIds);
+            tableData = tableData.filter((row, idx) => {
+                const rowId = row[0] ? String(row[0]) : 'INDEX_' + idx;
+                return !idSet.has(rowId);
+            });
+            // Remove from all groups
+            groupMeta.forEach(g => {
+                g.orderIds = g.orderIds.filter(id => !idSet.has(id));
+            });
+            renderTable();
+            showToast(`Obrisano ${selectedIds.length} redaka.`);
+        }
+
+        function groupSelectedRows() {
+            const selectedIds = getSelectedIds();
+            if (selectedIds.length === 0) {
                 showToast("Nisi označio nijedan redak!", true);
                 return;
             }
             
             const name = prompt("Unesi ime nove Mjesečne Grupe (npr. 'Svibanj 2026'):");
             if (!name) return;
-            
-            const selectedIds = Array.from(checkboxes).map(cb => cb.getAttribute('data-id'));
             
             // Remove them from other groups if they already belonged to one
             groupMeta.forEach(g => {
@@ -873,6 +901,61 @@
             });
             
             renderTable();
+            showToast(`Kreirana nova grupa "${name}" s ${selectedIds.length} članova.`);
+        }
+
+        function addSelectedToGroup() {
+            const selectedIds = getSelectedIds();
+            if (selectedIds.length === 0) {
+                showToast("Nisi označio nijedan redak!", true);
+                return;
+            }
+            if (groupMeta.length === 0) {
+                showToast("Nema postojećih grupa. Prvo kreiraj grupu.", true);
+                return;
+            }
+            // Build group list for user to pick
+            const groupList = groupMeta.map((g, i) => `${i + 1}. ${g.name}`).join('\n');
+            const choice = prompt(`U koju grupu dodati označene?\n\n${groupList}\n\nUpiši broj grupe:`);
+            if (!choice) return;
+            const idx = parseInt(choice.trim()) - 1;
+            if (isNaN(idx) || idx < 0 || idx >= groupMeta.length) {
+                showToast("Nevažeći broj grupe.", true);
+                return;
+            }
+            // Remove selected from any current groups first
+            groupMeta.forEach(g => {
+                g.orderIds = g.orderIds.filter(id => !selectedIds.includes(id));
+            });
+            // Add to chosen group (avoid duplicates)
+            selectedIds.forEach(id => {
+                if (!groupMeta[idx].orderIds.includes(id)) {
+                    groupMeta[idx].orderIds.push(id);
+                }
+            });
+            renderTable();
+            showToast(`Dodano ${selectedIds.length} u grupu "${groupMeta[idx].name}".`);
+        }
+
+        function removeSelectedFromGroup() {
+            const selectedIds = getSelectedIds();
+            if (selectedIds.length === 0) {
+                showToast("Nisi označio nijedan redak!", true);
+                return;
+            }
+            const idSet = new Set(selectedIds);
+            let removedCount = 0;
+            groupMeta.forEach(g => {
+                const before = g.orderIds.length;
+                g.orderIds = g.orderIds.filter(id => !idSet.has(id));
+                removedCount += before - g.orderIds.length;
+            });
+            renderTable();
+            if (removedCount > 0) {
+                showToast(`Maknuto ${removedCount} zapisa iz grupa (prebačeno u Nove narudžbe).`);
+            } else {
+                showToast("Označeni reci nisu bili u nijednoj grupi.", true);
+            }
         }
 
         async function saveChanges() {

@@ -55,14 +55,37 @@ function doPost(e) {
     // 4. SURECART WEBHOOKS (New purchase)
     if (payload.data && (payload.type === 'order.created' || payload.type === 'charge.succeeded' || payload.data.object)) {
         const eventData = payload.data.object || payload.data;
-        
-        // Log safety
-        const logSheet = ss.getSheetByName("RawLogs") || ss.insertSheet("RawLogs");
-        logSheet.appendRow([new Date(), payloadStr]);
 
-        const customerId = eventData.customer; 
-        const priceId = eventData.price; 
-        const orderId = eventData.initial_order || eventData.id;
+        // --- STEP 1: Extract a stable transaction ID from the raw payload BEFORE any API calls ---
+        // Use the most stable identifier available: initial_order > id from eventData
+        const rawTransactionId = String(eventData.initial_order || eventData.id || '');
+
+        // --- STEP 2: Log to RawLogs immediately ---
+        const logSheet = ss.getSheetByName("RawLogs") || ss.insertSheet("RawLogs");
+        if (logSheet.getLastRow() === 0) {
+            logSheet.appendRow(["Timestamp", "TransactionID", "RawPayload"]);
+        }
+
+        // --- STEP 3: Check RawLogs for duplicate transaction ID ---
+        if (rawTransactionId) {
+            const logData = logSheet.getDataRange().getValues();
+            // Start from row 2 (skip header)
+            for (let i = 1; i < logData.length; i++) {
+                if (String(logData[i][1]) === rawTransactionId) {
+                    // Duplicate! Log it as a duplicate marker and bail out early
+                    logSheet.appendRow([new Date(), rawTransactionId + "__DUPLICATE", payloadStr]);
+                    return response;
+                }
+            }
+        }
+
+        // Not a duplicate — log it properly now
+        logSheet.appendRow([new Date(), rawTransactionId, payloadStr]);
+
+        // --- STEP 4: Fetch enriched data from SureCart API ---
+        const customerId = eventData.customer;
+        const priceId = eventData.price;
+        const orderId = rawTransactionId;
 
         const options = {
             "method": "GET",
@@ -92,7 +115,7 @@ function doPost(e) {
             }
         }
 
-        // Fetch Order ID cleanly
+        // Fetch Order number (human-readable ID)
         if (orderId) {
             const orderRes = UrlFetchApp.fetch("https://api.surecart.com/v1/orders/" + orderId, options);
             if (orderRes.getResponseCode() === 200) {
@@ -101,28 +124,14 @@ function doPost(e) {
             }
         }
 
+        // --- STEP 5: Write to Sheet1 ---
         const mainSheet = ss.getSheets()[0];
-        
-        // DEDUPLICATION FIX
-        // Get all order IDs from column 1 (A)
-        const dataRange = mainSheet.getDataRange();
-        const numRows = dataRange.getNumRows();
-        if (numRows > 0) {
-            const allIds = mainSheet.getRange(1, 1, numRows, 1).getValues();
-            for (let i = 0; i < allIds.length; i++) {
-                if (allIds[i][0] === cleanId || allIds[i][0] === orderId) {
-                    // It's a duplicate, don't append again!
-                    return response;
-                }
-            }
-        }
-
         mainSheet.appendRow([
-            cleanId, 
-            name, 
-            email, 
+            cleanId,
+            name,
+            email,
             " " + phone, // Space forces string to keep + character
-            variantName, 
+            variantName,
             new Date().toISOString()
         ]);
 

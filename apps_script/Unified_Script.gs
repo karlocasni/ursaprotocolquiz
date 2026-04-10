@@ -21,7 +21,7 @@ function doPost(e) {
 
     // 1. ADMIN PANEL: SYNC ENTIRE SHEET (Edit mode save)
     if (payload.action === 'syncSheet') {
-        const mainSheet = ss.getSheets()[0];
+        const mainSheet = ss.getSheetByName('Sheet1');
         mainSheet.clearContents(); // Clear existing pure data to replace
         
         const data = payload.data;
@@ -47,7 +47,11 @@ function doPost(e) {
     
     // 3. KVIZ: NORMAL LEAD (If applicable from frontend instead of SureCart)
     if (payload.action === 'lead') {
-        const leadsSheet = ss.getSheets()[0];
+        let leadsSheet = ss.getSheetByName('Leads');
+        if (!leadsSheet) {
+            leadsSheet = ss.insertSheet('Leads');
+            leadsSheet.appendRow(["Timestamp", "Ime", "Email", "Vrsta", "Cilj", "DatumPrijave"]);
+        }
         leadsSheet.appendRow([new Date(), payload.name || "", payload.email || "", "Lead", payload.goal || "", new Date()]);
         return response;
     }
@@ -133,7 +137,7 @@ function doPost(e) {
         }
 
         // --- STEP 5: Write to Sheet1 ---
-        const mainSheet = ss.getSheets()[0];
+        const mainSheet = ss.getSheetByName('Sheet1');
         
         // Final Bulletproof Check: Make sure it's not already in Sheet1 before appending
         const existingData = mainSheet.getDataRange().getValues();
@@ -172,7 +176,7 @@ function doPost(e) {
 function doGet(e) {
   try {
       const ss = SpreadsheetApp.openById('1jbSOKSfX6I0vMwiiSJiuHOtmhK_ozJ0L6yO11xppKlQ');
-      const mainSheet = ss.getSheets()[0];
+      const mainSheet = ss.getSheetByName('Sheet1');
       
       const dataRange = mainSheet.getDataRange();
       const numRows = dataRange.getNumRows();

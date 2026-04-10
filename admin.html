@@ -394,10 +394,11 @@
                 <thead>
                     <tr>
                         <th class="checkbox-cell"></th>
-                        <th style="width: 18%">Ime i Prezime</th>
-                        <th style="width: 18%">Email</th>
-                        <th style="width: 14%">Mobitel</th>
-                        <th style="width: 22%">Vrsta Plaćanja / Paket</th>
+                        <th style="width: 4%">#</th>
+                        <th style="width: 17%">Ime i Prezime</th>
+                        <th style="width: 17%">Email</th>
+                        <th style="width: 12%">Mobitel</th>
+                        <th style="width: 20%">Vrsta Plaćanja / Paket</th>
                         <th style="width: 12%">Datum</th>
                         <th style="width: 10%">Order ID</th>
                         <th class="edit-col-header" style="width: 80px">Akcije</th>
@@ -420,7 +421,7 @@
         let tableData = []; 
         let headerRow = ["Order ID", "Ime i Prezime", "Email", "Mobitel", "Vrsta Plaćanja / Paket", "Datum"];
         let groupMeta = []; // format: { name: "Travanj", orderIds: ["id1", "id2"] }
-        let apiUrl = localStorage.getItem('ursaAdminApiUrl') || 'https://script.google.com/macros/s/AKfycbwd8vOJmy0mBenmMVPY5ZEXDtXKOok3judM3xDmWxKmJpuPj6h-ZGpe1dtHngEdcQrlfg/exec';
+        let apiUrl = localStorage.getItem('ursaAdminApiUrl') || 'https://script.google.com/macros/s/AKfycbyWQsjnenPCvl_S3hKMjeDwc_af4Q7k0zHT2mLV0DvaCoMKx7fRTYHAcfE_n5-DksO4Xg/exec';
         let lastCheckedBox = null;
         let groupFilters = {}; // { 'groupId': 'filterType' }
 
@@ -592,6 +593,7 @@
                         <td class="checkbox-cell" style="display:table-cell">
                             <input type="checkbox" class="row-checkbox" data-id="${orderIdStr}">
                         </td>
+                        <td><strong>${rowObj.orderNumber || ''}</strong></td>
                         <td><input type="text" class="edit-input" value="${row[1] || ''}" onchange="updateData(${idx}, 1, this.value)"></td>
                         <td><input type="text" class="edit-input" value="${row[2] || ''}" onchange="updateData(${idx}, 2, this.value)"></td>
                         <td><input type="text" class="edit-input" value="${row[3] || ''}" onchange="updateData(${idx}, 3, this.value)"></td>
@@ -605,6 +607,7 @@
                 } else {
                     tr.innerHTML = `
                         <td class="checkbox-cell"></td>
+                        <td style="color:var(--primary); font-weight:700;">${rowObj.orderNumber || ''}</td>
                         <td><span class="copyable" onclick="copyText(this, '${row[1]}')"><strong>${row[1] || '-'}</strong></span></td>
                         <td><span class="copyable" onclick="copyText(this, '${row[2]}')">${row[2] || '-'}</span></td>
                         <td><span class="copyable" onclick="copyText(this, '${row[3]}')">${row[3] || '-'}</span></td>
@@ -662,6 +665,22 @@
                 // Obavezno sortiraj kronološki prema Google Sheetu prije reversea!
                 validItems.sort((a, b) => a.idx - b.idx);
                 
+                let orderCounter = 1;
+                validItems.forEach(item => {
+                    const vrsta = item.row[4] ? String(item.row[4]).trim() : '';
+                    if (vrsta) {
+                        const isSpreman = vrsta.startsWith('Spreman');
+                        const isPotpuna = vrsta.startsWith('Potpuna');
+                        if (isSpreman || isPotpuna || vrsta.toLowerCase().includes('jednokratno') || vrsta.toLowerCase().includes('2 rate')) {
+                            item.orderNumber = orderCounter++;
+                        } else {
+                            item.orderNumber = '';
+                        }
+                    } else {
+                        item.orderNumber = '';
+                    }
+                });
+
                 const groupId = 'group-div-' + g;
                 
                 const tr = document.createElement('tr');
@@ -672,7 +691,7 @@
                 if (isEditMode) {
                     const originalGrpIndex = sortMode === 'desc' ? groupMeta.length - 1 - g : g;
                     tr.innerHTML = `
-                        <td colspan="6">
+                        <td colspan="8">
                             <i class="fa-solid fa-folder"></i> &nbsp; 
                             <input type="text" style="background:rgba(0,0,0,0.5); border:1px solid var(--primary); color:var(--primary); font-weight:bold; padding:4px 8px; border-radius:4px" 
                                 value="${grp.name}" 
@@ -683,7 +702,7 @@
                 } else {
                     tr.setAttribute('onclick', `toggleGroup('${groupId}')`);
                     tr.innerHTML = `
-                        <td colspan="8" style="overflow: visible; white-space: normal;">
+                        <td colspan="9" style="overflow: visible; white-space: normal;">
                             <i class="fa-solid fa-chevron-${sortMode === 'desc' ? 'down' : 'right'}"></i> &nbsp; ${grp.name}
                             <span class="group-stats">${renderStatsHtml(stats, groupId)}</span>
                         </td>
@@ -720,13 +739,30 @@
                 }
             });
 
+            unassignedItems.sort((a, b) => a.idx - b.idx);
+            let unassignedOrderCounter = 1;
+            unassignedItems.forEach(item => {
+                const vrsta = item.row[4] ? String(item.row[4]).trim() : '';
+                if (vrsta) {
+                    const isSpreman = vrsta.startsWith('Spreman');
+                    const isPotpuna = vrsta.startsWith('Potpuna');
+                    if (isSpreman || isPotpuna || vrsta.toLowerCase().includes('jednokratno') || vrsta.toLowerCase().includes('2 rate')) {
+                        item.orderNumber = unassignedOrderCounter++;
+                    } else {
+                        item.orderNumber = '';
+                    }
+                } else {
+                    item.orderNumber = '';
+                }
+            });
+
             const unassignedDomNodes = [];
             if (unassignedItems.length > 0) {
                 const tr = document.createElement('tr');
                 tr.className = 'group-divider';
                 const unassignedStats = getStats(unassignedItems);
                 tr.innerHTML = `
-                    <td colspan="8" style="background:rgba(34, 197, 94, 0.1); border-top:2px solid var(--success); color:var(--success); overflow: visible; white-space: normal;">
+                    <td colspan="9" style="background:rgba(34, 197, 94, 0.1); border-top:2px solid var(--success); color:var(--success); overflow: visible; white-space: normal;">
                         <i class="fa-solid fa-inbox"></i> &nbsp; Najnovije (Nove narudžbe / Nema grupe)
                         <span class="group-stats">${renderStatsHtml(unassignedStats, 'unassigned')}</span>
                     </td>

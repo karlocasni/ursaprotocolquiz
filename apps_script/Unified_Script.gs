@@ -54,7 +54,15 @@ function doPost(e) {
 
     // 4. SURECART WEBHOOKS (New purchase)
     if (payload.data && (payload.type === 'order.created' || payload.type === 'charge.succeeded' || payload.data.object)) {
-        const eventData = payload.data.object || payload.data;
+        const lock = LockService.getScriptLock();
+        try {
+            lock.waitLock(30000);
+        } catch (e) {
+            return response;
+        }
+
+        try {
+            const eventData = payload.data.object || payload.data;
 
         // --- STEP 1: Extract a stable transaction ID from the raw payload BEFORE any API calls ---
         // Use the most stable identifier available: initial_order > id from eventData
@@ -126,16 +134,32 @@ function doPost(e) {
 
         // --- STEP 5: Write to Sheet1 ---
         const mainSheet = ss.getSheets()[0];
-        mainSheet.appendRow([
-            cleanId,
-            name,
-            email,
-            " " + phone, // Space forces string to keep + character
-            variantName,
-            new Date().toISOString()
-        ]);
+        
+        // Final Bulletproof Check: Make sure it's not already in Sheet1 before appending
+        const existingData = mainSheet.getDataRange().getValues();
+        let alreadyExists = false;
+        for (let i = 0; i < existingData.length; i++) {
+            if (String(existingData[i][0]) === String(cleanId) || String(existingData[i][0]) === String(orderId)) {
+                alreadyExists = true;
+                break;
+            }
+        }
+        
+        if (!alreadyExists) {
+            mainSheet.appendRow([
+                cleanId,
+                name,
+                email,
+                " " + phone, // Space forces string to keep + character
+                variantName,
+                new Date().toISOString()
+            ]);
+        }
 
         return response;
+        } finally {
+            lock.releaseLock();
+        }
     }
 
   } catch (err) {

@@ -228,7 +228,7 @@
         }
 
         #vsl-pitch {
-            display: block;
+            display: none;
         }
 
         .section-label {
@@ -753,6 +753,160 @@
                 gap: 8px;
             }
         }
+
+        /* ═══ UNLOCK LOADER ═══ */
+        .unlock-loader-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+            margin-top: 28px;
+            margin-bottom: 8px;
+        }
+
+        .unlock-loader {
+            position: relative;
+            width: 72px;
+            height: 72px;
+        }
+
+        .unlock-loader svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg) scaleX(-1); /* start at top, counter-clockwise */
+        }
+
+        .unlock-loader .track {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.08);
+            stroke-width: 4;
+            transition: stroke 0.5s ease;
+        }
+
+        .unlock-loader .progress {
+            fill: none;
+            stroke: var(--accent2);
+            stroke-width: 4;
+            stroke-linecap: round;
+            stroke-dasharray: 201.06;
+            stroke-dashoffset: 201.06;
+            transition: stroke-dashoffset 0.5s ease;
+            filter: drop-shadow(0 0 6px rgba(8, 172, 210, 0.5));
+        }
+
+        .unlock-loader-icon {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            color: rgba(255, 255, 255, 0.25);
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .unlock-loader-icon i {
+            transition: all 0.4s ease;
+        }
+
+        .unlock-loader-label {
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.5);
+            transition: all 0.5s ease;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        .unlock-loader-time {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: var(--accent2);
+            font-variant-numeric: tabular-nums;
+            transition: all 0.5s ease;
+        }
+
+        /* State: unlocked — icon pulses green */
+        .unlock-loader-wrap.unlocked {
+            cursor: pointer;
+        }
+
+        .unlock-loader-wrap.unlocked .unlock-loader-icon {
+            color: var(--green-check);
+            animation: icon-pulse 1.5s ease-in-out infinite;
+        }
+
+        .unlock-loader-wrap.unlocked .unlock-loader-label {
+            color: var(--green-check);
+        }
+
+        .unlock-loader-wrap.unlocked .progress {
+            stroke: var(--green-check);
+            filter: drop-shadow(0 0 14px rgba(34, 197, 94, 0.6));
+            animation: border-pulse 1.5s ease-in-out infinite;
+        }
+
+        .unlock-loader-wrap.unlocked .track {
+            stroke: rgba(34, 197, 94, 0.15);
+        }
+
+        @keyframes icon-pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.25); opacity: 0.75; }
+        }
+
+        @keyframes border-pulse {
+            0%, 100% { filter: drop-shadow(0 0 6px rgba(34, 197, 94, 0.4)); stroke-width: 4; }
+            50% { filter: drop-shadow(0 0 18px rgba(34, 197, 94, 0.8)); stroke-width: 6; }
+        }
+
+        /* After click — stop pulsing, show as clicked */
+        .unlock-loader-wrap.clicked {
+            pointer-events: none;
+        }
+
+        .unlock-loader-wrap.clicked .unlock-loader-icon {
+            animation: none;
+            transform: scale(1);
+        }
+
+        .unlock-loader-wrap.clicked .progress {
+            animation: none;
+        }
+
+        .unlock-loader-wrap.clicked .unlock-loader-label-bottom {
+            color: rgba(255,255,255,0.3);
+        }
+
+        .unlock-loader-label-bottom {
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            color: var(--green-check);
+            transition: all 0.5s ease;
+            text-align: center;
+            display: none;
+        }
+
+        .unlock-loader-wrap.unlocked .unlock-loader-label-bottom {
+            display: block;
+        }
+
+        /* Page reveal animation */
+        #vsl-pitch.revealing {
+            display: block !important;
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+        }
+
+        #vsl-pitch.revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
     </style>
     <!-- PostHog Snippet -->
     <script>
@@ -794,6 +948,21 @@
                 </script>
             </div>
 
+            <!-- Unlock loader -->
+            <div class="unlock-loader-wrap" id="unlock-loader">
+                <div class="unlock-loader-label" id="unlock-label">Tvoj sljedeći korak će se otključati za…</div>
+                <div class="unlock-loader">
+                    <svg viewBox="0 0 72 72">
+                        <circle class="track" cx="36" cy="36" r="32"></circle>
+                        <circle class="progress" cx="36" cy="36" r="32"></circle>
+                    </svg>
+                    <div class="unlock-loader-icon" id="unlock-icon">
+                        <i class="fa-solid fa-lock"></i>
+                    </div>
+                </div>
+                <div class="unlock-loader-time" id="unlock-time">3:50</div>
+                <div class="unlock-loader-label-bottom" id="unlock-label-bottom">Klikni ovdje za otključavanje ↓</div>
+            </div>
 
         </div>
 
@@ -1331,7 +1500,74 @@
             if (badge) badge.textContent = '🗓️ ' + formatted + ' → To je datum. Točno 90 dana od danas.';
         })();
 
-        // VSL Reveal Logic removed - page is fully visible instantly.
+        /* ═══ UNLOCK TIMER LOGIC ═══ */
+        (function initUnlockLoader() {
+            var UNLOCK_SECONDS = 230; // 3 minutes 50 seconds
+            var loaderWrap = document.getElementById('unlock-loader');
+            var progressCircle = loaderWrap.querySelector('.progress');
+            var timeEl = document.getElementById('unlock-time');
+            var labelEl = document.getElementById('unlock-label');
+            var iconEl = document.getElementById('unlock-icon');
+            var circumference = 2 * Math.PI * 32; // r=32 → ~201.06
+            var remaining = UNLOCK_SECONDS;
+            var params = new URLSearchParams(window.location.search);
+
+            // Skip timer if URL params present
+            if (params.has('reveal') || params.get('open') === '1' || params.get('skip') === 'true') {
+                progressCircle.style.transition = 'none';
+                progressCircle.style.strokeDashoffset = '0';
+                triggerUnlockReady();
+                return;
+            }
+
+            var timerInterval = setInterval(function () {
+                remaining--;
+
+                // Update progress circle
+                var progress = 1 - (remaining / UNLOCK_SECONDS);
+                var offset = circumference * (1 - progress);
+                progressCircle.style.strokeDashoffset = offset;
+
+                // Update time display
+                var mins = Math.floor(remaining / 60);
+                var secs = remaining % 60;
+                timeEl.textContent = mins + ':' + (secs < 10 ? '0' : '') + secs;
+
+                if (remaining <= 0) {
+                    clearInterval(timerInterval);
+                    triggerUnlockReady();
+                }
+            }, 1000);
+
+            function triggerUnlockReady() {
+                // Phase 1: Swap to lock-open icon, start pulsing
+                timeEl.style.display = 'none';
+                labelEl.style.display = 'none';
+                iconEl.innerHTML = '<i class="fa-solid fa-lock-open"></i>';
+                loaderWrap.classList.add('unlocked');
+
+                // Phase 2: Wait for user click to reveal page
+                loaderWrap.addEventListener('click', function handleClick() {
+                    loaderWrap.removeEventListener('click', handleClick);
+                    loaderWrap.classList.add('clicked');
+                    revealPitch();
+                });
+            }
+        })();
+
+        function revealPitch() {
+            var pitch = document.getElementById('vsl-pitch');
+            if (pitch.classList.contains('revealed')) return;
+            pitch.classList.add('revealing');
+            requestAnimationFrame(function () {
+                requestAnimationFrame(function () {
+                    pitch.classList.add('revealed');
+                });
+            });
+            setTimeout(function () {
+                pitch.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 500);
+        }
 
         function updateCountdown() {
             var targetDate = new Date("2026-04-20T23:59:59+02:00").getTime();

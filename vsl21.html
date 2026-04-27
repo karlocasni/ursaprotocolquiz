@@ -1,0 +1,1546 @@
+<!DOCTYPE html>
+<html lang="hr">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>URSA PROTOCOL – Tvoj 90-dnevni plan transformacije</title>
+    <meta name="description"
+        content="Personalizirani video napravljen na temelju tvojih odgovora. 90-dnevni plan transformacije." />
+    <!-- OG Tags -->
+    <meta property="og:image" content="https://ursaprotocol.com/images/ogimage2.jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="icon" type="image/png" href="images/favicon.png" />
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --bg-grad-start: #1D283B;
+            --bg-grad-end: #2D1D3B;
+            --surface: rgba(17, 17, 17, 0.72);
+            --text: #fff;
+            --text-muted: rgba(255, 255, 255, 0.55);
+            --accent1: #2596be;
+            --accent2: #08acd2;
+            --green-check: #22c55e;
+            --gold: #f5c842;
+            --red-x: #f04848;
+            --card-radius: 20px;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text);
+            background: linear-gradient(135deg, var(--bg-grad-start), var(--bg-grad-end));
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+
+        .page {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 0 16px 80px;
+        }
+
+        .section-card {
+            background: var(--surface);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--card-radius);
+            padding: 40px 36px 44px;
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55);
+            margin-bottom: 20px;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(24px) scale(0.98);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .hero-eyebrow {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: var(--accent2);
+            text-align: center;
+            margin-bottom: 14px;
+        }
+
+        .hero-headline {
+            font-size: clamp(1.5rem, 5vw, 2.2rem);
+            font-weight: 900;
+            line-height: 1.25;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .hero-headline .accent {
+            color: var(--accent2);
+        }
+
+        .hero-sub {
+            text-align: center;
+            font-size: 1.45rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.78);
+            line-height: 1.7;
+            margin-bottom: 28px;
+        }
+
+        .hero-sub .goal-highlight {
+            color: var(--accent2);
+            font-weight: 700;
+        }
+
+        .graph-placeholder {
+            width: 100%;
+            aspect-ratio: 16/7;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1.5px dashed rgba(255, 255, 255, 0.13);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 10px;
+            color: rgba(255, 255, 255, 0.22);
+            font-size: 0.78rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin: 28px 0 22px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .graph-placeholder::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 55%;
+            background: linear-gradient(to top, rgba(37, 150, 190, 0.08), transparent);
+        }
+
+        .video-wrap {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: rgba(0, 0, 0, 0.45);
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1.5px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            cursor: pointer;
+        }
+
+        .video-wrap iframe,
+        .video-wrap video {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+
+        .video-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            background: linear-gradient(135deg, rgba(37, 150, 190, 0.1), rgba(45, 29, 59, 0.4));
+            z-index: 2;
+            transition: opacity 0.3s;
+        }
+
+        .video-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .play-circle {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: rgba(37, 150, 190, 0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            color: #fff;
+            box-shadow: 0 4px 32px rgba(37, 150, 190, 0.55);
+            transition: transform 0.2s;
+        }
+
+        .video-overlay:hover .play-circle {
+            transform: scale(1.08);
+        }
+
+        .play-label {
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .timer-notice {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: rgba(245, 200, 66, 0.08);
+            border: 1.5px solid rgba(245, 200, 66, 0.2);
+            border-radius: 10px;
+            padding: 10px 16px;
+            font-size: 0.82rem;
+            color: var(--gold);
+            font-weight: 500;
+            margin-top: 14px;
+            text-align: center;
+        }
+
+        #vsl-pitch {
+            display: block;
+        }
+
+        .section-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: var(--accent2);
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .section-title {
+            font-size: clamp(1.3rem, 4vw, 1.85rem);
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 24px;
+            line-height: 1.3;
+        }
+
+        .value-stack {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1.5px solid rgba(255, 255, 255, 0.09);
+            border-radius: 16px;
+            padding: 28px 24px;
+            margin-bottom: 28px;
+        }
+
+        .value-stack-header {
+            font-size: 0.7rem;
+            font-weight: 800;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: var(--accent2);
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .value-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .value-item:last-child {
+            border-bottom: none;
+        }
+
+        .value-check {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: rgba(34, 197, 94, 0.12);
+            border: 1.5px solid var(--green-check);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: var(--green-check);
+            font-size: 11px;
+            margin-top: 1px;
+        }
+
+        .value-text {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.85);
+            line-height: 1.5;
+        }
+
+        .value-text strong {
+            color: #fff;
+            font-weight: 700;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .gallery-item {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1.5px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            aspect-ratio: 1/1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 8px;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            text-align: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .gallery-item i {
+            font-size: 2rem;
+            opacity: 0.2;
+        }
+
+        .before-after-badge {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+        }
+
+        .ba-label {
+            flex: 1;
+            text-align: center;
+            font-size: 0.6rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            padding: 5px 0;
+            text-transform: uppercase;
+        }
+
+        .ba-label.before {
+            background: rgba(240, 72, 72, 0.7);
+            color: #fff;
+        }
+
+        .ba-label.after {
+            background: rgba(34, 197, 94, 0.7);
+            color: #fff;
+        }
+
+        .testimonial-card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1.5px solid rgba(255, 255, 255, 0.09);
+            border-radius: 14px;
+            padding: 20px 18px;
+            margin-bottom: 12px;
+        }
+
+        .testimonial-stars {
+            color: var(--gold);
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+        }
+
+        .testimonial-text {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+            font-style: italic;
+            margin-bottom: 10px;
+        }
+
+        .testimonial-author {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--accent2);
+        }
+
+        .bonus-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 18px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1.5px solid rgba(255, 255, 255, 0.09);
+            border-radius: 14px;
+            padding: 18px 20px;
+            margin-bottom: 12px;
+            transition: border-color 0.2s, transform 0.2s;
+        }
+
+        .bonus-item:hover {
+            border-color: rgba(37, 150, 190, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .bonus-icon {
+            width: 52px;
+            height: 52px;
+            min-width: 52px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, rgba(37, 150, 190, 0.18), rgba(8, 172, 210, 0.08));
+            border: 1.5px solid rgba(37, 150, 190, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .bonus-body {
+            flex: 1;
+        }
+
+        .bonus-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .bonus-desc {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .pricing-card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1.5px solid rgba(255, 255, 255, 0.1);
+            border-radius: 18px;
+            padding: 28px 20px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            position: relative;
+            transition: transform 0.25s;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .pricing-card.featured {
+            border-color: var(--gold);
+            box-shadow: 0 0 15px rgba(245, 200, 66, 0.4), 0 0 0 1px var(--gold) inset, 0 16px 48px rgba(245, 200, 66, 0.15);
+        }
+
+        .pricing-badge {
+            position: absolute;
+            top: -13px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(90deg, #d4a512, var(--gold));
+            color: #1a1000;
+            font-size: 0.65rem;
+            font-weight: 900;
+            letter-spacing: 1.8px;
+            text-transform: uppercase;
+            padding: 5px 14px;
+            border-radius: 99px;
+            white-space: nowrap;
+        }
+
+        .pricing-name {
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        .pricing-price {
+            font-size: clamp(2rem, 6vw, 2.8rem);
+            font-weight: 900;
+            text-align: center;
+            line-height: 1;
+        }
+
+        .pricing-price span {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .pricing-features {
+            list-style: none;
+            flex: 1;
+        }
+
+        .pricing-features li {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.82rem;
+            color: rgba(255, 255, 255, 0.8);
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .pricing-features li:last-child {
+            border-bottom: none;
+        }
+
+        .pricing-features .fi {
+            color: var(--green-check);
+            font-size: 0.7rem;
+        }
+
+        .btn-primary {
+            display: block;
+            width: 100%;
+            padding: 17px 24px;
+            background: linear-gradient(135deg, var(--accent1), var(--accent2));
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s;
+            text-align: center;
+            box-shadow: 0 8px 24px rgba(8, 172, 210, 0.35);
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+        }
+
+        .btn-primary::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, transparent 60%);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(8, 172, 210, 0.5);
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, #d4a512, var(--gold));
+            color: #1a1000;
+            box-shadow: 0 8px 24px rgba(245, 200, 66, 0.35);
+        }
+
+        .btn-gold:hover {
+            box-shadow: 0 12px 32px rgba(245, 200, 66, 0.5);
+        }
+
+        .guarantee-box {
+            background: rgba(34, 197, 94, 0.07);
+            border: 2px solid rgba(34, 197, 94, 0.3);
+            border-radius: 18px;
+            padding: 30px 28px;
+            margin-bottom: 20px;
+        }
+
+        .guarantee-icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .guarantee-title {
+            font-size: 1.35rem;
+            font-weight: 900;
+            line-height: 1.3;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .guarantee-title .g-accent {
+            color: var(--green-check);
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 12px;
+        }
+
+        .comparison-table th {
+            padding: 12px 16px;
+            font-size: 0.78rem;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        .comparison-table th:nth-child(2) {
+            color: var(--red-x);
+        }
+
+        .comparison-table th:nth-child(3) {
+            color: var(--gold);
+        }
+
+        .comparison-table td {
+            padding: 12px 16px;
+            font-size: 0.88rem;
+            color: rgba(255, 255, 255, 0.78);
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .comparison-table td:nth-child(2),
+        .comparison-table td:nth-child(3) {
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        .icon-x {
+            color: var(--red-x);
+        }
+
+        .icon-check {
+            color: var(--gold);
+        }
+
+        .faq-item {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+        }
+
+        .faq-question {
+            width: 100%;
+            background: transparent;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 18px 0;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text);
+            text-align: left;
+            transition: color 0.2s;
+        }
+
+        .faq-question:hover {
+            color: var(--accent2);
+        }
+
+        .faq-question .faq-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(37, 150, 190, 0.12);
+            border: 1.5px solid rgba(37, 150, 190, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: var(--accent2);
+            font-size: 0.7rem;
+            transition: transform 0.3s, background 0.2s;
+        }
+
+        .faq-item.open .faq-question .faq-icon {
+            transform: rotate(45deg);
+            background: rgba(37, 150, 190, 0.25);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .faq-item.open .faq-answer {
+            max-height: 500px;
+        }
+
+        .faq-answer-inner {
+            padding: 0 0 18px;
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            line-height: 1.7;
+        }
+
+        .social-proof {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .sp-avatars {
+            display: flex;
+        }
+
+        .sp-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: rgba(37, 150, 190, 0.3);
+            border: 2px solid var(--accent2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            margin-left: -8px;
+        }
+
+        .sp-avatar:first-child {
+            margin-left: 0;
+        }
+
+        .sp-text {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        @media(max-width:520px) {
+            .section-card {
+                padding: 28px 18px 36px;
+            }
+
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .gallery-grid {
+                gap: 8px;
+            }
+        }
+
+        /* ═══ UNLOCK LOADER ═══ */
+        .unlock-loader-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+            margin-top: 28px;
+            margin-bottom: 8px;
+        }
+
+        .unlock-loader {
+            position: relative;
+            width: 72px;
+            height: 72px;
+        }
+
+        .unlock-loader svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg) scaleX(-1); /* start at top, counter-clockwise */
+        }
+
+        .unlock-loader .track {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.08);
+            stroke-width: 4;
+            transition: stroke 0.5s ease;
+        }
+
+        .unlock-loader .progress {
+            fill: none;
+            stroke: var(--accent2);
+            stroke-width: 4;
+            stroke-linecap: round;
+            stroke-dasharray: 201.06;
+            stroke-dashoffset: 201.06;
+            transition: stroke-dashoffset 0.5s ease;
+            filter: drop-shadow(0 0 6px rgba(8, 172, 210, 0.5));
+        }
+
+        .unlock-loader-icon {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            color: rgba(255, 255, 255, 0.25);
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .unlock-loader-icon i {
+            transition: all 0.4s ease;
+        }
+
+        .unlock-loader-label {
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.5);
+            transition: all 0.5s ease;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        .unlock-loader-time {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: var(--accent2);
+            font-variant-numeric: tabular-nums;
+            transition: all 0.5s ease;
+        }
+
+        /* State: unlocked — icon pulses green */
+        .unlock-loader-wrap.unlocked {
+            cursor: pointer;
+        }
+
+        .unlock-loader-wrap.unlocked .unlock-loader-icon {
+            color: var(--green-check);
+            animation: icon-pulse 1.5s ease-in-out infinite;
+        }
+
+        .unlock-loader-wrap.unlocked .unlock-loader-label {
+            color: var(--green-check);
+        }
+
+        .unlock-loader-wrap.unlocked .progress {
+            stroke: var(--green-check);
+            filter: drop-shadow(0 0 14px rgba(34, 197, 94, 0.6));
+            animation: border-pulse 1.5s ease-in-out infinite;
+        }
+
+        .unlock-loader-wrap.unlocked .track {
+            stroke: rgba(34, 197, 94, 0.15);
+        }
+
+        @keyframes icon-pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.25); opacity: 0.75; }
+        }
+
+        @keyframes border-pulse {
+            0%, 100% { filter: drop-shadow(0 0 6px rgba(34, 197, 94, 0.4)); stroke-width: 4; }
+            50% { filter: drop-shadow(0 0 18px rgba(34, 197, 94, 0.8)); stroke-width: 6; }
+        }
+
+        /* After click — stop pulsing, show as clicked */
+        .unlock-loader-wrap.clicked {
+            pointer-events: none;
+        }
+
+        .unlock-loader-wrap.clicked .unlock-loader-icon {
+            animation: none;
+            transform: scale(1);
+        }
+
+        .unlock-loader-wrap.clicked .progress {
+            animation: none;
+        }
+
+        .unlock-loader-wrap.clicked .unlock-loader-label-bottom {
+            color: rgba(255,255,255,0.3);
+        }
+
+        .unlock-loader-label-bottom {
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            color: var(--green-check);
+            transition: all 0.5s ease;
+            text-align: center;
+            display: none;
+        }
+
+        .unlock-loader-wrap.unlocked .unlock-loader-label-bottom {
+            display: block;
+        }
+
+        /* Page reveal animation */
+        #vsl-pitch.revealing {
+            display: block !important;
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+        }
+
+        #vsl-pitch.revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+    <!-- PostHog Snippet -->
+    <script>
+        !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once register_for_session unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group identify setPersonProperties setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags resetGroups onFeatureFlags addFeatureFlagsHandler onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey getNextSurveyStep".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+        posthog.init('phc_fDON0VrLGNJfrRZtdpYKUuNj9G4GBvZILjOM7kadxP', {
+            api_host: 'https://eu.i.posthog.com',
+            defaults: '2026-01-30'
+        })
+    </script>
+</head>
+
+<body>
+    <div class="page">
+        <div style="padding-top:24px;" id="top"></div>
+
+        <div style="text-align: center; margin-bottom: 24px;">
+            <img src="images/logo.png" alt="URSA PROTOCOL" style="height: 60px;">
+        </div>
+
+        <!-- ═══ HERO — always visible ═══ -->
+        <div class="section-card">
+
+            <p class="hero-sub">
+                <strong>Kako da u 90 dana napraviš vidljivu promjenu na tijelu?</strong>
+            </p>
+
+            <div class="video-wrap" id="vsl-video-wrap" style="aspect-ratio: auto; overflow: visible; background: transparent; border: none;">
+                <div id="vidalytics_embed_Yl6NavqjEmEz0s2e" style="width: 100%; position:relative; padding-top: 56.25%;"></div>
+                <script type="text/javascript">
+                (function (v, i, d, a, l, y, t, c, s) {
+                    y='_'+d.toLowerCase();c=d+'L';if(!v[d]){v[d]={};}if(!v[c]){v[c]={};}if(!v[y]){v[y]={};}var vl='Loader',vli=v[y][vl],vsl=v[c][vl + 'Script'],vlf=v[c][vl + 'Loaded'],ve='Embed';
+                    if (!vsl){vsl=function(u,cb){
+                        if(t){cb();return;}s=i.createElement("script");s.type="text/javascript";s.async=1;s.src=u;
+                        if(s.readyState){s.onreadystatechange=function(){if(s.readyState==="loaded"||s.readyState=="complete"){s.onreadystatechange=null;vlf=1;cb();}};}else{s.onload=function(){vlf=1;cb();};}
+                        i.getElementsByTagName("head")[0].appendChild(s);
+                    };}
+                    vsl(l+'loader.min.js',function(){if(!vli){var vlc=v[c][vl];vli=new vlc();}vli.loadScript(l+'player.min.js',function(){var vec=v[d][ve];t=new vec();t.run(a);});});
+                })(window, document, 'Vidalytics', 'vidalytics_embed_Yl6NavqjEmEz0s2e', 'https://fast.vidalytics.com/embeds/Z46DQ9Hu/Yl6NavqjEmEz0s2e/');
+                </script>
+            </div>
+
+
+
+        </div>
+
+        <!-- ═══ HIDDEN PITCH ═══ -->
+        <div id="vsl-pitch">
+
+            <!-- 1. VALUE STACK -->
+            <div class="section-card">
+                <h2 class="section-title">Evo sve što dobivaš da za 90 dana imaš<br>tijelo koje si oduvijek htio:</h2>
+                <div class="value-stack">
+                    <div class="value-stack-header" style="padding-bottom:0;border-bottom:none;">
+                        <img src="images/stack.png" alt="Ursa Protocol Stack" style="width:100%;border-radius:12px;display:block;" onerror="this.style.display='none'">
+                    </div>
+
+                    <div class="value-item">
+                        <div class="value-check"><i class="fa-solid fa-check"></i></div>
+                        <div class="value-text"><strong>90-dnevni personalizirani plan transformacije</strong> — Svaki
+                            dan, svaki trening, svaki obrok isplaniran za tebe. Samo prati plan.</div>
+                    </div>
+                    <div class="value-item">
+                        <div class="value-check"><i class="fa-solid fa-check"></i></div>
+                        <div class="value-text"><strong>Plan treninga napravljen za tvoj cilj</strong> — Tvoj plan. Za
+                            tvoje tijelo. Za tvoju razinu. Mijenja se kako napređuješ.</div>
+                    </div>
+                    <div class="value-item">
+                        <div class="value-check"><i class="fa-solid fa-check"></i></div>
+                        <div class="value-text"><strong>Plan prehrane s točnim popisom namirnica</strong> — Točno što
+                            jesti, koliko, i kada. Bez dijeta, bez gladovanja, bez kompliciranja.</div>
+                    </div>
+                    <div class="value-item">
+                        <div class="value-check"><i class="fa-solid fa-check"></i></div>
+                        <div class="value-text"><strong>Ekskluzivna aplikacija samo za polaznike</strong> — Svi
+                            treninzi, obroci i napredak na jednom mjestu. Otvoriš i znaš točno što radiš danas.</div>
+                    </div>
+                    <div class="value-item">
+                        <div class="value-check"><i class="fa-solid fa-check"></i></div>
+                        <div class="value-text"><strong>Ursa osobno pregledava tvoj napredak</strong> — Ispravlja
+                            greške, odgovara na pitanja i ne dopušta ti da odustaneš. Ovo nije neki random trener. Ovo
+                            je direktan pristup njemu.</div>
+                    </div>
+                    <div class="value-item">
+                        <div class="value-check"><i class="fa-solid fa-check"></i></div>
+                        <div class="value-text"><strong>24/7 podrška</strong> — Kada god imaš pitanje, slobodno pošalji
+                            poruku. Tu smo kad god ti treba.</div>
+                    </div>
+                    <div class="value-item">
+                        <div class="value-check"><i class="fa-solid fa-check"></i></div>
+                        <div class="value-text"><strong>Tjedno praćenje i prilagodba plana</strong> — Svaki tjedan
+                            pregledavamo napredak i prilagođavamo plan. Nema stagnacije.</div>
+                    </div>
+                    <div class="value-item">
+                        <div class="value-check"><i class="fa-solid fa-check"></i></div>
+                        <div class="value-text"><strong>Privatna zajednica</strong> — Grupa ljudi koji prolaze isto.
+                            Motivacija, odgovornost, rezultati.</div>
+                    </div>
+                    <div class="value-item">
+                        <div class="value-check"><i class="fa-solid fa-check"></i></div>
+                        <div class="value-text"><strong>Privatni seminari i edukacije</strong> — Ekskluzivni video
+                            seminari samo za članove. Znanje koje nećeš naći na YouTubeu.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. GALLERY + TESTIMONIALS -->
+            <div class="section-card">
+                <h2 class="section-title" style="font-size:clamp(1.6rem,5vw,2.4rem);">Krenuli su iz iste točke kao ti.<br>Pogledaj ih sada.</h2>
+
+                <div class="gallery-grid">
+                    <div class="gallery-item" style="padding:0; border:none; background:transparent;">
+                        <img src="images/testimonial1.png" alt="Testimonial 1" style="width:100%; height:100%; object-fit:cover; border-radius:12px;">
+                    </div>
+                    <div class="gallery-item" style="padding:0; border:none; background:transparent;">
+                        <img src="images/testimonial2.png" alt="Testimonial 2" style="width:100%; height:100%; object-fit:cover; border-radius:12px;">
+                    </div>
+                    <div class="gallery-item" style="padding:0; border:none; background:transparent;">
+                        <img src="images/testimonial3.png" alt="Testimonial 3" style="width:100%; height:100%; object-fit:cover; border-radius:12px;">
+                    </div>
+                    <div class="gallery-item" style="padding:0; border:none; background:transparent;">
+                        <img src="images/testimonial4.png" alt="Testimonial 4" style="width:100%; height:100%; object-fit:cover; border-radius:12px;">
+                    </div>
+                    <div class="gallery-item" style="padding:0; border:none; background:transparent;">
+                        <img src="images/testimonial5.png" alt="Testimonial 5" style="width:100%; height:100%; object-fit:cover; border-radius:12px;">
+                    </div>
+                    <div class="gallery-item" style="padding:0; border:none; background:transparent;">
+                        <img src="images/testimonial6.png" alt="Testimonial 6" style="width:100%; height:100%; object-fit:cover; border-radius:12px;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. BONUSES -->
+            <div class="section-card">
+                <p
+                    style="text-align:center;font-size:0.97rem;color:rgba(255,255,255,0.75);line-height:1.7;margin-bottom:14px;">
+                    Kako bi ti dao još veću prednost i olakšao put, odlučio sam ubaciti nešto ekstra…
+                </p>
+                <h2 class="section-title">Dobit ćeš i 4 ekskluzivna neviđena<br>bonusa potpuno besplatno.</h2>
+
+                <div class="bonus-item">
+                    <div class="bonus-icon" style="padding:0;overflow:visible;background:transparent;border:none;">
+                        <img src="images/bonus1.png" alt="Bonus 1" style="width:58px;height:auto;object-fit:contain;border-radius:0;" onerror="this.outerHTML='🎁'">
+                    </div>
+                    <div class="bonus-body">
+                        <div class="bonus-title">BESPLATAN BONUS #1 — Privatni video trening "Neprobojni mindset"</div>
+                        <div class="bonus-desc">Mentalni operativni sustav koji koristim ja i koji koriste moji
+                            najuspješniji klijenti. Kako da nastaviš i kad ti se ne da i kako da budeš konsistentan kad
+                            svi drugi odustanu.</div>
+                    </div>
+                </div>
+                <div class="bonus-item">
+                    <div class="bonus-icon" style="padding:0;overflow:visible;background:transparent;border:none;">
+                        <img src="images/bonus2.png" alt="Bonus 2" style="width:58px;height:auto;object-fit:contain;border-radius:0;" onerror="this.outerHTML='🎁'">
+                    </div>
+                    <div class="bonus-body">
+                        <div class="bonus-title">BESPLATAN BONUS #2 — Vodič za teške dane</div>
+                        <div class="bonus-desc">Moj osobni sustav za dane kad bi najradije sve poslao u pm. Jer
+                            motivacija dolazi i odlazi. To svi znamo. Ali muškarci koji naprave transformaciju imaju
+                            sustav za te dane.</div>
+                    </div>
+                </div>
+                <div class="bonus-item">
+                    <div class="bonus-icon" style="padding:0;overflow:visible;background:transparent;border:none;">
+                        <img src="images/bonus3.png" alt="Bonus 3" style="width:58px;height:auto;object-fit:contain;border-radius:0;" onerror="this.outerHTML='🎁'">
+                    </div>
+                    <div class="bonus-body">
+                        <div class="bonus-title">BESPLATAN BONUS #3 — Vodič za suplemente</div>
+                        <div class="bonus-desc">Znam koliko para ljudi bacaju na gluposti, BCAA-e, fat burnere i sto
+                            drugih stvari koje su vidjeli na Instagramu. U ovom vodiču reći ću ti točno što vrijedi
+                            uzimati, što je bacanje para i što ja osobno koristim. Bez sponzoriranih sranja. Samo
+                            istina.</div>
+                    </div>
+                </div>
+                <div class="bonus-item">
+                    <div class="bonus-icon" style="padding:0;overflow:visible;background:transparent;border:none;">
+                        <img src="images/bonus4.png" alt="Bonus 4" style="width:58px;height:auto;object-fit:contain;border-radius:0;" onerror="this.outerHTML='🎁'">
+                    </div>
+                    <div class="bonus-body">
+                        <div class="bonus-title">BESPLATAN BONUS #4 — 2 mjesečna grupna LIVE Q&A poziva</div>
+                        <div class="bonus-desc">Sa mnom i s ostalim polaznicima URSA Protocol-a. Trening, prehrana,
+                            mindset — pitaš što hoćeš, možemo pričati o bilo čemu.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. PRICING -->
+            <div class="section-card">
+                <h2 class="section-title">Odaberi svoj plan:</h2>
+
+                <div class="pricing-grid">
+
+                    <div class="pricing-card featured" id="premium-plan">
+                        <div class="pricing-badge">🔥 Najpopularniji odabir</div>
+                        <div class="pricing-name">Potpuna transformacija</div>
+                        <div style="font-size:0.95rem;font-weight:600;color:var(--text-muted);text-align:center;">180 dana programa</div>
+                        <p style="font-size:0.78rem;color:rgba(255,255,255,0.6);text-align:center;line-height:1.5;">Za
+                            one koji žele ekskluzivni pristup Ursi i rezultate koji ostaju.</p>
+                        <ul class="pricing-features">
+                            <li><i class="fa-solid fa-check fi"></i> Kompletni program transformacije</li>
+                            <li><i class="fa-solid fa-check fi"></i> Plan treninga i prehrane</li>
+                            <li><i class="fa-solid fa-check fi"></i> Pristup aplikaciji</li>
+                            <li><i class="fa-solid fa-check fi"></i> Ursa pregledava tvoj napredak</li>
+                            <li><i class="fa-solid fa-check fi"></i> 24/7 podrška</li>
+                            <li><i class="fa-solid fa-check fi"></i> Privatna zajednica</li>
+                            <li><i class="fa-solid fa-check fi"></i> Svi bonusi</li>
+                            <li><i class="fa-solid fa-check fi"></i> Garantirana transformacija i novi izgled</li>
+                        </ul>
+                        <div
+                            style="background:rgba(245,200,66,0.08);border:1px solid rgba(245,200,66,0.25);border-radius:10px;padding:12px 14px;margin-top:4px;">
+                            <div
+                                style="font-size:0.7rem;font-weight:800;letter-spacing:1.5px;color:var(--gold);margin-bottom:8px;text-transform:uppercase;">
+                                Ekskluzivno uz Premium:</div>
+                            <ul style="list-style:none;display:flex;flex-direction:column;gap:5px;font-weight:700;">
+                                <li
+                                    style="font-size:0.75rem;color:rgba(255,255,255,0.8);display:flex;gap:7px;align-items:flex-start;">
+                                    <i class="fa-solid fa-check"
+                                        style="color:var(--gold);margin-top:2px;font-size:0.65rem;"></i>Ursa te prati
+                                    punih 6 mjeseci
+                                </li>
+                                <li
+                                    style="font-size:0.75rem;color:rgba(255,255,255,0.8);display:flex;gap:7px;align-items:flex-start;">
+                                    <i class="fa-solid fa-check"
+                                        style="color:var(--gold);margin-top:2px;font-size:0.65rem;"></i>Prioritetni
+                                    odgovor od Urse
+                                </li>
+                                <li
+                                    style="font-size:0.75rem;color:rgba(255,255,255,0.8);display:flex;gap:7px;align-items:flex-start;">
+                                    <i class="fa-solid fa-check"
+                                        style="color:var(--gold);margin-top:2px;font-size:0.65rem;"></i>Privatni 1-na-1
+                                    poziv sa Ursom kada god trebaš
+                                </li>
+                                <li
+                                    style="font-size:0.75rem;color:rgba(255,255,255,0.8);display:flex;gap:7px;align-items:flex-start;">
+                                    <i class="fa-solid fa-check"
+                                        style="color:var(--gold);margin-top:2px;font-size:0.65rem;"></i>Doživotni popust
+                                    na sve buduće programe
+                                </li>
+                                <li
+                                    style="font-size:0.75rem;color:rgba(255,255,255,0.8);display:flex;gap:7px;align-items:flex-start;">
+                                    <i class="fa-solid fa-check"
+                                        style="color:var(--gold);margin-top:2px;font-size:0.65rem;"></i>Zajednički
+                                    trening sa Ursom uživo
+                                </li>
+                                <li
+                                    style="font-size:0.75rem;color:rgba(255,255,255,0.8);display:flex;gap:7px;align-items:flex-start;">
+                                    <i class="fa-solid fa-check"
+                                        style="color:var(--gold);margin-top:2px;font-size:0.65rem;"></i>Karta za
+                                    godišnji URSA Giveaway (5000€+)
+                                </li>
+                            </ul>
+                        </div>
+                        <div style="text-align:center;margin-top:6px;"><span
+                                style="font-size:0.82rem;color:var(--text-muted);text-decoration:line-through;">797€</span>
+                        </div>
+                        <div class="pricing-price">597<span>€</span></div>
+                        <a href="https://nemaneide.ursaprotocol.com/checkout/" class="btn-primary btn-gold"
+                            id="btn-buy-797" onclick="handleBuy(event,'premium')">Želim krenuti →</a>
+                    </div>
+
+                    <div class="pricing-card">
+                        <div class="pricing-name">Spreman za promjenu</div>
+                        <div style="font-size:0.95rem;font-weight:600;color:var(--text-muted);text-align:center;">90 dana programa</div>
+                        <p style="font-size:0.78rem;color:rgba(255,255,255,0.6);text-align:center;line-height:1.5;">Sve
+                            što trebaš za plan transformacije u 90 dana.</p>
+                        <ul class="pricing-features">
+                            <li><i class="fa-solid fa-check fi"></i> Kompletni program transformacije</li>
+                            <li><i class="fa-solid fa-check fi"></i> Plan treninga i prehrane</li>
+                            <li><i class="fa-solid fa-check fi"></i> Pristup aplikaciji</li>
+                            <li><i class="fa-solid fa-check fi"></i> Ursa pregledava tvoj napredak</li>
+                            <li><i class="fa-solid fa-check fi"></i> 24/7 podrška</li>
+                            <li><i class="fa-solid fa-check fi"></i> Privatna zajednica</li>
+                            <li><i class="fa-solid fa-check fi"></i> Svi bonusi</li>
+                            <li><i class="fa-solid fa-check fi"></i> Garantirana transformacija i novi izgled</li>
+                        </ul>
+                        <div style="text-align:center;margin-top:8px;"><span
+                                style="font-size:0.82rem;color:var(--text-muted);text-decoration:line-through;">497€</span>
+                        </div>
+                        <div class="pricing-price">397<span>€</span></div>
+                        <a href="https://nemaneide.ursaprotocol.com/checkout/" class="btn-primary" id="btn-buy-497"
+                            onclick="handleBuy(event,'standard')">Započni →</a>
+                    </div>
+
+                </div>
+
+                <div class="discount-countdown-container"
+                    style="background: rgba(245, 200, 66, 0.08); border: 1.5px solid rgba(245, 200, 66, 0.2); border-radius: 14px; padding: 16px; margin-top: 24px; margin-bottom: 8px;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span
+                            style="font-size: 0.82rem; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 1px;"><i
+                                class="fa-solid fa-clock"></i> Popust ističe za:</span>
+                        <span id="countdown-timer"
+                            style="font-size: 0.95rem; font-weight: 800; color: #fff; font-variant-numeric: tabular-nums;">--:--:--:--</span>
+                    </div>
+                    <div
+                        style="width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden;">
+                        <div id="countdown-progress"
+                            style="height: 100%; background: linear-gradient(90deg, #d4a512, var(--gold)); width: 100%; transition: width 1s linear;">
+                        </div>
+                    </div>
+                    <div style="text-align: center; margin-top: 12px; font-weight: 800; color: #fff; font-size: 0.9rem; letter-spacing: 1px;">
+                        POČETAK PROTOCOLA: 20.4.2026.
+                    </div>
+                </div>
+
+                
+            </div>
+
+            <!-- 5. GUARANTEE + COMPARISON -->
+            <div class="section-card">
+                <div class="guarantee-box">
+                    <div class="guarantee-icon">🛡️</div>
+                    <div class="guarantee-title">
+                        <span class="g-accent">Za 90 dana izgledaš bolje nego ikad.</span><br>
+                        Ako ne, vraćam ti sve + 200€.
+                    </div>
+                    <div
+                        style="font-size:0.92rem;color:rgba(255,255,255,0.75);line-height:1.7;text-align:left;margin-top:16px;display:flex;flex-direction:column;gap:10px;">
+                        <p>Imam toliko povjerenja u ovaj program da ti dajem garanciju koja ide protiv mene.</p>
+                        <p>Prati plan. Pojavi se. Odradi što ti kažem. Ako za 90 dana ne vidiš promjenu na svom tijelu,
+                            ne samo da ti vraćam kompletan iznos, nego ti dajem 200€ iz vlastitog džepa kao ispriku za
+                            izgubljeno vrijeme.</p>
+                        <p>Zašto? Jer nitko tko je pratio ovaj program nije ostao isti. Nitko. I spreman sam staviti
+                            svoj novac iza te tvrdnje.</p>
+                        <p><strong>Ovdje ne riskiraš ništa. Doslovno ništa.</strong></p>
+                        <p>Jedino što možeš izgubiti je tijelo koje ti se ne sviđa.</p>
+                    </div>
+                </div>
+
+                <a href="#premium-plan" class="btn-primary btn-gold"
+                    onclick="event.preventDefault(); document.getElementById('premium-plan').scrollIntoView({behavior: 'smooth'})"
+                    style="margin-bottom:28px;">Želim krenuti →</a>
+
+                <h2 class="section-title" style="font-size:1.3rem;margin-bottom:20px;">Pogledaj usporedbu…</h2>
+
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th style="text-align:left;"></th>
+                            <th>Sam, bez plana</th>
+                            <th>URSA</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Znaš točno što radiš svaki dan</td>
+                            <td><i class="fa-solid fa-xmark icon-x"></i></td>
+                            <td><i class="fa-solid fa-check icon-check"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Netko pregledava tvoj napredak</td>
+                            <td><i class="fa-solid fa-xmark icon-x"></i></td>
+                            <td><i class="fa-solid fa-check icon-check"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Plan prehrane prilagođen tebi</td>
+                            <td><i class="fa-solid fa-xmark icon-x"></i></td>
+                            <td><i class="fa-solid fa-check icon-check"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Imaš podršku kada zapneš</td>
+                            <td><i class="fa-solid fa-xmark icon-x"></i></td>
+                            <td><i class="fa-solid fa-check icon-check"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Okružen si ljudima s istim ciljem</td>
+                            <td><i class="fa-solid fa-xmark icon-x"></i></td>
+                            <td><i class="fa-solid fa-check icon-check"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Rezultati za 90 dana</td>
+                            <td style="text-align:center;font-size:0.78rem;color:var(--text-muted);">Možda</td>
+                            <td style="text-align:center;font-size:0.78rem;font-weight:700;color:var(--gold);">
+                                Garantirano</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <a href="#premium-plan" class="btn-primary btn-gold"
+                    onclick="event.preventDefault(); document.getElementById('premium-plan').scrollIntoView({behavior: 'smooth'})"
+                    style="margin-top:20px;">Želim krenuti →</a>
+
+                <div class="social-proof">
+                    <img src="images/socialproof.png" alt="Uspješni polaznici" style="height:44px;width:auto;object-fit:contain;" onerror="this.style.display='none'">
+                    <p class="sp-text">Petar, Matej, Josip i još 1012 muškaraca je počelo<br>iz iste točke kao ti. Danas
+                        izgledaju najbolje ikad.</p>
+                </div>
+            </div>
+
+            <!-- 6. MORAM TI REĆI JOŠ OVO -->
+            <div class="section-card">
+                <h2 class="section-title">Moram ti reći još ovo…</h2>
+
+                <div
+                    style="font-size:1.1rem;color:rgba(255,255,255,0.82);line-height:1.85;display:flex;flex-direction:column;gap:16px;">
+                    <p>Ti i ja znamo jednu stvar:</p>
+                    <p style="color:#fff;font-weight:600;">Ako ništa ne promijeniš, ništa se neće promijeniti.
+                    </p>
+                    <p>Možeš zatvoriti ovu stranicu. Možeš si reći "razmislit ću". Ali ti i ja znamo što "razmislit ću"
+                        zapravo znači. Znači nikad.</p>
+                    <p style="color:#fff;font-weight:600;">I to nije prvi put.</p>
+                    <p style="color:#fff;">Koliko puta si već rekao "od ponedjeljka"?</p>
+                    <p style="color:#fff;">Koliko puta si krenuo pa odustao nakon dva tjedna?</p>
+                    <p style="color:#fff;">Koliko puta si se pogledao u ogledalo i obećao sebi da će biti
+                        drugačije, a onda napravio apsolutno ništa?</p>
+                    <p>To nije manjak volje. To je manjak sustava. I to se danas može promijeniti.</p>
+                    <p><strong>Imaš 2 opcije.</strong></p>
+                    X
+                    <p style="color:var(--accent2);font-weight:700;font-size:1.2rem;">Opcija 1:</p>
+                    <p>Klikneš gumb ispod i prestaješ lagati samome sebi.</p>
+                    <p>Dobivaš točan plan. Ursu osobno. Podršku svaki dan. Zajednicu koja te drži. I prvi put u
+                        životu ovo ne radiš sam.</p>
+                    <p style="background:rgba(8,172,210,0.1);border:1.5px solid rgba(8,172,210,0.25);border-radius:10px;padding:12px 16px;font-weight:600;color:#fff;"
+                        id="date-badge">
+                        🗓️ [90 DANA OD DANAS] → To je datum. Točno 90 dana od danas.
+                    </p>
+                    <p>Taj dan ćeš ili stajati pred ogledalom u tijelu koje si sam izgradio ili ćeš stajati u istom
+                        tijelu u kojom stojiš sada i pitati se zašto opet nisi ništa napravio.</p>
+                    <p>Taj dan dolazi, sviđalo se to tebi ili ne.</p>
+                    <p>Jedino pitanje je što ćeš vidjeti kada se pogledaš.</p>
+
+                    <p style="color:var(--red-x);font-weight:700;font-size:1.2rem;margin-top:4px;">Opcija 2:</p>
+                    <p>Ne napraviš ništa.</p>
+                    <p>Zatvoriš stranicu. Otvoriš Instagram. Gledaš tuđe transformacije. Kažeš "on ima bolju genetiku".
+                        Nema.</p>
+                    <p>Imao je plan i nekoga tko ga je vodio.</p>
+                    <p>I nastaviš po starom. Isti treninzi bez smisla. Ista prehrana bez plana. Isti rezultati. Nikakvi.
+                    </p>
+                    <p>I za godinu dana stojiš na istom mjestu, čitaš sličnu stranicu i opet se dvoumiš.</p>
+                    <p style="color:#fff;font-weight:600;">Koliko puta ćeš ponoviti isti krug prije nego što
+                        kažeš dosta?</p>
+                    <p><strong>Ovo je taj trenutak. Ovdje. Sada.</strong></p>
+                </div>
+
+                <a href="#premium-plan" class="btn-primary btn-gold"
+                    onclick="event.preventDefault(); document.getElementById('premium-plan').scrollIntoView({behavior: 'smooth'})"
+                    style="margin-top:24px;">Želim krenuti →</a>
+
+                <div class="social-proof">
+                    <img src="images/socialproof.png" alt="Uspješni polaznici" style="height:44px;width:auto;object-fit:contain;" onerror="this.style.display='none'">
+                    <p class="sp-text">Petar, Matej, Josip i još 1012 muškaraca je počelo<br>iz iste točke kao ti. Danas
+                        izgledaju najbolje ikad.</p>
+                </div>
+            </div>
+
+            <!-- 7. FAQ -->
+            <div class="section-card">
+                <h2 class="section-title">Česta pitanja</h2>
+
+                <div class="faq-item" id="faq-1">
+                    <button class="faq-question" onclick="toggleFaq('faq-1')">Trebam li iskustvo s treningom?<div class="faq-icon"><i class="fa-solid fa-plus"></i></div></button>
+                    <div class="faq-answer"><div class="faq-answer-inner">Ne. Uopće nije bitno jesi li ikad ušao u teretanu ili treniraš godinama. Program se prilagođava tebi. Dobiješ plan za svoju razinu i kreneš od tamo. Neke od naših najboljih transformacija napravili su muškarci koji nikada prije nisu ozbiljno trenirali.</div></div>
+                </div>
+                <div class="faq-item" id="faq-2">
+                    <button class="faq-question" onclick="toggleFaq('faq-2')">Trebam li teretanu?<div class="faq-icon"><i class="fa-solid fa-plus"></i></div></button>
+                    <div class="faq-answer"><div class="faq-answer-inner">Za najbolje rezultate da. Ali ako nemaš pristup teretani, imamo verzije treninga za kod kuće s minimalnom opremom. Neće biti isti rezultat kao u punoj teretani, ali možeš napraviti ozbiljan napredak.</div></div>
+                </div>
+                <div class="faq-item" id="faq-3">
+                    <button class="faq-question" onclick="toggleFaq('faq-3')">Nemam vremena, radim cijeli dan.<div class="faq-icon"><i class="fa-solid fa-plus"></i></div></button>
+                    <div class="faq-answer"><div class="faq-answer-inner">Treninzi traju 45 do 60 minuta, 3 do 5 puta tjedno. Priprema obroka 15 do 20 minuta. I iskreno, imaš vremena. Svi imamo ista 24 sata. Pitanje je samo što staviš na listu prioriteta. Ako imaš vremena navečer za serije, društvene mreže i gledanje videa, imaš vremena i za trening.</div></div>
+                </div>
+                <div class="faq-item" id="faq-4">
+                    <button class="faq-question" onclick="toggleFaq('faq-4')">Što ako ne mogu jesti određenu hranu?<div class="faq-icon"><i class="fa-solid fa-plus"></i></div></button>
+                    <div class="faq-answer"><div class="faq-answer-inner">Plan prehrane se prilagođava tebi. Alergije, netolerancije i preferencije uzimaju se u obzir. Nema namirnica koje moraš jesti. Sve se može zamijeniti.</div></div>
+                </div>
+                <div class="faq-item" id="faq-5">
+                    <button class="faq-question" onclick="toggleFaq('faq-5')">Koliko brzo ću vidjeti rezultate?<div class="faq-icon"><i class="fa-solid fa-plus"></i></div></button>
+                    <div class="faq-answer"><div class="faq-answer-inner">Većina polaznika vidi prve promjene unutar 2 do 3 tjedna. Ozbiljnije vidljive promjene dolaze oko 4. do 6. tjedna. Za 90 dana možeš očekivati veliku promjenu. Ali puno ovisi o tebi. Koliko si dosljedan, toliko će rezultati brže doći.</div></div>
+                </div>
+                <div class="faq-item" id="faq-6">
+                    <button class="faq-question" onclick="toggleFaq('faq-6')">Već sam probao sve i ništa ne radi.<div class="faq-icon"><i class="fa-solid fa-plus"></i></div></button>
+                    <div class="faq-answer"><div class="faq-answer-inner">Nisi probao ovo. Probao si sam. Probao si razne planove s interneta. Probao si bez nekoga tko te vodi i prilagođava plan tebi svaki tjedan. Ovo nije još jedan pokušaj. Ovo je sustav koji je transformirao stotine muškaraca. Razlika je što ovaj put nisi sam.</div></div>
+                </div>
+                <div class="faq-item" id="faq-7">
+                    <button class="faq-question" onclick="toggleFaq('faq-7')">Mislim da sam prestar za ovo.<div class="faq-icon"><i class="fa-solid fa-plus"></i></div></button>
+                    <div class="faq-answer"><div class="faq-answer-inner">Imamo polaznike od 18 do 50 i više godina. Plan se prilagođava tvojoj dobi, razini i cilju. Godine nisu problem. Nedostatak plana je problem.</div></div>
+                </div>
+                <div class="faq-item" id="faq-8">
+                    <button class="faq-question" onclick="toggleFaq('faq-8')">Koja je razlika između 90 i 180 dana?<div class="faq-icon"><i class="fa-solid fa-plus"></i></div></button>
+                    <div class="faq-answer"><div class="faq-answer-inner">90 dana je dovoljno za ozbiljnu transformaciju. 180 dana daje ti duplo više vremena s Ursom, mjesečne individualne pozive, prioritetnu podršku i doživotni pristup budućim pogodnostima. Muškarci koji odaberu 180 dana često postižu bolje rezultate jer imaju dovoljno vremena da promjena postane trajna navika.</div></div>
+                </div>
+                <div class="faq-item" id="faq-9">
+                    <button class="faq-question" onclick="toggleFaq('faq-9')">Kako izgleda aplikacija?<div class="faq-icon"><i class="fa-solid fa-plus"></i></div></button>
+                    <div class="faq-answer"><div class="faq-answer-inner">Otvoriš ujutro i točno piše što radiš taj dan. Koji trening. Koji obroci. Koliko čega. Praćenje napretka, slike i brojke, sve na jednom mjestu. Nema razmišljanja. Samo otvoriš i pratiš plan.</div></div>
+                </div>
+                <div class="faq-item" id="faq-10">
+                    <button class="faq-question" onclick="toggleFaq('faq-10')">Što ako imam pitanje usred dana ili navečer?<div class="faq-icon"><i class="fa-solid fa-plus"></i></div></button>
+                    <div class="faq-answer"><div class="faq-answer-inner">Imaš podršku cijeli dan. Pošalji poruku kad god ti treba. U 7 ujutro ili u 11 navečer dobit ćeš odgovor.</div></div>
+                </div>
+                <div class="faq-item" id="faq-11">
+                    <button class="faq-question" onclick="toggleFaq('faq-11')">Što ako nisam zadovoljan?<div class="faq-icon"><i class="fa-solid fa-plus"></i></div></button>
+                    <div class="faq-answer"><div class="faq-answer-inner">Prati plan do kraja. Ako ne vidiš rezultate, vraćamo ti svaki cent. I Ursa ti daje 200 eura iz vlastitog džepa kao ispriku za izgubljeno vrijeme. Ti dobiješ sve nazad, mi gubimo novac. Spreman je to napraviti jer nijedan muškarac koji je pratio protokol do kraja nije ostao isti.</div></div>
+                </div>
+                <div class="faq-item" id="faq-12">
+                    <button class="faq-question" onclick="toggleFaq('faq-12')">Je li plaćanje sigurno?<div class="faq-icon"><i class="fa-solid fa-plus"></i></div></button>
+                    <div class="faq-answer"><div class="faq-answer-inner">Potpuno. Plaćanje ide preko sigurnog sustava za naplatu koji koriste najveće svjetske tvrtke. Podaci tvoje kartice idu direktno tom sustavu. Mi ih nikada ne vidimo, ne spremamo i nemamo pristup njima. Sve je zaštićeno bankarskom razinom sigurnosti.</div></div>
+                </div>
+                <div class="faq-item" id="faq-13">
+                    <button class="faq-question" onclick="toggleFaq('faq-13')">Mogu li plaćati na rate?<div class="faq-icon"><i class="fa-solid fa-plus"></i></div></button>
+                    <div class="faq-answer"><div class="faq-answer-inner">Da. Prihvaćamo i druge načine plaćanja. Javi nam se porukom i dogovorit ćemo opciju koja ti najviše odgovara.</div></div>
+                </div>
+                <div class="faq-item" id="faq-14">
+                    <button class="faq-question" onclick="toggleFaq('faq-14')">Kad mogu početi?<div class="faq-icon"><i class="fa-solid fa-plus"></i></div></button>
+                    <div class="faq-answer"><div class="faq-answer-inner">Odmah. Čim se prijaviš, dobiješ pristup aplikaciji i svoj plan. Ne čekaš nikoga. Ne čekaš ponedjeljak.</div></div>
+                </div>
+                <div class="faq-item" id="faq-15">
+                    <button class="faq-question" onclick="toggleFaq('faq-15')">Imam još pitanja.<div class="faq-icon"><i class="fa-solid fa-plus"></i></div></button>
+                    <div class="faq-answer"><div class="faq-answer-inner" style="display:flex;flex-direction:column;gap:14px;">
+                        <p>Javi nam se porukom klikom na gumb ispod. Odgovaramo brzo.</p>
+                        <a href="https://wa.me/385992088022?text=%20URSAPROTOCOL" target="_blank" style="display:inline-flex;align-items:center;justify-content:center;gap:10px;background:#25D366;color:#fff;font-family:'Inter',sans-serif;font-size:1rem;font-weight:700;padding:14px 24px;border-radius:12px;text-decoration:none;box-shadow:0 6px 20px rgba(37,211,102,0.4);transition:all 0.2s;">
+                            <i class="fa-brands fa-whatsapp" style="font-size:1.3rem;"></i> Pošalji poruku na WhatsApp
+                        </a>
+                    </div></div>
+                </div>
+
+                <a href="#premium-plan" class="btn-primary btn-gold"
+                    onclick="event.preventDefault(); document.getElementById('premium-plan').scrollIntoView({behavior: 'smooth'})"
+                    style="margin-top:24px;">Želim krenuti →</a>
+
+                <div class="social-proof">
+                    <img src="images/socialproof.png" alt="Uspješni polaznici" style="height:44px;width:auto;object-fit:contain;" onerror="this.style.display='none'">
+                    <p class="sp-text">Petar, Matej, Josip i još 1012 muškaraca je počelo<br>iz iste točke kao ti. Danas
+                        izgledaju najbolje ikad.</p>
+                </div>
+            </div>
+
+            <!-- 8. FOOTER -->
+            <footer style="text-align:center;padding:32px 0 20px;">
+                <div style="margin-bottom:24px;">
+                    <img src="images/logo.png" alt="URSA PROTOCOL" style="height: 60px;">
+                </div>
+                <div style="display:flex;justify-content:center;gap:20px;flex-wrap:wrap;margin-bottom:14px;">
+                    <a href="#"
+                        style="color:rgba(255,255,255,0.45);font-size:0.8rem;text-decoration:none;">Disclaimer</a>
+                    <a href="#" style="color:rgba(255,255,255,0.45);font-size:0.8rem;text-decoration:none;">Privacy
+                        Policy</a>
+                    <a href="#" style="color:rgba(255,255,255,0.45);font-size:0.8rem;text-decoration:none;">Refund
+                        Policy</a>
+                </div>
+                <div style="font-size:0.78rem;color:rgba(255,255,255,0.35);margin-bottom:4px;">Kontakt:
+                    <a href="mailto:kontakt@nemaneide.com" style="color:rgba(255,255,255,0.35);text-decoration:none;">kontakt@nemaneide.com</a></div>
+                <div style="font-size:0.78rem;color:rgba(255,255,255,0.35);margin-bottom:20px;">Whatsapp: 
+                    <a href="https://wa.me/385992088022?text=%20URSAPROTOCOL" target="_blank" style="color:rgba(255,255,255,0.35);text-decoration:none;">+385 99 2088 022</a>
+                </div>
+                <div style="height:1px;background:rgba(255,255,255,0.07);margin-bottom:20px;"></div>
+                <p
+                    style="font-size:0.72rem;color:rgba(255,255,255,0.25);line-height:1.8;max-width:580px;margin:0 auto 10px;">
+                    This site is not a part of the Facebook website or Facebook, Inc. Additionally, this site is NOT
+                    endorsed by Facebook in any way. FACEBOOK is a trademark of Facebook, Inc.</p>
+                <p style="font-size:0.68rem;color:rgba(255,255,255,0.2);line-height:1.7;max-width:580px;margin:0 auto;">
+                    NAPOMENA: Rezultati variraju od osobe do osobe i ovise o individualnom tijelu, genetici,
+                    prehrambenim navikama i doslednosti. Primjeri transformacija prikazani na ovoj stranici nisu
+                    garancija identičnih rezultata. Ovaj program nije zamjena za medicinski savjet. Savjetuj se sa
+                    svojim liječnikom prije početka programa.</p>
+                <p style="font-size:0.68rem;color:rgba(255,255,255,0.18);margin-top:16px;">© 2025 URSA PROTOCOL. Sva
+                    prava pridrzana.</p>
+            </footer>
+
+        </div><!-- /#vsl-pitch -->
+    </div><!-- /.page -->
+
+    <script>
+        (function initHero() {
+            const params = new URLSearchParams(window.location.search);
+            const name = params.get('name') || sessionStorage.getItem('ursa_name') || 'Prijatelju';
+            const goal = params.get('goal') || sessionStorage.getItem('ursa_goal') || 'postici cilj';
+            const gender = params.get('gender') || sessionStorage.getItem('ursa_gender') || 'Muško';
+            const isFemale = false; // Always male version for vsl2.html
+
+            if (document.getElementById('hero-goal')) document.getElementById('hero-goal').textContent = goal;
+
+            const d = new Date();
+            d.setDate(d.getDate() + 90);
+            const formatted = d.toLocaleDateString('hr-HR', { day: 'numeric', month: 'numeric', year: 'numeric' });
+            
+            const badge = document.getElementById('date-badge');
+            if (badge) badge.textContent = '🗓️ ' + formatted + ' → To je datum. Točno 90 dana od danas.';
+        })();
+
+
+
+        function updateCountdown() {
+            var targetDate = new Date("2026-04-20T23:59:59+02:00").getTime();
+            var now = new Date().getTime();
+            var diff = targetDate - now;
+
+            var timerEl = document.getElementById('countdown-timer');
+            var progressEl = document.getElementById('countdown-progress');
+
+            if (!timerEl || !progressEl) return;
+
+            if (diff <= 0) {
+                timerEl.textContent = "0d 00h 00m 00s";
+                progressEl.style.width = "0%";
+                return;
+            }
+
+            var days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            var hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            var mins = Math.floor((diff / 1000 / 60) % 60);
+            var secs = Math.floor((diff / 1000) % 60);
+
+            function pad(n) { return (n < 10 ? '0' : '') + n; }
+            timerEl.textContent = days + "d " + pad(hours) + "h " + pad(mins) + "m " + pad(secs) + "s";
+
+            var totalMs = 7 * 24 * 60 * 60 * 1000;
+            var progress = (diff / totalMs) * 100;
+            if (progress > 100) progress = 100;
+            progressEl.style.width = progress + "%";
+        }
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
+
+        function toggleFaq(id) {
+            var item = document.getElementById(id);
+            var isOpen = item.classList.contains('open');
+            document.querySelectorAll('.faq-item.open').forEach(function (el) { el.classList.remove('open'); });
+            if (!isOpen) item.classList.add('open');
+        }
+
+        function handleBuy(e, plan) {
+            var url = plan === 'premium'
+                ? document.getElementById('btn-buy-797') && document.getElementById('btn-buy-797').href
+                : document.getElementById('btn-buy-497') && document.getElementById('btn-buy-497').href;
+            if (!url || url.indexOf('YOUR_SURECART') !== -1) {
+                e.preventDefault();
+                alert('SureCart link nije jos postavljen. Dodaj ga u href atribut gumba.');
+            }
+        }
+    </script>
+    <!-- Removed Chart.js and chart initialization as per request -->
+    <script>
+        posthog.capture('vsl_viewed');
+    </script>
+</body>
+
+</html>

@@ -1205,26 +1205,7 @@
 
                 </div>
 
-                <div class="discount-countdown-container"
-                    style="background: rgba(245, 200, 66, 0.08); border: 1.5px solid rgba(245, 200, 66, 0.2); border-radius: 14px; padding: 16px; margin-top: 24px; margin-bottom: 8px;">
-                    <div
-                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                        <span
-                            style="font-size: 0.82rem; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 1px;"><i
-                                class="fa-solid fa-clock"></i> Popust ističe za:</span>
-                        <span id="countdown-timer"
-                            style="font-size: 0.95rem; font-weight: 800; color: #fff; font-variant-numeric: tabular-nums;">--:--:--:--</span>
-                    </div>
-                    <div
-                        style="width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden;">
-                        <div id="countdown-progress"
-                            style="height: 100%; background: linear-gradient(90deg, #d4a512, var(--gold)); width: 100%; transition: width 1s linear;">
-                        </div>
-                    </div>
-                    <div style="text-align: center; margin-top: 12px; font-weight: 800; color: #fff; font-size: 0.9rem; letter-spacing: 1px;">
-                        POČETAK PROTOCOLA: 20.4.2026.
-                    </div>
-                </div>
+
 
                 
             </div>
@@ -1569,37 +1550,7 @@
             }, 500);
         }
 
-        function updateCountdown() {
-            var targetDate = new Date("2026-04-20T23:59:59+02:00").getTime();
-            var now = new Date().getTime();
-            var diff = targetDate - now;
 
-            var timerEl = document.getElementById('countdown-timer');
-            var progressEl = document.getElementById('countdown-progress');
-
-            if (!timerEl || !progressEl) return;
-
-            if (diff <= 0) {
-                timerEl.textContent = "0d 00h 00m 00s";
-                progressEl.style.width = "0%";
-                return;
-            }
-
-            var days = Math.floor(diff / (1000 * 60 * 60 * 24));
-            var hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-            var mins = Math.floor((diff / 1000 / 60) % 60);
-            var secs = Math.floor((diff / 1000) % 60);
-
-            function pad(n) { return (n < 10 ? '0' : '') + n; }
-            timerEl.textContent = days + "d " + pad(hours) + "h " + pad(mins) + "m " + pad(secs) + "s";
-
-            var totalMs = 7 * 24 * 60 * 60 * 1000;
-            var progress = (diff / totalMs) * 100;
-            if (progress > 100) progress = 100;
-            progressEl.style.width = progress + "%";
-        }
-        setInterval(updateCountdown, 1000);
-        updateCountdown();
 
         function toggleFaq(id) {
             var item = document.getElementById(id);

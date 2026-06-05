@@ -228,7 +228,7 @@
         }
 
         #vsl-pitch {
-            display: none;
+            display: block;
         }
 
         .section-label {
@@ -948,21 +948,7 @@
                 </script>
             </div>
 
-            <!-- Unlock loader -->
-            <div class="unlock-loader-wrap" id="unlock-loader">
-                <div class="unlock-loader-label" id="unlock-label">Tvoj sljedeći korak će se otključati za…</div>
-                <div class="unlock-loader">
-                    <svg viewBox="0 0 72 72">
-                        <circle class="track" cx="36" cy="36" r="32"></circle>
-                        <circle class="progress" cx="36" cy="36" r="32"></circle>
-                    </svg>
-                    <div class="unlock-loader-icon" id="unlock-icon">
-                        <i class="fa-solid fa-lock"></i>
-                    </div>
-                </div>
-                <div class="unlock-loader-time" id="unlock-time">3:50</div>
-                <div class="unlock-loader-label-bottom" id="unlock-label-bottom">Klikni ovdje za otključavanje ↓</div>
-            </div>
+
 
         </div>
 
@@ -1500,74 +1486,7 @@
             if (badge) badge.textContent = '🗓️ ' + formatted + ' → To je datum. Točno 90 dana od danas.';
         })();
 
-        /* ═══ UNLOCK TIMER LOGIC ═══ */
-        (function initUnlockLoader() {
-            var UNLOCK_SECONDS = 230; // 3 minutes 50 seconds
-            var loaderWrap = document.getElementById('unlock-loader');
-            var progressCircle = loaderWrap.querySelector('.progress');
-            var timeEl = document.getElementById('unlock-time');
-            var labelEl = document.getElementById('unlock-label');
-            var iconEl = document.getElementById('unlock-icon');
-            var circumference = 2 * Math.PI * 32; // r=32 → ~201.06
-            var remaining = UNLOCK_SECONDS;
-            var params = new URLSearchParams(window.location.search);
 
-            // Skip timer if URL params present
-            if (params.has('reveal') || params.get('open') === '1' || params.get('skip') === 'true') {
-                progressCircle.style.transition = 'none';
-                progressCircle.style.strokeDashoffset = '0';
-                triggerUnlockReady();
-                return;
-            }
-
-            var timerInterval = setInterval(function () {
-                remaining--;
-
-                // Update progress circle
-                var progress = 1 - (remaining / UNLOCK_SECONDS);
-                var offset = circumference * (1 - progress);
-                progressCircle.style.strokeDashoffset = offset;
-
-                // Update time display
-                var mins = Math.floor(remaining / 60);
-                var secs = remaining % 60;
-                timeEl.textContent = mins + ':' + (secs < 10 ? '0' : '') + secs;
-
-                if (remaining <= 0) {
-                    clearInterval(timerInterval);
-                    triggerUnlockReady();
-                }
-            }, 1000);
-
-            function triggerUnlockReady() {
-                // Phase 1: Swap to lock-open icon, start pulsing
-                timeEl.style.display = 'none';
-                labelEl.style.display = 'none';
-                iconEl.innerHTML = '<i class="fa-solid fa-lock-open"></i>';
-                loaderWrap.classList.add('unlocked');
-
-                // Phase 2: Wait for user click to reveal page
-                loaderWrap.addEventListener('click', function handleClick() {
-                    loaderWrap.removeEventListener('click', handleClick);
-                    loaderWrap.classList.add('clicked');
-                    revealPitch();
-                });
-            }
-        })();
-
-        function revealPitch() {
-            var pitch = document.getElementById('vsl-pitch');
-            if (pitch.classList.contains('revealed')) return;
-            pitch.classList.add('revealing');
-            requestAnimationFrame(function () {
-                requestAnimationFrame(function () {
-                    pitch.classList.add('revealed');
-                });
-            });
-            setTimeout(function () {
-                pitch.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }, 500);
-        }
 
         function updateCountdown() {
             var targetDate = new Date("2026-04-20T23:59:59+02:00").getTime();

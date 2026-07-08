@@ -166,7 +166,7 @@
 
         th {
             background: rgba(0,0,0,0.2);
-            padding: 16px;
+            padding: 16px 12px;
             font-size: 13px;
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -175,7 +175,7 @@
         }
 
         td {
-            padding: 16px;
+            padding: 16px 12px;
             border-bottom: 1px solid var(--border);
             font-size: 15px;
             transition: background 0.2s;
@@ -252,7 +252,9 @@
         .stats-jednokratno { background: rgba(34, 197, 94, 0.15); color: #4ade80; }
         .stats-2rate { background: rgba(168, 85, 247, 0.15); color: #c084fc; }
         .stats-90 { background: rgba(56, 189, 248, 0.15); color: #7dd3fc; }
+        .stats-90rate { background: rgba(56, 189, 248, 0.3); color: #38bdf8; }
         .stats-180 { background: rgba(251, 146, 60, 0.15); color: #fdba74; }
+        .stats-180rate { background: rgba(251, 146, 60, 0.3); color: #fb923c; }
 
         /* Edit Mode */
         .edit-input {
@@ -394,11 +396,11 @@
                 <thead>
                     <tr>
                         <th class="checkbox-cell"></th>
-                        <th style="width: 4%">#</th>
+                        <th style="width: 50px; padding-left: 8px; padding-right: 8px;">#</th>
                         <th style="width: 17%">Ime i Prezime</th>
                         <th style="width: 17%">Email</th>
                         <th style="width: 12%">Mobitel</th>
-                        <th style="width: 20%">Vrsta Plaćanja / Paket</th>
+                        <th style="width: 22%; text-align: right;">Vrsta Plaćanja / Paket</th>
                         <th style="width: 12%">Datum</th>
                         <th style="width: 10%">Order ID</th>
                         <th class="edit-col-header" style="width: 80px">Akcije</th>
@@ -607,11 +609,11 @@
                 } else {
                     tr.innerHTML = `
                         <td class="checkbox-cell"></td>
-                        <td style="color:var(--primary); font-weight:700;">${rowObj.orderNumber || ''}</td>
+                        <td style="color:var(--primary); font-weight:700; padding-left: 8px; padding-right: 8px;">${rowObj.orderNumber || ''}</td>
                         <td><span class="copyable" onclick="copyText(this, '${row[1]}')"><strong>${row[1] || '-'}</strong></span></td>
                         <td><span class="copyable" onclick="copyText(this, '${row[2]}')">${row[2] || '-'}</span></td>
                         <td><span class="copyable" onclick="copyText(this, '${row[3]}')">${row[3] || '-'}</span></td>
-                        <td><span class="copyable" onclick="copyText(this, '${row[4]}')">${row[4] || '-'}</span></td>
+                        <td style="direction: rtl; text-align: right;"><span class="copyable" style="direction: ltr; unicode-bidi: embed;" onclick="copyText(this, '${row[4]}')">${row[4] || '-'}</span></td>
                         <td>${formatDate(row[5]) || '-'}</td>
                         <td><span class="copyable" onclick="copyText(this, '${row[0]}')">${row[0] || '-'}</span></td>
                         <td class="edit-col-cell"></td>
@@ -622,7 +624,7 @@
 
             // Helper for generating detailed stats
             function getStats(items) {
-                let s = { jednokratno: 0, rate2: 0, dana90: 0, dana180: 0, total: 0 };
+                let s = { jednokratno: 0, rate2: 0, dana90: 0, dana180: 0, dana90Rate: 0, dana180Rate: 0, total: 0 };
                 items.forEach(item => {
                     const vrsta = item.row[4] ? String(item.row[4]).trim() : '';
                     if (!vrsta) return;
@@ -635,8 +637,14 @@
                         s.total++;
                         if (vrsta.toLowerCase().includes('jednokratno')) s.jednokratno++;
                         if (vrsta.toLowerCase().includes('2 rate')) s.rate2++;
-                        if (vrsta.includes('90 dana')) s.dana90++;
-                        if (vrsta.includes('180 dana')) s.dana180++;
+                        if (vrsta.includes('90 dana')) {
+                            s.dana90++;
+                            if (vrsta.toLowerCase().includes('2 rate')) s.dana90Rate++;
+                        }
+                        if (vrsta.includes('180 dana')) {
+                            s.dana180++;
+                            if (vrsta.toLowerCase().includes('2 rate')) s.dana180Rate++;
+                        }
                     }
                 });
                 return s;
@@ -648,7 +656,9 @@
                 if(s.jednokratno > 0) html += `<span class="stats-badge stats-jednokratno ${active==='jednokratno'?'active-filter':''}" onclick="setFilter('${groupId}', 'jednokratno', event)">Jednokratno: ${s.jednokratno}</span>`;
                 if(s.rate2 > 0) html += `<span class="stats-badge stats-2rate ${active==='2rate'?'active-filter':''}" onclick="setFilter('${groupId}', '2rate', event)">2 rate: ${s.rate2}</span>`;
                 if(s.dana90 > 0) html += `<span class="stats-badge stats-90 ${active==='90'?'active-filter':''}" onclick="setFilter('${groupId}', '90', event)">90d: ${s.dana90}</span>`;
+                if(s.dana90Rate > 0) html += `<span class="stats-badge stats-90rate ${active==='90rate'?'active-filter':''}" onclick="setFilter('${groupId}', '90rate', event)">90d na rate: ${s.dana90Rate}</span>`;
                 if(s.dana180 > 0) html += `<span class="stats-badge stats-180 ${active==='180'?'active-filter':''}" onclick="setFilter('${groupId}', '180', event)">180d: ${s.dana180}</span>`;
+                if(s.dana180Rate > 0) html += `<span class="stats-badge stats-180rate ${active==='180rate'?'active-filter':''}" onclick="setFilter('${groupId}', '180rate', event)">180d na rate: ${s.dana180Rate}</span>`;
                 html += `<span class="stats-badge stats-total ${active==='client'?'active-filter':''}" onclick="setFilter('${groupId}', 'client', event)">${s.total} UKUPNO</span>`;
                 return html;
             }
@@ -721,7 +731,9 @@
                         if (active === 'jednokratno' && !v.includes('jednokratno')) return;
                         if (active === '2rate' && !v.includes('2 rate')) return;
                         if (active === '90' && !v.includes('90 dana')) return;
+                        if (active === '90rate' && !(v.includes('90 dana') && v.includes('2 rate'))) return;
                         if (active === '180' && !v.includes('180 dana')) return;
+                        if (active === '180rate' && !(v.includes('180 dana') && v.includes('2 rate'))) return;
                         if (active === 'client' && !(v.startsWith('spreman') || v.startsWith('potpuna') || v.includes('jednokratno') || v.includes('2 rate'))) return;
                     }
 
@@ -777,7 +789,9 @@
                         if (active === 'jednokratno' && !v.includes('jednokratno')) return;
                         if (active === '2rate' && !v.includes('2 rate')) return;
                         if (active === '90' && !v.includes('90 dana')) return;
+                        if (active === '90rate' && !(v.includes('90 dana') && v.includes('2 rate'))) return;
                         if (active === '180' && !v.includes('180 dana')) return;
+                        if (active === '180rate' && !(v.includes('180 dana') && v.includes('2 rate'))) return;
                         if (active === 'client' && !(v.startsWith('spreman') || v.startsWith('potpuna') || v.includes('jednokratno') || v.includes('2 rate'))) return;
                     }
                     unassignedDomNodes.push(createRowHtml(item, 'unassigned'));

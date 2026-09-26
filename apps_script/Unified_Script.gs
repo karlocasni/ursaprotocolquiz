@@ -19,6 +19,20 @@ function doPost(e) {
         return response; // Not valid JSON
     }
 
+    // 0. ADMIN PLAN (/admin/plan): merge calendar events + reels into the 'Plan' sheet
+    if (payload.action === 'savePlan') {
+        const lock = LockService.getScriptLock();
+        lock.waitLock(20000);
+        try {
+            const merged = mergePlanStates(readPlanState(ss), payload.plan || {});
+            writePlanState(ss, merged);
+            return ContentService.createTextOutput(JSON.stringify({ status: "success", plan: merged }))
+              .setMimeType(ContentService.MimeType.JSON);
+        } finally {
+            lock.releaseLock();
+        }
+    }
+
     // 1. ADMIN PANEL: SYNC ENTIRE SHEET (Edit mode save)
     if (payload.action === 'syncSheet') {
         const mainSheet = ss.getSheetByName('Sheet1');
@@ -176,6 +190,12 @@ function doPost(e) {
 function doGet(e) {
   try {
       const ss = SpreadsheetApp.openById('1jbSOKSfX6I0vMwiiSJiuHOtmhK_ozJ0L6yO11xppKlQ');
+
+      if (e && e.parameter && e.parameter.action === 'getPlan') {
+          return ContentService.createTextOutput(JSON.stringify({ status: "success", plan: readPlanState(ss) }))
+            .setMimeType(ContentService.MimeType.JSON);
+      }
+
       const mainSheet = ss.getSheetByName('Sheet1');
       
       const dataRange = mainSheet.getDataRange();
@@ -279,4 +299,47 @@ function updateDropoffTally(doc) {
   if (totalRows.length > 0) {
     statsSheet.getRange(2, 1, totalRows.length, 2).setValues(totalRows);
   }
+}
+
+
+// --- ADMIN PLAN STORAGE ---
+// The whole plan is one JSON document, split over column A of the 'Plan' sheet
+// (a cell holds max 50k chars). Each chunk is prefixed with '~' so Sheets never
+// parses a chunk as a number, date or formula.
+const PLAN_CHUNK = 40000;
+
+function readPlanState(ss) {
+    const sheet = ss.getSheetByName('Plan');
+    if (!sheet || sheet.getLastRow() === 0) return { v: 1, events: {}, reels: {} };
+    const json = sheet.getRange(1, 1, sheet.getLastRow(), 1).getValues()
+        .map(function (row) { return String(row[0]).slice(1); })
+        .join('');
+    try {
+        const s = JSON.parse(json);
+        return { v: 1, events: s.events || {}, reels: s.reels || {} };
+    } catch (err) {
+        return { v: 1, events: {}, reels: {} };
+    }
+}
+
+function writePlanState(ss, state) {
+    const sheet = ss.getSheetByName('Plan') || ss.insertSheet('Plan');
+    const json = JSON.stringify(state);
+    const rows = [];
+    for (let i = 0; i < json.length; i += PLAN_CHUNK) rows.push(['~' + json.slice(i, i + PLAN_CHUNK)]);
+    sheet.clearContents();
+    sheet.getRange(1, 1, rows.length, 1).setNumberFormat('@').setValues(rows);
+}
+
+// Same rule as the page: per item, the version with the newer updatedAt wins (deletions are tombstones)
+function mergePlanStates(a, b) {
+    const out = { v: 1, events: {}, reels: {} };
+    ['events', 'reels'].forEach(function (kind) {
+        const A = (a && a[kind]) || {}, B = (b && b[kind]) || {};
+        Object.keys(A).concat(Object.keys(B)).forEach(function (id) {
+            const x = A[id], y = B[id];
+            out[kind][id] = !x ? y : !y ? x : ((y.updatedAt || 0) > (x.updatedAt || 0) ? y : x);
+        });
+    });
+    return out;
 }

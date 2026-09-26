@@ -1,0 +1,1552 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#0f172a" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Ursa Protocol - Plan</title>
+    <link rel="icon" href="/images/favicon.png" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <style>
+        :root {
+            color-scheme: dark;
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --bg-raised: #243247;
+            --bg-input: rgba(0,0,0,0.22);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --text-faint: #64748b;
+            --primary: #08acd2;
+            --primary-hover: #069ab9;
+            --border: #334155;
+            --border-soft: rgba(51,65,85,0.6);
+            --success: #22c55e;
+            --error: #ef4444;
+            --rec: #ef4444;
+            --rec-bg: rgba(239,68,68,0.14);
+            --up: #3b82f6;
+            --up-bg: rgba(59,130,246,0.16);
+            --nav-h: 64px;
+            --header-h: 60px;
+            --radius: 14px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        html, body { height: 100%; }
+        body {
+            background: var(--bg-dark);
+            color: var(--text-main);
+            -webkit-font-smoothing: antialiased;
+        }
+        button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+        input, textarea, select { font: inherit; color: inherit; }
+        [hidden] { display: none !important; }
+
+        /* ---------- Login ---------- */
+        #loginScreen {
+            min-height: 100dvh;
+            display: flex; align-items: center; justify-content: center;
+            padding: 20px;
+        }
+        .login-box {
+            background: var(--bg-card);
+            padding: 40px 32px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            width: 100%; max-width: 400px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            text-align: center;
+        }
+        .login-box .brand-mark { width: 52px; height: 52px; border-radius: 14px; margin: 0 auto 18px; display: grid; place-items: center; background: rgba(8,172,210,0.14); color: var(--primary); font-size: 22px; }
+        .login-box h2 { margin-bottom: 6px; font-weight: 700; }
+        .login-box p { color: var(--text-muted); font-size: 14px; margin-bottom: 24px; }
+
+        .input-field {
+            width: 100%;
+            padding: 12px 14px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-main);
+            font-size: 16px;
+            outline: none;
+            transition: border-color .15s, background .15s;
+        }
+        .input-field:focus { border-color: var(--primary); background: rgba(0,0,0,0.3); }
+        .input-field::placeholder { color: var(--text-faint); }
+        textarea.input-field { resize: none; line-height: 1.5; min-height: 44px; overflow: hidden; }
+        #loginScreen .input-field { margin-bottom: 16px; padding: 14px 16px; }
+
+        .btn {
+            background: var(--primary);
+            color: #fff;
+            border-radius: 10px;
+            padding: 12px 20px;
+            font-size: 15px; font-weight: 600;
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            transition: background .15s, transform .1s, border-color .15s;
+            white-space: nowrap;
+        }
+        .btn:hover { background: var(--primary-hover); }
+        .btn:active { transform: scale(0.98); }
+        .btn-block { width: 100%; padding: 14px 20px; font-size: 16px; }
+        .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text-main); }
+        .btn-ghost:hover { background: rgba(255,255,255,0.05); }
+        .btn-danger { background: transparent; border: 1px solid rgba(239,68,68,0.45); color: #fca5a5; }
+        .btn-danger:hover { background: rgba(239,68,68,0.12); }
+        .btn-sm { padding: 8px 12px; font-size: 13px; border-radius: 9px; }
+        .icon-btn {
+            width: 38px; height: 38px; border-radius: 10px;
+            display: inline-grid; place-items: center;
+            color: var(--text-muted);
+            transition: background .15s, color .15s;
+        }
+        .icon-btn:hover { background: rgba(255,255,255,0.06); color: var(--text-main); }
+
+        /* ---------- App shell ---------- */
+        #app { display: none; min-height: 100dvh; }
+        #app.active { display: block; }
+
+        .topbar {
+            position: sticky; top: 0; z-index: 30;
+            height: calc(var(--header-h) + env(safe-area-inset-top));
+            padding: env(safe-area-inset-top) max(16px, env(safe-area-inset-right)) 0 max(16px, env(safe-area-inset-left));
+            display: flex; align-items: center; gap: 12px;
+            background: rgba(15,23,42,0.86);
+            backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--border-soft);
+        }
+        .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: -0.01em; font-size: 17px; }
+        .brand-dot { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; background: rgba(8,172,210,0.15); color: var(--primary); font-size: 14px; }
+        .brand small { font-weight: 600; color: var(--text-muted); font-size: 13px; }
+        .topbar-spacer { flex: 1; }
+        .sync-pill {
+            display: inline-flex; align-items: center; gap: 7px;
+            font-size: 12px; font-weight: 600;
+            padding: 6px 10px; border-radius: 999px;
+            background: rgba(255,255,255,0.05);
+            color: var(--text-muted);
+            border: 1px solid var(--border-soft);
+        }
+        .sync-pill .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text-faint); }
+        .sync-pill[data-state="synced"] .dot { background: var(--success); }
+        .sync-pill[data-state="saving"] .dot { background: #f59e0b; animation: pulse 1s infinite; }
+        .sync-pill[data-state="local"] .dot { background: #f59e0b; }
+        .sync-pill[data-state="error"] .dot { background: var(--error); }
+        @keyframes pulse { 50% { opacity: .35; } }
+        .top-link { font-size: 13px; font-weight: 600; color: var(--text-muted); text-decoration: none; display: inline-flex; align-items: center; gap: 7px; padding: 8px 10px; border-radius: 9px; }
+        .top-link:hover { background: rgba(255,255,255,0.06); color: var(--text-main); }
+
+        .banner {
+            margin: 14px auto 0; max-width: 1400px;
+            padding: 12px 14px; border-radius: 12px;
+            background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.35);
+            color: #fcd34d; font-size: 13px; line-height: 1.5;
+            display: flex; gap: 12px; align-items: flex-start;
+        }
+        .banner-wrap { padding: 0 16px; }
+        .banner i { margin-top: 3px; }
+        .banner div { flex: 1; }
+        .banner code { background: rgba(0,0,0,0.3); padding: 1px 5px; border-radius: 5px; font-size: 12px; }
+
+        main {
+            padding: 16px max(16px, env(safe-area-inset-right)) calc(var(--nav-h) + 32px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+            max-width: 1400px; margin: 0 auto;
+        }
+        .view { display: none; }
+        .view.active { display: block; animation: fadeIn .18s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+        /* ---------- Bottom nav (footer menu) ---------- */
+        .bottom-nav {
+            position: fixed; z-index: 40;
+            left: 50%; transform: translateX(-50%);
+            bottom: calc(14px + env(safe-area-inset-bottom));
+            display: flex; gap: 4px;
+            padding: 5px;
+            background: rgba(30,41,59,0.92);
+            backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            box-shadow: 0 14px 36px rgba(0,0,0,0.45);
+        }
+        .nav-btn {
+            display: flex; align-items: center; gap: 9px;
+            padding: 11px 22px; border-radius: 999px;
+            font-size: 14px; font-weight: 600;
+            color: var(--text-muted);
+            transition: background .15s, color .15s;
+        }
+        .nav-btn i { font-size: 16px; }
+        .nav-btn:hover { color: var(--text-main); }
+        .nav-btn.active { background: var(--primary); color: #fff; }
+
+        /* ---------- Shared toolbar ---------- */
+        .toolbar {
+            display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+            margin-bottom: 14px;
+        }
+        .period-nav { display: flex; align-items: center; gap: 4px; }
+        .period-title { font-size: 22px; font-weight: 800; letter-spacing: -0.02em; margin: 0 6px; }
+        .period-sub { color: var(--text-muted); font-size: 13px; font-weight: 500; }
+        .toolbar-spacer { flex: 1; }
+
+        .legend { display: flex; gap: 6px; flex-wrap: wrap; }
+        .legend-btn {
+            display: inline-flex; align-items: center; gap: 7px;
+            padding: 7px 11px; border-radius: 999px;
+            font-size: 12px; font-weight: 600;
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            transition: opacity .15s, background .15s;
+        }
+        .legend-btn .sw { width: 9px; height: 9px; border-radius: 3px; }
+        .legend-btn.off { opacity: .4; }
+        .legend-btn.off .sw { background: var(--text-faint) !important; }
+
+        /* ---------- Calendar ---------- */
+        .cal-layout { display: grid; grid-template-columns: 1fr; gap: 16px; }
+        .cal {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            display: grid;
+            grid-template-rows: auto 1fr;
+            height: calc(100dvh - var(--header-h) - var(--nav-h) - 140px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+            min-height: 560px;
+            user-select: none;
+        }
+        .cal-head { display: grid; grid-template-columns: repeat(7, 1fr); border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.15); }
+        .cal-head div { padding: 10px 10px; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); }
+        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); grid-auto-rows: 1fr; min-height: 0; }
+        .cal-cell {
+            border-right: 1px solid var(--border-soft);
+            border-bottom: 1px solid var(--border-soft);
+            padding: 6px 6px 4px;
+            min-height: 0; overflow: hidden;
+            cursor: pointer;
+            display: flex; flex-direction: column; gap: 3px;
+            transition: background .12s;
+            position: relative;
+        }
+        .cal-cell:nth-child(7n) { border-right: none; }
+        .cal-cell:hover { background: rgba(255,255,255,0.03); }
+        .cal-cell.out { background: rgba(0,0,0,0.14); }
+        .cal-cell.out .cal-num { color: var(--text-faint); }
+        .cal-cell.weekend .cal-num { color: #cbd5e1; }
+        .cal-num {
+            font-size: 13px; font-weight: 600;
+            width: 26px; height: 26px; border-radius: 50%;
+            display: grid; place-items: center; flex-shrink: 0;
+        }
+        .cal-cell.today .cal-num { background: var(--primary); color: #fff; }
+        .cal-cell.selected { box-shadow: inset 0 0 0 2px var(--primary); }
+        .chip {
+            display: flex; align-items: center; gap: 5px;
+            font-size: 11.5px; font-weight: 600; line-height: 1.25;
+            padding: 3px 6px; border-radius: 6px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            flex-shrink: 0;
+            border-left: 3px solid var(--c);
+            background: color-mix(in srgb, var(--c) 16%, transparent);
+            color: #e2e8f0;
+            transition: filter .12s;
+        }
+        .chip:hover { filter: brightness(1.25); }
+        .chip .t { color: var(--text-muted); font-weight: 600; font-variant-numeric: tabular-nums; }
+        .chip i { font-size: 10px; color: var(--c); }
+        .chip span.txt { overflow: hidden; text-overflow: ellipsis; }
+        .more { font-size: 11px; font-weight: 600; color: var(--text-muted); padding: 1px 6px; flex-shrink: 0; }
+        .dots { display: none; gap: 3px; justify-content: center; flex-wrap: wrap; }
+        .dots span { width: 6px; height: 6px; border-radius: 50%; background: var(--c); }
+
+        .agenda-panel { display: none; }
+
+        .fab {
+            position: fixed; z-index: 39;
+            right: max(20px, env(safe-area-inset-right));
+            bottom: calc(18px + env(safe-area-inset-bottom));
+            width: 54px; height: 54px; border-radius: 50%;
+            background: var(--primary); color: #fff; font-size: 20px;
+            display: grid; place-items: center;
+            box-shadow: 0 12px 28px rgba(8,172,210,0.35);
+            transition: transform .15s, background .15s;
+        }
+        .fab:hover { background: var(--primary-hover); transform: scale(1.05); }
+
+        /* ---------- Agenda (day contents) ---------- */
+        .agenda-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+        .agenda-head h3 { font-size: 16px; font-weight: 700; flex: 1; }
+        .agenda-list { display: flex; flex-direction: column; gap: 8px; }
+        .agenda-item {
+            display: flex; gap: 12px; align-items: flex-start;
+            padding: 12px; border-radius: 12px;
+            background: rgba(0,0,0,0.18);
+            border: 1px solid var(--border-soft);
+            cursor: pointer; text-align: left; width: 100%;
+            transition: background .12s, border-color .12s;
+        }
+        .agenda-item:hover { background: rgba(255,255,255,0.04); border-color: var(--border); }
+        .agenda-ico {
+            width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0;
+            display: grid; place-items: center; font-size: 14px;
+            color: var(--c); background: color-mix(in srgb, var(--c) 16%, transparent);
+        }
+        .agenda-body { flex: 1; min-width: 0; }
+        .agenda-kicker { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--c); margin-bottom: 2px; }
+        .agenda-title { font-size: 14.5px; font-weight: 600; overflow-wrap: anywhere; }
+        .agenda-desc { font-size: 13px; color: var(--text-muted); margin-top: 3px; line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; white-space: pre-line; }
+        .agenda-empty { color: var(--text-muted); font-size: 14px; padding: 18px 4px; text-align: center; }
+        .agenda-actions { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+        .agenda-actions .btn { flex: 1; }
+
+        .tag-pill {
+            display: inline-flex; align-items: center; gap: 5px;
+            font-size: 11px; font-weight: 700;
+            padding: 3px 8px; border-radius: 999px;
+            color: var(--c); background: color-mix(in srgb, var(--c) 15%, transparent);
+            white-space: nowrap;
+        }
+        .tag-pill::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--c); }
+
+        .status-pill {
+            display: inline-flex; align-items: center;
+            font-size: 11px; font-weight: 700;
+            padding: 3px 8px; border-radius: 999px;
+            color: var(--c); background: color-mix(in srgb, var(--c) 15%, transparent);
+            white-space: nowrap;
+        }
+
+        /* ---------- Reels planner ---------- */
+        .seg {
+            display: inline-flex; padding: 4px; gap: 2px;
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
+        }
+        .seg button { padding: 8px 14px; border-radius: 9px; font-size: 13px; font-weight: 600; color: var(--text-muted); display: inline-flex; gap: 7px; align-items: center; }
+        .seg button.active { background: rgba(8,172,210,0.16); color: var(--primary); }
+        .seg .count { font-size: 11px; background: rgba(255,255,255,0.08); padding: 1px 7px; border-radius: 999px; color: var(--text-muted); }
+
+        .week-summary {
+            display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px;
+        }
+        .stat {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 8px 12px; border-radius: 10px;
+            background: var(--bg-card); border: 1px solid var(--border-soft);
+            font-size: 13px; color: var(--text-muted); font-weight: 500;
+        }
+        .stat b { color: var(--text-main); font-weight: 700; }
+        .progress { width: 70px; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.08); overflow: hidden; }
+        .progress span { display: block; height: 100%; background: var(--primary); border-radius: 3px; }
+
+        .days { display: flex; flex-direction: column; gap: 14px; }
+        .day {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+        .day.is-today { border-color: rgba(8,172,210,0.6); box-shadow: 0 0 0 1px rgba(8,172,210,0.25); }
+        .day.is-past { opacity: .82; }
+        .day-head {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px 16px; width: 100%; text-align: left;
+            border-bottom: 1px solid var(--border-soft);
+            background: rgba(0,0,0,0.12);
+        }
+        .day.collapsed .day-head { border-bottom: none; }
+        .day-date {
+            width: 46px; flex-shrink: 0; text-align: center;
+            border-radius: 10px; padding: 5px 0;
+            background: var(--up-bg); color: #93c5fd;
+        }
+        .day-date b { display: block; font-size: 18px; font-weight: 800; line-height: 1.1; color: var(--text-main); }
+        .day-date small { font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+        .day-meta { flex: 1; min-width: 0; }
+        .day-meta .wd { font-weight: 700; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+        .day-meta .sub { font-size: 12.5px; color: var(--text-muted); margin-top: 1px; }
+        .today-badge { font-size: 10px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; padding: 2px 7px; border-radius: 999px; background: var(--primary); color: #fff; }
+        .day-chev { color: var(--text-muted); transition: transform .2s; }
+        .day.collapsed .day-chev { transform: rotate(-90deg); }
+        .day.collapsed .day-body { display: none; }
+        .day-body { padding: 14px; display: flex; flex-direction: column; gap: 14px; }
+
+        .reel {
+            border: 1px solid var(--border-soft);
+            border-radius: 12px;
+            background: rgba(0,0,0,0.14);
+            padding: 14px;
+            display: grid; gap: 12px;
+            grid-template-columns: repeat(12, 1fr);
+            transition: border-color .2s, box-shadow .3s;
+            position: relative;
+        }
+        .reel.draft { border-style: dashed; background: transparent; }
+        .reel.draft::before {
+            content: 'Novi reel — počni pisati i automatski se sprema';
+            grid-column: 1 / -1;
+            font-size: 12px; color: var(--text-faint); font-weight: 500;
+            margin-bottom: -4px;
+        }
+        .reel.compact > :not(.field-title) { display: none; }
+        .reel.compact::before { content: 'Prazan dan — upiši naslov reela i otvorit će se sva polja'; }
+        .reel.compact .field-title label { display: none; }
+        .reel.compact + .add-reel { display: none; }
+        .reel.flash { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(8,172,210,0.25); }
+        .field { display: flex; flex-direction: column; gap: 6px; min-width: 0; grid-column: span 12; }
+        .field.half { grid-column: span 6; }
+        .field.third { grid-column: span 4; }
+        .field label, .field .lbl {
+            font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase;
+            color: var(--text-muted);
+            display: flex; align-items: center; gap: 7px;
+        }
+        .field label .req { color: var(--text-faint); font-weight: 600; text-transform: none; letter-spacing: 0; }
+        .field .input-field { font-size: 15px; padding: 10px 12px; }
+        .field input.title-input { font-size: 17px; font-weight: 700; }
+        .field .hook-input { font-weight: 600; color: #fde68a; }
+        .field select.input-field { appearance: none; -webkit-appearance: none; padding-right: 34px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2394a3b8' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
+        .field select.input-field option { background: var(--bg-card); }
+
+        .when {
+            border-radius: 11px; padding: 10px;
+            border: 1px solid; display: flex; flex-direction: column; gap: 8px;
+        }
+        .when.rec { border-color: rgba(239,68,68,0.35); background: var(--rec-bg); }
+        .when.up { border-color: rgba(59,130,246,0.38); background: var(--up-bg); }
+        .when .lbl i { font-size: 12px; }
+        .when.rec .lbl { color: #fca5a5; }
+        .when.up .lbl { color: #93c5fd; }
+        .when-row { display: grid; grid-template-columns: 1.4fr 1fr; gap: 8px; }
+        .when .input-field { background: rgba(0,0,0,0.25); padding: 9px 10px; font-size: 15px; min-width: 0; }
+
+        .platforms { display: flex; gap: 6px; flex-wrap: wrap; }
+        .plat {
+            display: inline-flex; align-items: center; gap: 7px;
+            padding: 8px 12px; border-radius: 10px;
+            border: 1px solid var(--border);
+            font-size: 13px; font-weight: 600; color: var(--text-muted);
+            transition: all .12s;
+        }
+        .plat.on { border-color: var(--primary); color: var(--text-main); background: rgba(8,172,210,0.12); }
+        .plat.on i { color: var(--primary); }
+
+        .reel-foot {
+            grid-column: 1 / -1;
+            display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+            padding-top: 2px;
+        }
+        .reel-foot .spacer { flex: 1; }
+        .warn {
+            font-size: 12.5px; font-weight: 600; color: #fcd34d;
+            display: inline-flex; align-items: center; gap: 7px;
+            padding: 6px 10px; border-radius: 9px; background: rgba(245,158,11,0.1);
+        }
+        .details-toggle { font-size: 13px; font-weight: 600; color: var(--text-muted); display: inline-flex; align-items: center; gap: 7px; padding: 6px 4px; }
+        .details-toggle:hover { color: var(--text-main); }
+        .add-reel {
+            border: 1px dashed var(--border); border-radius: 12px;
+            padding: 12px; font-size: 14px; font-weight: 600; color: var(--text-muted);
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            transition: all .12s;
+        }
+        .add-reel:hover { border-color: var(--primary); color: var(--primary); background: rgba(8,172,210,0.06); }
+
+        .ideas-intro { color: var(--text-muted); font-size: 14px; margin-bottom: 14px; line-height: 1.5; }
+        .ideas-list { display: flex; flex-direction: column; gap: 14px; }
+
+        /* ---------- Modal / sheet ---------- */
+        .overlay {
+            position: fixed; inset: 0; z-index: 60;
+            background: rgba(2,6,23,0.66);
+            backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+            display: flex; align-items: center; justify-content: center;
+            padding: 20px;
+            opacity: 0; pointer-events: none;
+            transition: opacity .18s;
+        }
+        .overlay.open { opacity: 1; pointer-events: auto; }
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            width: 100%; max-width: 540px;
+            max-height: calc(100dvh - 40px);
+            display: flex; flex-direction: column;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+            transform: translateY(10px) scale(.98);
+            transition: transform .2s ease;
+        }
+        .overlay.open .modal { transform: none; }
+        .modal-head { display: flex; align-items: center; gap: 10px; padding: 16px 18px; border-bottom: 1px solid var(--border-soft); }
+        .modal-head h3 { flex: 1; font-size: 17px; font-weight: 700; }
+        .modal-body { padding: 18px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        .modal-foot { display: flex; gap: 10px; padding: 14px 18px calc(14px + env(safe-area-inset-bottom)); border-top: 1px solid var(--border-soft); }
+        .modal-foot .spacer { flex: 1; }
+        .form-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 14px; }
+        .tag-picks { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+        .tag-pick { cursor: pointer; border: 1px solid transparent; }
+        .tag-pick.sel { border-color: var(--c); }
+        .grabber { display: none; }
+
+        /* ---------- Toast ---------- */
+        #toast {
+            position: fixed; z-index: 80;
+            left: 50%; transform: translate(-50%, 20px);
+            bottom: calc(var(--nav-h) + 34px + env(safe-area-inset-bottom));
+            background: var(--bg-raised); border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 10px 12px 10px 16px; border-radius: 12px;
+            font-size: 14px; font-weight: 500;
+            display: flex; align-items: center; gap: 12px;
+            box-shadow: 0 14px 30px rgba(0,0,0,0.45);
+            opacity: 0; pointer-events: none;
+            transition: opacity .2s, transform .2s;
+            max-width: calc(100vw - 32px);
+        }
+        #toast.show { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+        #toast.error { border-color: rgba(239,68,68,0.5); }
+        #toast button { color: var(--primary); font-weight: 700; font-size: 13px; padding: 6px 8px; border-radius: 8px; }
+        #toast button:hover { background: rgba(8,172,210,0.12); }
+
+        .loading { padding: 60px 0; text-align: center; color: var(--text-muted); }
+        .spinner { width: 34px; height: 34px; border-radius: 50%; border: 3px solid var(--border); border-top-color: var(--primary); animation: spin 0.8s linear infinite; margin: 0 auto 14px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ---------- Desktop wide: calendar + side agenda ---------- */
+        @media (min-width: 1180px) {
+            .cal-layout.with-side { grid-template-columns: 1fr 340px; }
+            .fab { display: none; }
+            .cal-layout.with-side .agenda-panel {
+                display: block;
+                background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+                padding: 16px; align-self: start;
+                position: sticky; top: calc(var(--header-h) + 16px);
+                max-height: calc(100dvh - var(--header-h) - var(--nav-h) - 80px); overflow-y: auto;
+            }
+        }
+        @media (min-width: 900px) {
+            .reel .field.span-desk-6 { grid-column: span 6; }
+            .reel .field.span-desk-4 { grid-column: span 4; }
+            .reel .field.span-desk-8 { grid-column: span 8; }
+        }
+
+        /* ---------- Mobile ---------- */
+        @media (max-width: 760px) {
+            :root { --header-h: 56px; --nav-h: 66px; }
+            .brand small, .top-link span { display: none; }
+            .period-title { font-size: 19px; margin: 0 2px; }
+            .toolbar { gap: 8px; }
+            .legend { width: 100%; }
+            .legend-btn { flex: 1; justify-content: center; padding: 7px 6px; }
+
+            .cal { height: auto; min-height: 0; grid-template-rows: auto auto; border-radius: 12px; }
+            .cal-head div { padding: 8px 0; text-align: center; font-size: 10px; letter-spacing: .04em; }
+            .cal-grid { grid-auto-rows: 54px; }
+            .cal-cell { padding: 4px 2px; align-items: center; gap: 4px; }
+            .cal-num { font-size: 14px; width: 30px; height: 30px; }
+            .chip, .more { display: none; }
+            .dots { display: flex; }
+            .cal-cell.selected { box-shadow: none; }
+            .cal-cell.selected:not(.today) .cal-num { background: rgba(8,172,210,0.2); color: var(--primary); }
+
+            .agenda-panel {
+                display: block;
+                background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
+                padding: 14px;
+            }
+            .fab { bottom: calc(var(--nav-h) + 30px + env(safe-area-inset-bottom)); width: 52px; height: 52px; }
+
+            .bottom-nav {
+                left: 0; right: 0; transform: none; bottom: 0;
+                border-radius: 0; border-left: none; border-right: none; border-bottom: none;
+                padding: 6px max(10px, env(safe-area-inset-left)) calc(6px + env(safe-area-inset-bottom));
+                gap: 6px; background: rgba(15,23,42,0.94);
+                box-shadow: 0 -8px 24px rgba(0,0,0,0.3);
+            }
+            .nav-btn { flex: 1; flex-direction: column; gap: 4px; padding: 8px 0; border-radius: 12px; font-size: 11.5px; justify-content: center; }
+            .nav-btn i { font-size: 19px; }
+            .nav-btn.active { background: rgba(8,172,210,0.14); color: var(--primary); }
+            main { padding-bottom: calc(var(--nav-h) + 24px + env(safe-area-inset-bottom)); padding-top: 12px; }
+            #toast { bottom: calc(var(--nav-h) + 16px + env(safe-area-inset-bottom)); }
+
+            .field.half, .field.third { grid-column: span 12; }
+            .when-row { grid-template-columns: 1fr 1fr; }
+            .reel { padding: 12px; gap: 12px; }
+            .day-body { padding: 10px; }
+            .day-head { padding: 10px 12px; }
+            .seg { width: 100%; }
+            .seg button { flex: 1; justify-content: center; }
+
+            .overlay { align-items: flex-end; padding: 0; }
+            .modal {
+                max-width: none; border-radius: 20px 20px 0 0;
+                max-height: 92dvh; border-bottom: none;
+                transform: translateY(100%);
+            }
+            .grabber { display: block; width: 40px; height: 4px; border-radius: 2px; background: var(--border); margin: 8px auto 0; }
+        }
+        @media (max-width: 380px) {
+            .nav-btn { font-size: 11px; }
+            .sync-pill .lbl { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- LOGIN (same as /admin) -->
+    <div id="loginScreen">
+        <div class="login-box">
+            <div class="brand-mark"><i class="fa-solid fa-calendar-days"></i></div>
+            <h2>Admin Login</h2>
+            <p>Plan sadržaja i kalendar</p>
+            <input type="password" id="passInput" class="input-field" placeholder="Unesi lozinku" autocomplete="current-password" onkeydown="if(event.key==='Enter') login()" />
+            <button class="btn btn-block" onclick="login()">Prijavi se <i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+    </div>
+
+    <!-- APP -->
+    <div id="app">
+        <header class="topbar">
+            <div class="brand">
+                <div class="brand-dot"><i class="fa-solid fa-bolt"></i></div>
+                <div>Ursa Plan <small id="viewLabel">· Kalendar</small></div>
+            </div>
+            <div class="topbar-spacer"></div>
+            <div class="sync-pill" id="syncPill" data-state="saving" title="">
+                <span class="dot"></span><span class="lbl" id="syncLabel">Učitavam…</span>
+            </div>
+            <a class="top-link" href="/admin/" title="Transakcije"><i class="fa-solid fa-table-list"></i><span>Transakcije</span></a>
+            <button class="icon-btn" onclick="logout()" title="Odjava"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
+        </header>
+
+        <div class="banner-wrap" id="localBanner" hidden>
+            <div class="banner">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <div><b>Sinkronizacija nije aktivna.</b> Podaci se trenutno spremaju samo na ovom uređaju. Da bi plan bio isti na mobitelu i računalu, u Google Apps Scriptu zalijepi novi <code>apps_script/Unified_Script.gs</code> i objavi novu verziju (Deploy → Manage deployments → Edit → New version). Sve što sad uneseš automatski će se prenijeti čim se sinkronizacija uključi.</div>
+                <button class="icon-btn" style="width:28px;height:28px;color:#fcd34d" onclick="dismissBanner()" title="Sakrij"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+        </div>
+
+        <main>
+            <!-- CALENDAR VIEW -->
+            <section class="view" id="view-cal">
+                <div class="toolbar">
+                    <div class="period-nav">
+                        <button class="icon-btn" onclick="shiftMonth(-1)" title="Prethodni mjesec"><i class="fa-solid fa-chevron-left"></i></button>
+                        <button class="icon-btn" onclick="shiftMonth(1)" title="Sljedeći mjesec"><i class="fa-solid fa-chevron-right"></i></button>
+                        <div class="period-title" id="calTitle"></div>
+                    </div>
+                    <button class="btn btn-ghost btn-sm" onclick="goToday()">Danas</button>
+                    <div class="toolbar-spacer"></div>
+                    <div class="legend" id="legend"></div>
+                </div>
+                <div class="cal-layout with-side">
+                    <div class="cal" id="cal">
+                        <div class="cal-head"><div>Pon</div><div>Uto</div><div>Sri</div><div>Čet</div><div>Pet</div><div>Sub</div><div>Ned</div></div>
+                        <div class="cal-grid" id="calGrid"></div>
+                    </div>
+                    <aside class="agenda-panel" id="agendaPanel"></aside>
+                </div>
+            </section>
+
+            <!-- REELS VIEW -->
+            <section class="view" id="view-reels">
+                <div class="toolbar">
+                    <div class="seg" id="reelsSeg">
+                        <button data-mode="week" class="active" onclick="setReelsMode('week')"><i class="fa-solid fa-calendar-week"></i> Tjedni plan</button>
+                        <button data-mode="ideas" onclick="setReelsMode('ideas')"><i class="fa-solid fa-lightbulb"></i> Banka ideja <span class="count" id="ideasCount">0</span></button>
+                    </div>
+                </div>
+                <div id="weekMode">
+                    <div class="toolbar">
+                        <div class="period-nav">
+                            <button class="icon-btn" onclick="shiftWeek(-1)" title="Prethodni tjedan"><i class="fa-solid fa-chevron-left"></i></button>
+                            <button class="icon-btn" onclick="shiftWeek(1)" title="Sljedeći tjedan"><i class="fa-solid fa-chevron-right"></i></button>
+                            <div>
+                                <div class="period-title" id="weekTitle"></div>
+                                <div class="period-sub" id="weekRange" style="margin-left:6px"></div>
+                            </div>
+                        </div>
+                        <div class="toolbar-spacer"></div>
+                        <button class="btn btn-ghost btn-sm" onclick="goThisWeek()">Ovaj tjedan</button>
+                    </div>
+                    <div class="week-summary" id="weekSummary"></div>
+                    <div class="days" id="days"></div>
+                </div>
+                <div id="ideasMode" hidden>
+                    <p class="ideas-intro">Ideje za reelse koji još nemaju dan objave. Kad odlučiš kad ide van, upiši <b>datum objave</b> i reel se automatski premjesti u tjedni plan i na kalendar.</p>
+                    <div class="ideas-list" id="ideasList"></div>
+                </div>
+            </section>
+        </main>
+
+        <button class="fab" id="fab" onclick="openEventForm(null, state_selectedDate())" title="Novi događaj"><i class="fa-solid fa-plus"></i></button>
+
+        <!-- FOOTER MENU -->
+        <nav class="bottom-nav">
+            <button class="nav-btn" data-view="cal" onclick="switchView('cal')"><i class="fa-solid fa-calendar-days"></i><span>Kalendar</span></button>
+            <button class="nav-btn" data-view="reels" onclick="switchView('reels')"><i class="fa-solid fa-clapperboard"></i><span>Reelsi</span></button>
+        </nav>
+    </div>
+
+    <!-- DAY MODAL (desktop < 1180px) -->
+    <div class="overlay" id="dayOverlay" onclick="if(event.target===this) closeOverlay('dayOverlay')">
+        <div class="modal" role="dialog" aria-modal="true">
+            <div class="grabber"></div>
+            <div class="modal-body" id="dayModalBody"></div>
+        </div>
+    </div>
+
+    <!-- EVENT FORM MODAL -->
+    <div class="overlay" id="eventOverlay" onclick="if(event.target===this) closeOverlay('eventOverlay')">
+        <div class="modal" role="dialog" aria-modal="true">
+            <div class="grabber"></div>
+            <div class="modal-head">
+                <h3 id="eventFormTitle">Novi događaj</h3>
+                <button class="icon-btn" onclick="closeOverlay('eventOverlay')" title="Zatvori"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-grid">
+                    <div class="field">
+                        <label for="evTitle">Naslov</label>
+                        <input id="evTitle" class="input-field" placeholder="npr. Sastanak s montažerom" maxlength="140" />
+                    </div>
+                    <div class="field half">
+                        <label for="evDate">Datum</label>
+                        <input id="evDate" type="date" class="input-field" />
+                    </div>
+                    <div class="field half">
+                        <label for="evTime">Vrijeme <span class="req">(neobavezno)</span></label>
+                        <input id="evTime" type="time" class="input-field" />
+                    </div>
+                    <div class="field">
+                        <label for="evTag">Oznaka</label>
+                        <input id="evTag" class="input-field" placeholder="npr. Posao, Rok, Osobno…" maxlength="40" oninput="renderTagPicks()" />
+                        <div class="tag-picks" id="tagPicks"></div>
+                    </div>
+                    <div class="field">
+                        <label for="evDesc">Opis</label>
+                        <textarea id="evDesc" class="input-field" rows="4" placeholder="Detalji, bilješke, linkovi…" oninput="autoGrow(this)"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-foot">
+                <button class="btn btn-danger btn-sm" id="evDeleteBtn" onclick="deleteEventFromForm()"><i class="fa-solid fa-trash-can"></i> Obriši</button>
+                <div class="spacer"></div>
+                <button class="btn btn-ghost btn-sm" onclick="closeOverlay('eventOverlay')">Odustani</button>
+                <button class="btn btn-sm" onclick="saveEventFromForm()"><i class="fa-solid fa-check"></i> Spremi</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast"><span id="toastMsg"></span><button id="toastAction" hidden></button></div>
+
+    <script>
+        // ================= CONFIG =================
+        const VALID_PASS = "Ursakis357982"; // isto kao /admin
+        const DEFAULT_API = 'https://script.google.com/macros/s/AKfycbyWQsjnenPCvl_S3hKMjeDwc_af4Q7k0zHT2mLV0DvaCoMKx7fRTYHAcfE_n5-DksO4Xg/exec';
+        const LS_STATE = 'ursaPlanState_v1';
+        const LS_DIRTY = 'ursaPlanDirty_v1';
+        const LS_UI = 'ursaPlanUi_v1';
+
+        const MONTHS = ['Siječanj','Veljača','Ožujak','Travanj','Svibanj','Lipanj','Srpanj','Kolovoz','Rujan','Listopad','Studeni','Prosinac'];
+        const MONTHS_GEN = ['siječnja','veljače','ožujka','travnja','svibnja','lipnja','srpnja','kolovoza','rujna','listopada','studenoga','prosinca'];
+        const WEEKDAYS = ['Ponedjeljak','Utorak','Srijeda','Četvrtak','Petak','Subota','Nedjelja'];
+        const WD_SHORT = ['Pon','Uto','Sri','Čet','Pet','Sub','Ned'];
+
+        const VIDEO_TYPES = ['Talking head', 'Edukativni', 'Recept', 'Transformacija / rezultati', 'Trening', 'Trend / audio', 'Story / osobno', 'Mit vs. istina', 'Q&A / odgovor na komentar', 'B-roll + tekst', 'Vlog', 'Prodajni / CTA'];
+        const STATUSES = [
+            { id: 'ideja', label: 'Ideja', c: '#94a3b8' },
+            { id: 'skripta', label: 'Skripta gotova', c: '#f59e0b' },
+            { id: 'snimljeno', label: 'Snimljeno', c: '#a855f7' },
+            { id: 'montirano', label: 'Montirano', c: '#14b8a6' },
+            { id: 'objavljeno', label: 'Objavljeno', c: '#22c55e' }
+        ];
+        const PLATFORMS = [
+            { id: 'ig', label: 'Instagram', icon: 'fa-brands fa-instagram' },
+            { id: 'tt', label: 'TikTok', icon: 'fa-brands fa-tiktok' },
+            { id: 'yt', label: 'YT Shorts', icon: 'fa-brands fa-youtube' }
+        ];
+        const DEFAULT_TAGS = ['Posao', 'Sastanak', 'Rok', 'Snimanje', 'Osobno', 'Trening'];
+        // Tag colours deliberately avoid red (snimanje) and blue (objava)
+        const TAG_COLORS = ['#22c55e', '#f59e0b', '#a855f7', '#ec4899', '#14b8a6', '#f97316', '#84cc16', '#cbd5e1'];
+        const REC_COLOR = '#ef4444';
+        const UP_COLOR = '#3b82f6';
+
+        let apiUrl = localStorage.getItem('ursaAdminApiUrl') || DEFAULT_API;
+
+        // ================= DATES =================
+        const pad = n => String(n).padStart(2, '0');
+        const ymd = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+        const parseYmd = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+        const addDays = (d, n) => { const x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate() + n); return x; };
+        const startOfMonth = d => new Date(d.getFullYear(), d.getMonth(), 1);
+        const mondayOf = d => addDays(d, -((d.getDay() + 6) % 7));
+        const wdIndex = d => (d.getDay() + 6) % 7;
+        const fmtShort = d => `${d.getDate()}.${d.getMonth() + 1}.`;
+        const fmtLong = d => `${WEEKDAYS[wdIndex(d)]}, ${d.getDate()}. ${MONTHS_GEN[d.getMonth()]} ${d.getFullYear()}.`;
+        const todayYmd = () => ymd(new Date());
+        function state_selectedDate() { return selectedDate; }
+
+        // A week belongs to the month that contains its Thursday (so "10. mjesec – 1. tjedan" is the first week that is mostly October)
+        function weekInfo(monday) {
+            const thu = addDays(monday, 3);
+            return { month: thu.getMonth() + 1, year: thu.getFullYear(), index: Math.floor((thu.getDate() - 1) / 7) + 1 };
+        }
+
+        // ================= STATE =================
+        let state = loadLocalState();
+        let ui = Object.assign({ view: 'cal', filters: { ev: true, rec: true, up: true }, bannerHidden: false, reelsMode: 'week', collapsed: {} }, safeJson(localStorage.getItem(LS_UI)) || {});
+        let viewMonth = startOfMonth(new Date());
+        let selectedDate = ymd(new Date());
+        let weekStart = mondayOf(new Date());
+        let editingEventId = null;
+        let serverMode = 'unknown'; // 'remote' | 'local' | 'unknown'
+        let pendingRender = false;
+
+        function safeJson(s) { try { return JSON.parse(s); } catch (e) { return null; } }
+        function emptyState() { return { v: 1, events: {}, reels: {} }; }
+        function loadLocalState() {
+            const s = safeJson(localStorage.getItem(LS_STATE));
+            if (!s || typeof s !== 'object') return emptyState();
+            return { v: 1, events: s.events || {}, reels: s.reels || {} };
+        }
+        function persistLocal() {
+            try { localStorage.setItem(LS_STATE, JSON.stringify(state)); } catch (e) {}
+        }
+        function saveUi() { try { localStorage.setItem(LS_UI, JSON.stringify(ui)); } catch (e) {} }
+        function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
+
+        const events = () => Object.values(state.events).filter(e => !e.deleted);
+        const reels = () => Object.values(state.reels).filter(r => !r.deleted);
+        function reelHasContent(r) { return !!(r.title || r.hook || r.script || r.type || r.recordDate || r.caption); }
+
+        // ================= HELPERS =================
+        function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+        function tagColor(tag) {
+            if (!tag) return '#64748b';
+            let h = 0; const s = tag.trim().toLowerCase();
+            for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+            return TAG_COLORS[h % TAG_COLORS.length];
+        }
+        function statusOf(id) { return STATUSES.find(s => s.id === id) || STATUSES[0]; }
+        function autoGrow(el) { el.style.height = 'auto'; el.style.height = (el.scrollHeight + 2) + 'px'; }
+        function isEditingField() {
+            const a = document.activeElement;
+            return a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName) && a.closest('#app, .overlay');
+        }
+
+        let toastTimer = null;
+        function showToast(msg, opts = {}) {
+            const t = document.getElementById('toast');
+            document.getElementById('toastMsg').textContent = msg;
+            const b = document.getElementById('toastAction');
+            if (opts.action) { b.hidden = false; b.textContent = opts.action; b.onclick = () => { opts.onAction(); t.className = ''; }; }
+            else b.hidden = true;
+            t.className = 'show' + (opts.error ? ' error' : '');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => t.className = t.className.replace('show', ''), opts.action ? 6000 : 2600);
+        }
+
+        // ================= AUTH =================
+        function checkAuth() {
+            if (localStorage.getItem('ursaAdminAuth') === 'true') {
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('app').classList.add('active');
+                startApp();
+            } else {
+                setTimeout(() => document.getElementById('passInput').focus(), 50);
+            }
+        }
+        function login() {
+            if (document.getElementById('passInput').value === VALID_PASS) {
+                localStorage.setItem('ursaAdminAuth', 'true');
+                checkAuth();
+            } else {
+                showToast('Neispravna lozinka!', { error: true });
+            }
+        }
+        function logout() {
+            localStorage.removeItem('ursaAdminAuth');
+            window.location.reload();
+        }
+
+        // ================= SYNC =================
+        // Every event/reel carries updatedAt; deletions are tombstones. Merging picks the newer
+        // version per item, so edits from phone and desktop never overwrite each other wholesale.
+        function mergeStates(a, b) {
+            const out = emptyState();
+            for (const kind of ['events', 'reels']) {
+                const A = (a && a[kind]) || {}, B = (b && b[kind]) || {};
+                for (const id of new Set([...Object.keys(A), ...Object.keys(B)])) {
+                    const x = A[id], y = B[id];
+                    out[kind][id] = !x ? y : !y ? x : ((y.updatedAt || 0) > (x.updatedAt || 0) ? y : x);
+                }
+            }
+            return out;
+        }
+
+        function setSync(stateName, label, title) {
+            const p = document.getElementById('syncPill');
+            p.dataset.state = stateName;
+            p.title = title || '';
+            document.getElementById('syncLabel').textContent = label;
+        }
+
+        function markDirty() {
+            persistLocal();
+            localStorage.setItem(LS_DIRTY, '1');
+            if (serverMode === 'remote') setSync('saving', 'Spremam…');
+            clearTimeout(markDirty.t);
+            markDirty.t = setTimeout(push, 900);
+        }
+
+        let pulling = false, pushing = false;
+        async function pull() {
+            if (pulling || pushing) return;
+            pulling = true;
+            try {
+                const res = await fetch(apiUrl + '?action=getPlan&t=' + Date.now());
+                const json = await res.json();
+                if (json && json.status === 'success' && json.plan !== undefined) {
+                    serverMode = 'remote';
+                    document.getElementById('localBanner').hidden = true;
+                    applyRemote(json.plan || emptyState());
+                    if (localStorage.getItem(LS_DIRTY) === '1') { pulling = false; await push(); return; }
+                    setSync('synced', 'Sinkronizirano', 'Spremljeno u Google Sheet');
+                } else {
+                    // Apps Script is live but doesn't know about the planner yet
+                    serverMode = 'local';
+                    setSync('local', 'Lokalno', 'Sinkronizacija nije aktivna — podaci su samo na ovom uređaju');
+                    document.getElementById('localBanner').hidden = !!ui.bannerHidden;
+                }
+            } catch (e) {
+                if (serverMode !== 'remote') serverMode = 'local';
+                setSync('error', 'Offline', 'Nema veze sa serverom — promjene su spremljene lokalno');
+            } finally {
+                pulling = false;
+            }
+        }
+
+        async function push() {
+            if (serverMode !== 'remote') {
+                if (serverMode === 'local') setSync('local', 'Lokalno', 'Sinkronizacija nije aktivna — podaci su samo na ovom uređaju');
+                return;
+            }
+            if (pushing) { clearTimeout(markDirty.t); markDirty.t = setTimeout(push, 700); return; }
+            pushing = true;
+            setSync('saving', 'Spremam…');
+            const body = JSON.stringify({ action: 'savePlan', plan: state });
+            try {
+                // text/plain avoids a CORS preflight, which Apps Script can't answer
+                const res = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body });
+                const json = await res.json();
+                if (json.status !== 'success' || !json.plan) throw new Error(json.message || 'save failed');
+                localStorage.removeItem(LS_DIRTY);
+                applyRemote(json.plan);
+                setSync('synced', 'Sinkronizirano', 'Spremljeno u Google Sheet');
+            } catch (e) {
+                setSync('error', 'Nije spremljeno', 'Greška pri spremanju — pokušat ću ponovno. Promjene su sigurne na ovom uređaju.');
+                clearTimeout(push.retry);
+                push.retry = setTimeout(push, 8000);
+            } finally {
+                pushing = false;
+            }
+        }
+
+        function applyRemote(remote) {
+            const merged = mergeStates(state, remote);
+            if (JSON.stringify(merged) === JSON.stringify(state)) return;
+            state = merged;
+            persistLocal();
+            requestRender();
+        }
+
+        function requestRender() {
+            if (isEditingField()) { pendingRender = true; return; }
+            renderAll();
+        }
+        document.addEventListener('focusout', () => {
+            setTimeout(() => { if (pendingRender && !isEditingField()) { pendingRender = false; renderAll(); } }, 150);
+        });
+
+        // ================= VIEWS =================
+        function startApp() {
+            renderLegend();
+            const hash = location.hash.replace('#', '');
+            switchView(hash === 'reelsi' ? 'reels' : hash === 'kalendar' ? 'cal' : ui.view, true);
+            setReelsMode(ui.reelsMode || 'week', true);
+            setSync('saving', 'Učitavam…');
+            pull();
+            setInterval(() => { if (document.visibilityState === 'visible') pull(); }, 45000);
+            document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') pull(); });
+            window.addEventListener('online', pull);
+        }
+
+        function switchView(v, silent) {
+            ui.view = v; saveUi();
+            document.querySelectorAll('.view').forEach(el => el.classList.toggle('active', el.id === 'view-' + v));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.view === v));
+            document.getElementById('fab').hidden = v !== 'cal';
+            document.getElementById('viewLabel').textContent = v === 'cal' ? '· Kalendar' : '· Reelsi';
+            history.replaceState(null, '', v === 'cal' ? '#kalendar' : '#reelsi');
+            renderAll();
+            if (!silent) window.scrollTo({ top: 0 });
+        }
+
+        function renderAll() {
+            document.getElementById('ideasCount').textContent = reels().filter(r => !r.uploadDate && reelHasContent(r)).length;
+            if (ui.view === 'cal') renderCalendar();
+            else renderReels();
+        }
+
+        // ================= CALENDAR =================
+        function renderLegend() {
+            const items = [
+                { k: 'ev', label: 'Događaji', c: '#22c55e', sw: 'linear-gradient(135deg,#22c55e,#f59e0b,#a855f7)' },
+                { k: 'rec', label: 'Snimanje', c: REC_COLOR },
+                { k: 'up', label: 'Objava', c: UP_COLOR }
+            ];
+            document.getElementById('legend').innerHTML = items.map(i =>
+                `<button class="legend-btn ${ui.filters[i.k] ? '' : 'off'}" onclick="toggleFilter('${i.k}')" title="Prikaži / sakrij">
+                    <span class="sw" style="background:${i.sw || i.c}"></span>${i.label}</button>`).join('');
+        }
+        function toggleFilter(k) { ui.filters[k] = !ui.filters[k]; saveUi(); renderLegend(); renderCalendar(); }
+
+        function itemsForDate(dateStr, respectFilters = true) {
+            const f = respectFilters ? ui.filters : { ev: true, rec: true, up: true };
+            const out = [];
+            if (f.rec) reels().forEach(r => { if (r.recordDate === dateStr && reelHasContent(r)) out.push({ kind: 'rec', id: r.id, time: r.recordTime || '', title: r.title || 'Reel bez naslova', c: REC_COLOR, reel: r }); });
+            if (f.up) reels().forEach(r => { if (r.uploadDate === dateStr && reelHasContent(r)) out.push({ kind: 'up', id: r.id, time: r.uploadTime || '', title: r.title || 'Reel bez naslova', c: UP_COLOR, reel: r }); });
+            if (f.ev) events().forEach(e => { if (e.date === dateStr) out.push({ kind: 'ev', id: e.id, time: e.time || '', title: e.title || 'Bez naslova', c: tagColor(e.tag), ev: e }); });
+            const order = { ev: 0, rec: 1, up: 2 };
+            return out.sort((a, b) => (a.time || '').localeCompare(b.time || '') || order[a.kind] - order[b.kind]);
+        }
+
+        function shiftMonth(n) { viewMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth() + n, 1); renderCalendar(); }
+        function goToday() { viewMonth = startOfMonth(new Date()); selectedDate = todayYmd(); renderCalendar(); }
+
+        function renderCalendar() {
+            document.getElementById('calTitle').textContent = `${MONTHS[viewMonth.getMonth()]} ${viewMonth.getFullYear()}`;
+            const start = mondayOf(viewMonth);
+            const today = todayYmd();
+            let html = '';
+            for (let i = 0; i < 42; i++) {
+                const d = addDays(start, i);
+                const ds = ymd(d);
+                const items = itemsForDate(ds);
+                const cls = ['cal-cell'];
+                if (d.getMonth() !== viewMonth.getMonth()) cls.push('out');
+                if (ds === today) cls.push('today');
+                if (ds === selectedDate) cls.push('selected');
+                if (wdIndex(d) >= 5) cls.push('weekend');
+                const maxChips = 3;
+                const chips = items.slice(0, items.length > maxChips + 1 ? maxChips : maxChips + 1).map(it => chipHtml(it)).join('');
+                const more = items.length > maxChips + 1 ? `<div class="more">+${items.length - maxChips} više</div>` : '';
+                const dotColors = [...new Set(items.map(it => it.c))].slice(0, 4);
+                html += `<div class="${cls.join(' ')}" data-date="${ds}" onclick="onDayClick('${ds}')">
+                    <div class="cal-num">${d.getDate()}</div>${chips}${more}
+                    <div class="dots">${dotColors.map(c => `<span style="--c:${c}"></span>`).join('')}</div>
+                </div>`;
+            }
+            document.getElementById('calGrid').innerHTML = html;
+            renderAgendaPanel();
+        }
+
+        function chipHtml(it) {
+            const icon = it.kind === 'rec' ? 'fa-video' : it.kind === 'up' ? 'fa-arrow-up-from-bracket' : 'fa-circle';
+            const click = it.kind === 'ev' ? `openEventForm('${it.id}')` : `goToReel('${it.id}')`;
+            const done = it.kind === 'up' && it.reel.status === 'objavljeno' ? ' ✓' : '';
+            return `<div class="chip" style="--c:${it.c}" onclick="event.stopPropagation();${click}" title="${esc(it.title)}">
+                ${it.kind === 'ev' ? '' : `<i class="fa-solid ${icon}"></i>`}${it.time ? `<span class="t">${it.time}</span>` : ''}<span class="txt">${esc(it.title)}${done}</span></div>`;
+        }
+
+        function onDayClick(ds) {
+            selectedDate = ds;
+            const d = parseYmd(ds);
+            if (d.getMonth() !== viewMonth.getMonth()) viewMonth = startOfMonth(d);
+            renderCalendar();
+            const sidePanel = window.matchMedia('(min-width: 1180px)').matches;
+            const mobile = window.matchMedia('(max-width: 760px)').matches;
+            if (!sidePanel && !mobile) {
+                document.getElementById('dayModalBody').innerHTML = agendaHtml(ds, true);
+                openOverlay('dayOverlay');
+            }
+        }
+
+        function renderAgendaPanel() {
+            document.getElementById('agendaPanel').innerHTML = agendaHtml(selectedDate, false);
+        }
+
+        function agendaHtml(ds, inModal) {
+            const d = parseYmd(ds);
+            const items = itemsForDate(ds, false);
+            const list = items.length ? items.map(agendaItemHtml).join('') : `<div class="agenda-empty">Ništa isplanirano za ovaj dan.</div>`;
+            return `<div class="agenda-head">
+                    <h3>${fmtLong(d)}</h3>
+                    ${inModal ? `<button class="icon-btn" onclick="closeOverlay('dayOverlay')" title="Zatvori"><i class="fa-solid fa-xmark"></i></button>` : ''}
+                </div>
+                <div class="agenda-list">${list}</div>
+                <div class="agenda-actions">
+                    <button class="btn btn-sm" onclick="closeOverlay('dayOverlay');openEventForm(null,'${ds}')"><i class="fa-solid fa-plus"></i> Događaj</button>
+                    <button class="btn btn-ghost btn-sm" onclick="closeOverlay('dayOverlay');planReelOn('${ds}')"><i class="fa-solid fa-clapperboard"></i> Reel za ovaj dan</button>
+                </div>`;
+        }
+
+        function agendaItemHtml(it) {
+            if (it.kind === 'ev') {
+                const e = it.ev;
+                return `<button class="agenda-item" style="--c:${it.c}" onclick="closeOverlay('dayOverlay');openEventForm('${e.id}')">
+                    <div class="agenda-ico"><i class="fa-solid fa-calendar-check"></i></div>
+                    <div class="agenda-body">
+                        <div class="agenda-kicker">${e.time ? e.time : 'Cijeli dan'}</div>
+                        <div class="agenda-title">${esc(e.title || 'Bez naslova')}</div>
+                        ${e.tag ? `<div style="margin-top:6px"><span class="tag-pill" style="--c:${it.c}">${esc(e.tag)}</span></div>` : ''}
+                        ${e.desc ? `<div class="agenda-desc">${esc(e.desc)}</div>` : ''}
+                    </div></button>`;
+            }
+            const r = it.reel, st = statusOf(r.status);
+            const isRec = it.kind === 'rec';
+            return `<button class="agenda-item" style="--c:${it.c}" onclick="closeOverlay('dayOverlay');goToReel('${r.id}')">
+                <div class="agenda-ico"><i class="fa-solid ${isRec ? 'fa-video' : 'fa-arrow-up-from-bracket'}"></i></div>
+                <div class="agenda-body">
+                    <div class="agenda-kicker">${isRec ? 'Snimanje' : 'Objava'}${it.time ? ' · ' + it.time : ''}</div>
+                    <div class="agenda-title">${esc(r.title || 'Reel bez naslova')}</div>
+                    <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">
+                        <span class="status-pill" style="--c:${st.c}">${st.label}</span>
+                        ${r.type ? `<span class="status-pill" style="--c:#94a3b8">${esc(r.type)}</span>` : ''}
+                    </div>
+                    ${r.hook ? `<div class="agenda-desc">„${esc(r.hook)}“</div>` : ''}
+                </div></button>`;
+        }
+
+        // Swipe months on touch
+        (function () {
+            let x0 = null, y0 = null;
+            document.addEventListener('touchstart', e => {
+                if (!e.target.closest('#cal')) return;
+                x0 = e.touches[0].clientX; y0 = e.touches[0].clientY;
+            }, { passive: true });
+            document.addEventListener('touchend', e => {
+                if (x0 === null) return;
+                const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
+                x0 = null;
+                if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) shiftMonth(dx < 0 ? 1 : -1);
+            }, { passive: true });
+        })();
+
+        // ================= EVENTS (form) =================
+        function openEventForm(id, dateStr) {
+            editingEventId = id;
+            const e = id ? state.events[id] : null;
+            document.getElementById('eventFormTitle').textContent = e ? 'Uredi događaj' : 'Novi događaj';
+            document.getElementById('evTitle').value = e ? e.title || '' : '';
+            document.getElementById('evDate').value = e ? e.date : (dateStr || selectedDate || todayYmd());
+            document.getElementById('evTime').value = e ? e.time || '' : '';
+            document.getElementById('evTag').value = e ? e.tag || '' : '';
+            document.getElementById('evDesc').value = e ? e.desc || '' : '';
+            document.getElementById('evDeleteBtn').hidden = !e;
+            renderTagPicks();
+            openOverlay('eventOverlay');
+            autoGrow(document.getElementById('evDesc'));
+            if (!window.matchMedia('(max-width: 760px)').matches) setTimeout(() => document.getElementById('evTitle').focus(), 60);
+        }
+
+        function allTags() {
+            const used = events().map(e => (e.tag || '').trim()).filter(Boolean);
+            const seen = new Map();
+            [...used, ...DEFAULT_TAGS].forEach(t => { if (!seen.has(t.toLowerCase())) seen.set(t.toLowerCase(), t); });
+            return [...seen.values()];
+        }
+        function renderTagPicks() {
+            const cur = document.getElementById('evTag').value.trim().toLowerCase();
+            document.getElementById('tagPicks').innerHTML = allTags().map(t =>
+                `<span class="tag-pill tag-pick ${t.toLowerCase() === cur ? 'sel' : ''}" style="--c:${tagColor(t)}" onclick="pickTag(this.dataset.t)" data-t="${esc(t)}">${esc(t)}</span>`).join('');
+        }
+        function pickTag(t) {
+            const input = document.getElementById('evTag');
+            input.value = input.value.trim().toLowerCase() === t.toLowerCase() ? '' : t;
+            renderTagPicks();
+        }
+
+        function saveEventFromForm() {
+            const title = document.getElementById('evTitle').value.trim();
+            const date = document.getElementById('evDate').value;
+            if (!title) { showToast('Upiši naslov događaja', { error: true }); document.getElementById('evTitle').focus(); return; }
+            if (!date) { showToast('Odaberi datum', { error: true }); return; }
+            const id = editingEventId || uid();
+            const prev = state.events[id] || { id, createdAt: Date.now() };
+            state.events[id] = Object.assign({}, prev, {
+                title, date,
+                time: document.getElementById('evTime').value,
+                tag: document.getElementById('evTag').value.trim(),
+                desc: document.getElementById('evDesc').value.trim(),
+                deleted: false,
+                updatedAt: Date.now()
+            });
+            markDirty();
+            selectedDate = date;
+            viewMonth = startOfMonth(parseYmd(date));
+            closeOverlay('eventOverlay');
+            renderAll();
+            showToast(editingEventId ? 'Događaj ažuriran' : 'Događaj dodan');
+        }
+
+        function deleteEventFromForm() {
+            const id = editingEventId;
+            if (!id) return;
+            const backup = Object.assign({}, state.events[id]);
+            state.events[id] = { id, deleted: true, updatedAt: Date.now() };
+            markDirty();
+            closeOverlay('eventOverlay');
+            renderAll();
+            showToast('Događaj obrisan', { action: 'Poništi', onAction: () => {
+                state.events[id] = Object.assign(backup, { deleted: false, updatedAt: Date.now() });
+                markDirty(); renderAll();
+            }});
+        }
+
+        // ================= OVERLAYS =================
+        function openOverlay(id) { document.getElementById(id).classList.add('open'); document.body.style.overflow = 'hidden'; }
+        function closeOverlay(id) {
+            document.getElementById(id).classList.remove('open');
+            if (!document.querySelector('.overlay.open')) document.body.style.overflow = '';
+        }
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') document.querySelectorAll('.overlay.open').forEach(o => closeOverlay(o.id));
+            if (e.key === 'Enter' && document.getElementById('eventOverlay').classList.contains('open') && e.target.id !== 'evDesc') saveEventFromForm();
+        });
+
+        // ================= REELS =================
+        function setReelsMode(m, silent) {
+            ui.reelsMode = m; saveUi();
+            document.querySelectorAll('#reelsSeg button').forEach(b => b.classList.toggle('active', b.dataset.mode === m));
+            document.getElementById('weekMode').hidden = m !== 'week';
+            document.getElementById('ideasMode').hidden = m !== 'ideas';
+            if (!silent) renderReels();
+        }
+        function shiftWeek(n) { weekStart = addDays(weekStart, 7 * n); renderReels(); window.scrollTo({ top: 0 }); }
+        function goThisWeek() { weekStart = mondayOf(new Date()); renderReels(); }
+
+        function renderReels() {
+            if (ui.reelsMode === 'ideas') return renderIdeas();
+            const wi = weekInfo(weekStart);
+            const end = addDays(weekStart, 6);
+            document.getElementById('weekTitle').textContent = `${wi.month}. mjesec – ${wi.index}. tjedan`;
+            document.getElementById('weekRange').textContent = `${fmtShort(weekStart)} – ${fmtShort(end)}${end.getFullYear()}.  ·  ${MONTHS[wi.month - 1]}`;
+
+            const today = todayYmd();
+            const all = reels();
+            let planned = 0, recorded = 0, published = 0, total = 0;
+            let html = '';
+            for (let i = 0; i < 7; i++) {
+                const d = addDays(weekStart, i);
+                const ds = ymd(d);
+                const dayReels = all.filter(r => r.uploadDate === ds).sort((a, b) => (a.uploadTime || '99').localeCompare(b.uploadTime || '99') || (a.createdAt || 0) - (b.createdAt || 0));
+                const withContent = dayReels.filter(reelHasContent);
+                if (withContent.length) planned++;
+                total += withContent.length;
+                withContent.forEach(r => { if (['snimljeno', 'montirano', 'objavljeno'].includes(r.status)) recorded++; if (r.status === 'objavljeno') published++; });
+                const recHere = all.filter(r => r.recordDate === ds && reelHasContent(r));
+                const collapsed = !!ui.collapsed[ds];
+                const subParts = [];
+                subParts.push(withContent.length ? `${withContent.length} ${withContent.length === 1 ? 'objava' : 'objave'}` : 'Nema objave');
+                if (recHere.length) subParts.push(`<span style="color:#fca5a5"><i class="fa-solid fa-video" style="font-size:10px"></i> ${recHere.length} snimanje</span>`);
+                html += `<div class="day ${ds === today ? 'is-today' : ''} ${ds < today ? 'is-past' : ''} ${collapsed ? 'collapsed' : ''}" data-date="${ds}">
+                    <button class="day-head" onclick="toggleDay('${ds}')">
+                        <div class="day-date"><small>${WD_SHORT[i]}</small><b>${d.getDate()}</b></div>
+                        <div class="day-meta">
+                            <div class="wd">${WEEKDAYS[i]} ${ds === today ? '<span class="today-badge">Danas</span>' : ''}</div>
+                            <div class="sub">${d.getDate()}. ${MONTHS_GEN[d.getMonth()]} · ${subParts.join(' · ')}</div>
+                        </div>
+                        <i class="fa-solid fa-chevron-down day-chev"></i>
+                    </button>
+                    <div class="day-body">
+                        ${dayReels.length ? dayReels.map(r => reelCardHtml(r)).join('') : reelCardHtml(null, ds)}
+                        <button class="add-reel" onclick="addDraft(this, '${ds}')"><i class="fa-solid fa-plus"></i> Još jedan reel za ovaj dan</button>
+                    </div>
+                </div>`;
+            }
+            document.getElementById('days').innerHTML = html;
+            document.getElementById('weekSummary').innerHTML = `
+                <div class="stat"><i class="fa-solid fa-calendar-check"></i> Isplanirano <b>${planned}/7</b> dana <div class="progress"><span style="width:${planned / 7 * 100}%"></span></div></div>
+                <div class="stat"><i class="fa-solid fa-film"></i> Reelsa <b>${total}</b></div>
+                <div class="stat" style="--c:#a855f7"><i class="fa-solid fa-video" style="color:#c084fc"></i> Snimljeno <b>${recorded}</b></div>
+                <div class="stat"><i class="fa-solid fa-circle-check" style="color:var(--success)"></i> Objavljeno <b>${published}</b></div>`;
+            document.querySelectorAll('#days textarea').forEach(autoGrow);
+        }
+
+        function renderIdeas() {
+            const ideas = reels().filter(r => !r.uploadDate).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+            const shown = ideas.filter(reelHasContent);
+            document.getElementById('ideasList').innerHTML =
+                reelCardHtml(null, '', !!shown.length) +
+                shown.map(r => reelCardHtml(r)).join('');
+            document.getElementById('ideasCount').textContent = shown.length;
+            document.querySelectorAll('#ideasList textarea').forEach(autoGrow);
+        }
+
+        function toggleDay(ds) {
+            ui.collapsed[ds] = !ui.collapsed[ds];
+            if (!ui.collapsed[ds]) delete ui.collapsed[ds];
+            saveUi();
+            const el = document.querySelector(`.day[data-date="${ds}"]`);
+            if (el) { el.classList.toggle('collapsed'); el.querySelectorAll('textarea').forEach(autoGrow); }
+        }
+
+        function reelCardHtml(r, draftDate, compact = true) {
+            const isDraft = !r;
+            r = r || { uploadDate: draftDate, platforms: ['ig'] };
+            const st = statusOf(r.status);
+            const idAttr = isDraft ? `data-draft="${draftDate}"` : `data-id="${r.id}"`;
+            const plats = r.platforms || [];
+            const warn = reelWarning(r);
+            const statusOpts = STATUSES.map(s => `<option value="${s.id}" ${s.id === (r.status || 'ideja') ? 'selected' : ''}>${s.label}</option>`).join('');
+            return `<div class="reel ${isDraft ? 'draft' : ''} ${isDraft && compact ? 'compact' : ''}" ${idAttr}>
+                <div class="field field-title">
+                    <label>Naslov</label>
+                    <input class="input-field title-input" data-f="title" value="${esc(r.title)}" placeholder="O čemu je ovaj reel?" maxlength="160" />
+                </div>
+                <div class="field">
+                    <label><i class="fa-solid fa-fire" style="color:#f59e0b"></i> Provokativni hook</label>
+                    <textarea class="input-field hook-input" data-f="hook" rows="1" placeholder="Prve 2 sekunde — što će ih zaustaviti da ne skrolaju?">${esc(r.hook)}</textarea>
+                </div>
+                <div class="field">
+                    <label style="justify-content:space-between"><span>Scenarij / skripta</span>
+                        ${r.script ? `<button class="details-toggle" style="padding:0;font-size:11px" onclick="copyScript(this)" title="Kopiraj skriptu"><i class="fa-regular fa-copy"></i> Kopiraj</button>` : ''}
+                    </label>
+                    <textarea class="input-field" data-f="script" rows="4" placeholder="Opis, kadrovi, tekst koji se govori…">${esc(r.script)}</textarea>
+                </div>
+                <div class="field span-desk-6">
+                    <label>Tip videa</label>
+                    <input class="input-field" data-f="type" value="${esc(r.type)}" list="videoTypes" placeholder="Odaberi ili upiši…" maxlength="60" />
+                </div>
+                <div class="field span-desk-6">
+                    <label>Status</label>
+                    <select class="input-field" data-f="status" style="color:${st.c};font-weight:600">${statusOpts}</select>
+                </div>
+                <div class="field span-desk-6">
+                    <div class="when rec">
+                        <div class="lbl"><i class="fa-solid fa-video"></i> Snimanje</div>
+                        <div class="when-row">
+                            <input type="date" class="input-field" data-f="recordDate" value="${r.recordDate || ''}" aria-label="Datum snimanja" />
+                            <input type="time" class="input-field" data-f="recordTime" value="${r.recordTime || ''}" aria-label="Vrijeme snimanja" />
+                        </div>
+                    </div>
+                </div>
+                <div class="field span-desk-6">
+                    <div class="when up">
+                        <div class="lbl"><i class="fa-solid fa-arrow-up-from-bracket"></i> Objava</div>
+                        <div class="when-row">
+                            <input type="date" class="input-field" data-f="uploadDate" value="${r.uploadDate || ''}" aria-label="Datum objave" />
+                            <input type="time" class="input-field" data-f="uploadTime" value="${r.uploadTime || ''}" aria-label="Vrijeme objave" />
+                        </div>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Platforme</label>
+                    <div class="platforms">${PLATFORMS.map(p => `<button type="button" class="plat ${plats.includes(p.id) ? 'on' : ''}" data-plat="${p.id}" onclick="togglePlatform(this)"><i class="${p.icon}"></i> ${p.label}</button>`).join('')}</div>
+                </div>
+                <div class="field">
+                    <label>Caption i hashtagovi <span class="req">(neobavezno)</span></label>
+                    <textarea class="input-field" data-f="caption" rows="1" placeholder="Tekst ispod objave, CTA, #hashtagovi">${esc(r.caption)}</textarea>
+                </div>
+                <div class="reel-foot">
+                    ${warn ? warnHtml(warn) : ''}
+                    <div class="spacer"></div>
+                    ${isDraft ? '' : `
+                        <button class="btn btn-ghost btn-sm" onclick="duplicateReel('${r.id}')" title="Dupliciraj"><i class="fa-regular fa-clone"></i> Dupliciraj</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteReel('${r.id}')" title="Obriši"><i class="fa-solid fa-trash-can"></i> Obriši</button>`}
+                </div>
+            </div>`;
+        }
+
+        function warnHtml(w) { return `<span class="warn"><i class="fa-solid fa-triangle-exclamation"></i> ${esc(w)}</span>`; }
+        function reelWarning(r) {
+            if (!r.recordDate || !r.uploadDate) {
+                if (r.uploadDate && !r.recordDate && reelHasContent(r) && r.status !== 'objavljeno' && !['snimljeno', 'montirano'].includes(r.status)) return 'Još nije određen datum snimanja';
+                return '';
+            }
+            const rec = r.recordDate + 'T' + (r.recordTime || '00:00');
+            const up = r.uploadDate + 'T' + (r.uploadTime || '23:59');
+            if (rec > up) return 'Snimanje je zakazano nakon objave';
+            return '';
+        }
+
+        // Create the reel record the first time someone types into a draft card
+        function ensureReel(card) {
+            if (card.dataset.id) return state.reels[card.dataset.id];
+            const id = uid();
+            const r = { id, createdAt: Date.now(), updatedAt: Date.now(), uploadDate: card.dataset.draft || '', status: 'ideja', platforms: ['ig'] };
+            state.reels[id] = r;
+            card.dataset.id = id;
+            delete card.dataset.draft;
+            card.classList.remove('draft');
+            const foot = card.querySelector('.reel-foot');
+            foot.insertAdjacentHTML('beforeend', `
+                <button class="btn btn-ghost btn-sm" onclick="duplicateReel('${id}')"><i class="fa-regular fa-clone"></i> Dupliciraj</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteReel('${id}')"><i class="fa-solid fa-trash-can"></i> Obriši</button>`);
+            return r;
+        }
+
+        function updateReelField(card, field, value) {
+            const r = ensureReel(card);
+            r[field] = value;
+            r.deleted = false;
+            r.updatedAt = Date.now();
+            markDirty();
+            refreshCardMeta(card, r);
+        }
+
+        function refreshCardMeta(card, r) {
+            const foot = card.querySelector('.reel-foot');
+            const w = reelWarning(r);
+            const wEl = foot.querySelector('.warn');
+            if (wEl) wEl.remove();
+            if (w) foot.insertAdjacentHTML('afterbegin', warnHtml(w));
+            const sel = card.querySelector('[data-f="status"]');
+            if (sel) sel.style.color = statusOf(r.status).c;
+        }
+
+        document.addEventListener('input', e => {
+            const el = e.target;
+            const card = el.closest && el.closest('.reel');
+            if (!card || !el.dataset.f) return;
+            if (el.tagName === 'TEXTAREA') autoGrow(el);
+            if (el.dataset.f === 'uploadDate') return; // handled on change (moves the card)
+            updateReelField(card, el.dataset.f, el.value);
+        });
+        document.addEventListener('change', e => {
+            const el = e.target;
+            const card = el.closest && el.closest('.reel');
+            if (!card || !el.dataset.f) return;
+            if (el.dataset.f === 'uploadDate') {
+                // Typing a year goes through 0002, 0020, 0202… — only act on a real date or on clearing
+                const y = Number((el.value || '').slice(0, 4));
+                if (el.value && (y < 2000 || y > 2100)) return;
+                updateReelField(card, 'uploadDate', el.value);
+                const r = state.reels[card.dataset.id];
+                el.blur();
+                if (r.uploadDate) {
+                    const target = mondayOf(parseYmd(r.uploadDate));
+                    const moved = ui.reelsMode !== 'week' || ymd(target) !== ymd(weekStart);
+                    if (ui.reelsMode !== 'week') setReelsMode('week', true);
+                    weekStart = target;
+                    renderReels();
+                    renderAllCounts();
+                    flashReel(r.id);
+                    if (moved) showToast(`Premješteno na ${fmtLong(parseYmd(r.uploadDate))}`);
+                } else {
+                    renderReels();
+                    renderAllCounts();
+                    showToast('Premješteno u banku ideja', { action: 'Otvori', onAction: () => { setReelsMode('ideas'); flashReel(r.id); } });
+                }
+            }
+        });
+        document.addEventListener('focusin', e => {
+            const card = e.target.closest && e.target.closest('.reel.compact');
+            if (!card) return;
+            card.classList.remove('compact');
+            card.querySelectorAll('textarea').forEach(autoGrow);
+        });
+        function renderAllCounts() { document.getElementById('ideasCount').textContent = reels().filter(r => !r.uploadDate && reelHasContent(r)).length; }
+
+        function togglePlatform(btn) {
+            const card = btn.closest('.reel');
+            const r = ensureReel(card);
+            const set = new Set(r.platforms || []);
+            set.has(btn.dataset.plat) ? set.delete(btn.dataset.plat) : set.add(btn.dataset.plat);
+            btn.classList.toggle('on');
+            updateReelField(card, 'platforms', [...set]);
+        }
+
+        function addDraft(btn, ds) {
+            btn.insertAdjacentHTML('beforebegin', reelCardHtml(null, ds, false));
+            const card = btn.previousElementSibling;
+            card.querySelectorAll('textarea').forEach(autoGrow);
+            if (!window.matchMedia('(max-width: 760px)').matches) card.querySelector('.title-input').focus();
+            return card;
+        }
+
+        function copyScript(btn) {
+            const card = btn.closest('.reel');
+            const txt = card.querySelector('[data-f="script"]').value;
+            navigator.clipboard.writeText(txt).then(() => showToast('Skripta kopirana'));
+        }
+
+        function deleteReel(id) {
+            const backup = Object.assign({}, state.reels[id]);
+            state.reels[id] = { id, deleted: true, updatedAt: Date.now() };
+            markDirty();
+            renderReels();
+            renderAllCounts();
+            showToast('Reel obrisan', { action: 'Poništi', onAction: () => {
+                state.reels[id] = Object.assign(backup, { deleted: false, updatedAt: Date.now() });
+                markDirty(); renderReels(); renderAllCounts(); flashReel(id);
+            }});
+        }
+
+        function duplicateReel(id) {
+            const src = state.reels[id];
+            const nid = uid();
+            state.reels[nid] = Object.assign({}, src, { id: nid, title: (src.title || '') + ' (kopija)', status: 'ideja', createdAt: Date.now(), updatedAt: Date.now() });
+            markDirty();
+            renderReels();
+            renderAllCounts();
+            flashReel(nid);
+        }
+
+        function flashReel(id) {
+            requestAnimationFrame(() => {
+                const el = document.querySelector(`.reel[data-id="${id}"]`);
+                if (!el) return;
+                const day = el.closest('.day');
+                if (day && day.classList.contains('collapsed')) toggleDay(day.dataset.date);
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                el.classList.add('flash');
+                setTimeout(() => el.classList.remove('flash'), 1800);
+            });
+        }
+
+        function goToReel(id) {
+            const r = state.reels[id];
+            if (!r) return;
+            if (r.uploadDate) { ui.reelsMode = 'week'; weekStart = mondayOf(parseYmd(r.uploadDate)); }
+            else ui.reelsMode = 'ideas';
+            setReelsMode(ui.reelsMode, true);
+            switchView('reels', true);
+            flashReel(id);
+        }
+
+        function planReelOn(ds) {
+            weekStart = mondayOf(parseYmd(ds));
+            setReelsMode('week', true);
+            switchView('reels', true);
+            requestAnimationFrame(() => {
+                const day = document.querySelector(`.day[data-date="${ds}"]`);
+                if (!day) return;
+                if (day.classList.contains('collapsed')) toggleDay(ds);
+                const draft = day.querySelector('.reel.draft');
+                if (draft) { draft.classList.remove('compact'); draft.querySelectorAll('textarea').forEach(autoGrow); }
+                const target = draft || addDraft(day.querySelector('.add-reel'), ds);
+                (target || day).scrollIntoView({ behavior: 'smooth', block: 'center' });
+                if (target) { target.classList.add('flash'); setTimeout(() => target.classList.remove('flash'), 1800); }
+            });
+        }
+
+        function dismissBanner() { ui.bannerHidden = true; saveUi(); document.getElementById('localBanner').hidden = true; }
+
+        window.addEventListener('resize', () => { clearTimeout(window.__rz); window.__rz = setTimeout(() => { if (ui.view === 'cal') renderCalendar(); }, 150); });
+
+        // Datalist for video types (shared by all cards)
+        document.body.insertAdjacentHTML('beforeend', `<datalist id="videoTypes">${VIDEO_TYPES.map(t => `<option value="${t}"></option>`).join('')}</datalist>`);
+
+        checkAuth();
+    </script>
+</body>
+</html>

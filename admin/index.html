@@ -2193,37 +2193,53 @@
             }
             document.getElementById('loader').style.display = 'block';
 
-            const padArray = (arr, minLength) => {
-                const maxCols = Math.max(...arr.map(r => r.length), minLength);
-                return arr.map(r => {
-                    const mapped = [...r];
-                    while(mapped.length < maxCols) mapped.push("");
-                    return mapped;
-                });
-            };
+            // Build uniform rectangular matrix
+            // Ensure headerRow and all data rows have the EXACT same number of columns
+            const allRows = [headerRow, ...tableData];
+            const maxCols = Math.max(7, ...allRows.map(r => r ? r.length : 0));
 
-            // Ensure 7 columns: [Order ID, Ime, Email, Mobitel, Paket, Datum, Plaćeno]
-            const cleanTableData = tableData.map(row => {
-                const copy = [...row];
-                while (copy.length < 6) copy.push("");
-                if (copy.length === 6) copy.push("DA");
-                if (!copy[6] || String(copy[6]).trim() === '') copy[6] = "DA";
-                return copy;
+            // Normalize headerRow to maxCols
+            const safeHeader = [];
+            for (let c = 0; c < maxCols; c++) {
+                safeHeader.push(headerRow && headerRow[c] ? String(headerRow[c]) : "");
+            }
+            safeHeader[0] = safeHeader[0] || "Order ID";
+            safeHeader[1] = safeHeader[1] || "Ime";
+            safeHeader[2] = safeHeader[2] || "Email";
+            safeHeader[3] = safeHeader[3] || "Broj mobitela";
+            safeHeader[4] = safeHeader[4] || "Vrsta";
+            safeHeader[5] = safeHeader[5] || "Datum";
+            safeHeader[6] = "Plaćeno";
+
+            // Normalize each data row to EXACTLY maxCols
+            const cleanDataRows = tableData.map(row => {
+                const out = [];
+                for (let c = 0; c < maxCols; c++) {
+                    let val = (row && row[c] !== undefined && row[c] !== null) ? row[c] : "";
+                    if (c === 6 && (!val || String(val).trim() === '')) {
+                        val = "DA";
+                    }
+                    out.push(String(val));
+                }
+                return out;
             });
 
-            const paddedTableData = padArray(cleanTableData, 7);
-            
-            // Header row
-            const completeHeader = ["Order ID", "Ime i Prezime", "Email", "Mobitel", "Vrsta Plaćanja / Paket", "Datum", "Plaćeno"];
-            const dataToSave = [completeHeader, ...paddedTableData];
-            
+            const dataToSave = [safeHeader, ...cleanDataRows];
+
+            // Normalize metaArr to exact rectangular matrix
             let metaArr = groupMeta.map(g => [g.name, ...g.orderIds]);
             if (customBadges.length > 0) {
                 metaArr.push(['###CUSTOM_BADGES###', ...customBadges]);
             }
-            if (metaArr.length === 0) metaArr = [["_NO_GROUPS_"]];
-            
-            const paddedMeta = padArray(metaArr, 2);
+            if (metaArr.length === 0) metaArr = [["_NO_GROUPS_", ""]];
+            const maxMetaCols = Math.max(2, ...metaArr.map(r => r ? r.length : 0));
+            const paddedMeta = metaArr.map(r => {
+                const out = [];
+                for (let c = 0; c < maxMetaCols; c++) {
+                    out.push((r && r[c] !== undefined && r[c] !== null) ? String(r[c]) : "");
+                }
+                return out;
+            });
             
             try {
                 await fetch(apiUrl, {

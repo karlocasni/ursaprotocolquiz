@@ -35,8 +35,8 @@ function doPost(e) {
 
     // 1. ADMIN PANEL: SYNC ENTIRE SHEET (Edit mode save)
     if (payload.action === 'syncSheet') {
-        const data = payload.data;
-        if (!data || data.length <= 1) {
+        const rawData = payload.data;
+        if (!rawData || !Array.isArray(rawData) || rawData.length <= 1) {
             return ContentService.createTextOutput(JSON.stringify({ 
                 status: "error", 
                 message: "Odbijeno: Pokušaj brisanja svih podataka! Tablica ne može biti prazna." 
@@ -57,14 +57,36 @@ function doPost(e) {
             Logger.log("Backup error: " + backupErr);
         }
 
-        mainSheet.clearContents(); // Clear existing pure data to replace
-        mainSheet.getRange(1, 1, data.length, data[0].length).setValues(data);
+        // Server-side normalization: ensure 100% uniform rectangle
+        const maxCols = Math.max.apply(null, rawData.map(function(r) { return r ? r.length : 0; }));
+        const cleanData = rawData.map(function(r) {
+            const row = [];
+            for (let c = 0; c < maxCols; c++) {
+                const cell = (r && r[c] !== undefined && r[c] !== null) ? String(r[c]) : "";
+                row.push(cell);
+            }
+            return row;
+        });
 
-        const metaSheet = ss.getSheetByName('AdminMeta') || ss.insertSheet('AdminMeta');
-        metaSheet.clearContents();
-        const meta = payload.meta;
-        if (meta && meta.length > 0) {
-            metaSheet.getRange(1, 1, meta.length, meta[0].length).setValues(meta);
+        mainSheet.clearContents(); // Clear existing pure data to replace
+        mainSheet.getRange(1, 1, cleanData.length, maxCols).setValues(cleanData);
+
+        const rawMeta = payload.meta;
+        if (rawMeta && Array.isArray(rawMeta) && rawMeta.length > 0) {
+            const metaSheet = ss.getSheetByName('AdminMeta') || ss.insertSheet('AdminMeta');
+            const maxMetaCols = Math.max.apply(null, rawMeta.map(function(r) { return r ? r.length : 0; }));
+            if (maxMetaCols > 0) {
+                const cleanMeta = rawMeta.map(function(r) {
+                    const row = [];
+                    for (let c = 0; c < maxMetaCols; c++) {
+                        const cell = (r && r[c] !== undefined && r[c] !== null) ? String(r[c]) : "";
+                        row.push(cell);
+                    }
+                    return row;
+                });
+                metaSheet.clearContents();
+                metaSheet.getRange(1, 1, cleanMeta.length, maxMetaCols).setValues(cleanMeta);
+            }
         }
 
         return ContentService.createTextOutput(JSON.stringify({ "status": "success", "message": "Promjene spremljene" }))

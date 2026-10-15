@@ -35,13 +35,30 @@ function doPost(e) {
 
     // 1. ADMIN PANEL: SYNC ENTIRE SHEET (Edit mode save)
     if (payload.action === 'syncSheet') {
-        const mainSheet = ss.getSheetByName('Sheet1');
-        mainSheet.clearContents(); // Clear existing pure data to replace
-        
         const data = payload.data;
-        if (data && data.length > 0) {
-            mainSheet.getRange(1, 1, data.length, data[0].length).setValues(data);
+        if (!data || data.length <= 1) {
+            return ContentService.createTextOutput(JSON.stringify({ 
+                status: "error", 
+                message: "Odbijeno: Pokušaj brisanja svih podataka! Tablica ne može biti prazna." 
+            })).setMimeType(ContentService.MimeType.JSON);
         }
+
+        const mainSheet = ss.getSheetByName('Sheet1');
+        
+        // Auto-backup existing data to Sheet1_AutoBackup before overwriting
+        try {
+            const existingData = mainSheet.getDataRange().getValues();
+            if (existingData && existingData.length > 1) {
+                const backupSheet = ss.getSheetByName('Sheet1_AutoBackup') || ss.insertSheet('Sheet1_AutoBackup');
+                backupSheet.clearContents();
+                backupSheet.getRange(1, 1, existingData.length, existingData[0].length).setValues(existingData);
+            }
+        } catch(backupErr) {
+            Logger.log("Backup error: " + backupErr);
+        }
+
+        mainSheet.clearContents(); // Clear existing pure data to replace
+        mainSheet.getRange(1, 1, data.length, data[0].length).setValues(data);
 
         const metaSheet = ss.getSheetByName('AdminMeta') || ss.insertSheet('AdminMeta');
         metaSheet.clearContents();

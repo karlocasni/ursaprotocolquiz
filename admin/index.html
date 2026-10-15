@@ -1118,6 +1118,7 @@
         let lastCheckedBox = null;
         let groupFilters = {}; // { 'groupId': 'filterType' }
         let hasUnsavedChanges = false;
+        let isLoadingData = false;
 
         // Global Filters state
         let globalFilters = {
@@ -1371,6 +1372,7 @@
                 return;
             }
 
+            isLoadingData = true;
             document.getElementById('loader').style.display = 'block';
             document.getElementById('tableContainer').style.display = 'none';
 
@@ -1440,6 +1442,7 @@
                 console.error(err);
                 showToast("Network error. Provjeri URL.", true);
             } finally {
+                isLoadingData = false;
                 document.getElementById('loader').style.display = 'none';
             }
         }
@@ -2176,7 +2179,18 @@
 
         // --- SAVE CHANGES ---
         async function saveChanges() {
-            if (!apiUrl) return;
+            if (!apiUrl) {
+                showToast("Nema konfiguriranog API URL-a!", true);
+                return;
+            }
+            if (isLoadingData) {
+                showToast("Podaci se još učitavaju. Pričekaj sekundu...", true);
+                return;
+            }
+            if (!tableData || tableData.length === 0) {
+                showToast("SIGURNOSNA BLOKADA: Tablica je prazna! Spremanje je blokirano kako ne bi došlo do brisanja podataka.", true);
+                return;
+            }
             document.getElementById('loader').style.display = 'block';
 
             const padArray = (arr, minLength) => {
@@ -2197,7 +2211,7 @@
                 return copy;
             });
 
-            const paddedTableData = cleanTableData.length > 0 ? padArray(cleanTableData, 7) : [["","","","","","","DA"]];
+            const paddedTableData = padArray(cleanTableData, 7);
             
             // Header row
             const completeHeader = ["Order ID", "Ime i Prezime", "Email", "Mobitel", "Vrsta Plaćanja / Paket", "Datum", "Plaćeno"];

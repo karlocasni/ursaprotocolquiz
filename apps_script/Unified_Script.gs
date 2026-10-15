@@ -170,7 +170,8 @@ function doPost(e) {
                 email,
                 " " + phone, // Space forces string to keep + character
                 variantName,
-                new Date().toISOString()
+                new Date().toISOString(),
+                "DA" // Plaćeno default
             ]);
         }
 
@@ -203,7 +204,7 @@ function doGet(e) {
       let data = [];
       
       if (numRows > 0) {
-          const numCols = Math.max(dataRange.getNumColumns(), 6); // Ensure at least 6 cols
+          const numCols = Math.max(dataRange.getNumColumns(), 7); // Ensure at least 7 cols
           data = mainSheet.getRange(1, 1, numRows, numCols).getDisplayValues();
       }
 

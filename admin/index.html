@@ -8,16 +8,23 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <style>
         :root {
-            --bg-dark: #0f172a;
-            --bg-card: #1e293b;
+            --bg-dark: #0b0f19;
+            --bg-card: #151d2c;
+            --bg-raised: #1e293b;
+            --bg-input: rgba(0, 0, 0, 0.25);
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
+            --text-faint: #64748b;
             --primary: #08acd2;
             --primary-hover: #069ab9;
-            --border: #334155;
+            --border: #233147;
+            --border-soft: rgba(255, 255, 255, 0.08);
             --success: #22c55e;
             --error: #ef4444;
-            --table-hover: #334155;
+            --table-hover: rgba(255, 255, 255, 0.035);
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
         }
 
         * {
@@ -25,6 +32,7 @@
             margin: 0;
             padding: 0;
             font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
         }
 
         body {
@@ -34,6 +42,19 @@
             display: flex;
             flex-direction: column;
             overflow-y: scroll;
+        }
+
+        button {
+            font: inherit;
+            color: inherit;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        input, textarea, select {
+            font: inherit;
+            color: inherit;
         }
 
         /* Login Screen */
@@ -49,51 +70,58 @@
         .login-box {
             background: var(--bg-card);
             padding: 40px;
-            border-radius: 16px;
+            border-radius: var(--radius-lg);
             border: 1px solid var(--border);
             width: 100%;
             max-width: 400px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
             text-align: center;
         }
 
         .login-box h2 {
-            margin-bottom: 24px;
+            margin-bottom: 8px;
             font-weight: 700;
+        }
+
+        .login-box p {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 24px;
         }
 
         .input-field {
             width: 100%;
-            padding: 14px 16px;
-            background: rgba(0,0,0,0.2);
+            padding: 12px 14px;
+            background: var(--bg-input);
             border: 1px solid var(--border);
-            border-radius: 8px;
+            border-radius: var(--radius-sm);
             color: white;
-            font-size: 16px;
+            font-size: 14px;
             margin-bottom: 16px;
             outline: none;
-            transition: border-color 0.2s;
+            transition: all 0.2s;
         }
 
         .input-field:focus {
             border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(8, 172, 210, 0.2);
         }
 
         .btn {
             background: var(--primary);
             color: white;
             border: none;
-            border-radius: 8px;
-            padding: 14px 24px;
-            font-size: 16px;
+            border-radius: var(--radius-sm);
+            padding: 10px 18px;
+            font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            width: 100%;
-            transition: background 0.2s, transform 0.1s;
+            transition: all 0.15s;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
+            white-space: nowrap;
         }
 
         .btn:hover {
@@ -105,26 +133,27 @@
         }
 
         .btn-secondary {
-            background: transparent;
+            background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--border);
+            color: var(--text-main);
         }
 
         .btn-secondary:hover {
-            background: rgba(255,255,255,0.05);
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--text-muted);
         }
 
         .btn-small {
-            padding: 8px 16px;
-            font-size: 14px;
-            width: auto;
+            padding: 7px 12px;
+            font-size: 13px;
         }
 
         /* Dashboard */
         #dashboardScreen {
             display: none;
             flex-direction: column;
-            padding: 40px;
-            max-width: 1400px;
+            padding: 32px 40px 100px 40px;
+            max-width: 1540px;
             margin: 0 auto;
             width: 100%;
         }
@@ -133,55 +162,276 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 40px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
         }
 
-        .controls {
+        .header-title-wrap {
             display: flex;
-            gap: 16px;
             align-items: center;
+            gap: 12px;
+        }
+
+        .header-icon {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, rgba(8, 172, 210, 0.2), rgba(8, 172, 210, 0.05));
+            border: 1px solid rgba(8, 172, 210, 0.4);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 20px;
+        }
+
+        /* Notion-like KPI Bar */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 12px;
             margin-bottom: 24px;
+        }
+
+        .kpi-card {
             background: var(--bg-card);
-            padding: 20px;
-            border-radius: 12px;
             border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            transition: transform 0.15s, border-color 0.15s;
+        }
+
+        .kpi-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .kpi-value {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-main);
+            letter-spacing: -0.5px;
+        }
+
+        .kpi-sub {
+            font-size: 11px;
+            color: var(--text-faint);
+        }
+
+        /* Notion Toolbar */
+        .notion-toolbar {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 14px 16px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .notion-toolbar-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
             flex-wrap: wrap;
+        }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+            min-width: 240px;
+            max-width: 400px;
+        }
+
+        .search-box i.fa-magnifying-glass {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 8px 32px 8px 34px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: white;
+            font-size: 13px;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .search-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(8, 172, 210, 0.2);
+        }
+
+        .search-clear {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            cursor: pointer;
+            display: none;
+            font-size: 12px;
+        }
+
+        .filter-group-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-right: 4px;
+        }
+
+        .segmented-controls {
+            display: inline-flex;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 2px;
+            gap: 2px;
+        }
+
+        .segmented-btn {
+            padding: 5px 10px;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-muted);
+            border-radius: 4px;
+            transition: all 0.15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .segmented-btn:hover {
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .segmented-btn.active {
+            color: white;
+            background: var(--bg-raised);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            font-weight: 600;
+        }
+
+        .segmented-btn.active.paid {
+            background: rgba(34, 197, 94, 0.2);
+            color: #4ade80;
+        }
+
+        .segmented-btn.active.unpaid {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+        }
+
+        .badge-filter-select {
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 6px 10px;
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .badge-filter-select:focus {
+            border-color: var(--primary);
+        }
+
+        .clear-filters-btn {
+            font-size: 12px;
+            color: var(--error);
+            padding: 5px 10px;
+            border-radius: var(--radius-sm);
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.25);
+            display: none;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .clear-filters-btn:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        .filtered-count-badge {
+            font-size: 12px;
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.04);
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin-left: auto;
         }
 
         /* Table */
         .table-container {
             background: var(--bg-card);
-            border-radius: 12px;
+            border-radius: var(--radius-md);
             border: 1px solid var(--border);
             overflow-x: auto;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.25);
         }
 
         table {
             width: 100%;
-            min-width: 1000px;
+            min-width: 1100px;
             border-collapse: collapse;
             text-align: left;
             table-layout: fixed;
         }
 
         th {
-            background: rgba(0,0,0,0.2);
-            padding: 16px 12px;
-            font-size: 13px;
+            background: rgba(0, 0, 0, 0.25);
+            padding: 12px 14px;
+            font-size: 11px;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.8px;
             color: var(--text-muted);
             border-bottom: 1px solid var(--border);
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        th i {
+            margin-right: 6px;
+            color: var(--text-faint);
+            font-size: 12px;
         }
 
         td {
-            padding: 16px 12px;
-            border-bottom: 1px solid var(--border);
-            font-size: 15px;
-            transition: background 0.2s;
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border-soft);
+            font-size: 14px;
+            transition: background 0.15s;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+            vertical-align: middle;
         }
 
         tr:last-child td {
@@ -198,6 +448,7 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
+            transition: color 0.15s;
         }
 
         .copyable:hover {
@@ -208,21 +459,302 @@
             content: '\f24d';
             font-family: 'Font Awesome 6 Free';
             font-weight: 400;
+            font-size: 11px;
+            opacity: 0.8;
+        }
+
+        /* Notion Status Button */
+        .notion-status-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 6px;
             font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+            user-select: none;
+        }
+
+        .status-paid {
+            background: rgba(34, 197, 94, 0.15);
+            color: #4ade80;
+            border-color: rgba(34, 197, 94, 0.3);
+        }
+
+        .status-paid:hover {
+            background: rgba(34, 197, 94, 0.25);
+            transform: translateY(-1px);
+        }
+
+        .status-unpaid {
+            background: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        .status-unpaid:hover {
+            background: rgba(239, 68, 68, 0.25);
+            transform: translateY(-1px);
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: currentColor;
+            display: inline-block;
+        }
+
+        /* Notion Multi-Badge Container & Pills */
+        .notion-badges-cell {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            cursor: pointer;
+            min-height: 28px;
+            padding: 2px 4px;
+            border-radius: 6px;
+            transition: background 0.15s;
+        }
+
+        .notion-badges-cell:hover {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .notion-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid transparent;
+            line-height: 1.2;
+            transition: all 0.15s;
+        }
+
+        .notion-pill-blue {
+            background: rgba(56, 189, 248, 0.15);
+            color: #38bdf8;
+            border-color: rgba(56, 189, 248, 0.3);
+        }
+
+        .notion-pill-orange {
+            background: rgba(251, 146, 60, 0.15);
+            color: #fb923c;
+            border-color: rgba(251, 146, 60, 0.3);
+        }
+
+        .notion-pill-green {
+            background: rgba(34, 197, 94, 0.15);
+            color: #4ade80;
+            border-color: rgba(34, 197, 94, 0.3);
+        }
+
+        .notion-pill-purple {
+            background: rgba(168, 85, 247, 0.15);
+            color: #c084fc;
+            border-color: rgba(168, 85, 247, 0.3);
+        }
+
+        .notion-pill-red {
+            background: rgba(244, 63, 94, 0.15);
+            color: #fb7185;
+            border-color: rgba(244, 63, 94, 0.3);
+        }
+
+        .notion-pill-yellow {
+            background: rgba(250, 204, 21, 0.15);
+            color: #facc15;
+            border-color: rgba(250, 204, 21, 0.3);
+        }
+
+        .notion-pill-pink {
+            background: rgba(236, 72, 153, 0.15);
+            color: #f472b6;
+            border-color: rgba(236, 72, 153, 0.3);
+        }
+
+        .notion-pill-teal {
+            background: rgba(20, 184, 166, 0.15);
+            color: #2dd4bf;
+            border-color: rgba(20, 184, 166, 0.3);
+        }
+
+        .notion-pill-gray {
+            background: rgba(148, 163, 184, 0.15);
+            color: #cbd5e1;
+            border-color: rgba(148, 163, 184, 0.3);
+        }
+
+        .add-badge-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 22px;
+            height: 22px;
+            border-radius: 4px;
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px dashed var(--border);
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .add-badge-btn:hover {
+            color: var(--primary);
+            border-color: var(--primary);
+            background: rgba(8, 172, 210, 0.1);
+        }
+
+        /* Notion Badge Popover Dropdown */
+        #badgePopover {
+            position: absolute;
+            z-index: 1000;
+            width: 290px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.08);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            animation: popoverFadeIn 0.12s ease-out;
+        }
+
+        @keyframes popoverFadeIn {
+            from { opacity: 0; transform: scale(0.96) translateY(-4px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .popover-header {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .popover-search-input {
+            width: 100%;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 6px 8px;
+            font-size: 12px;
+            color: white;
+            outline: none;
+        }
+
+        .popover-search-input:focus {
+            border-color: var(--primary);
+        }
+
+        .popover-body {
+            max-height: 260px;
+            overflow-y: auto;
+            padding: 6px;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .popover-section-title {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: var(--text-faint);
+            font-weight: 700;
+            padding: 6px 8px 2px 8px;
+        }
+
+        .popover-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.12s;
+        }
+
+        .popover-item:hover {
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .popover-item-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            overflow: hidden;
+        }
+
+        .popover-check {
+            color: var(--primary);
+            font-size: 13px;
+            width: 16px;
+            text-align: center;
+        }
+
+        .popover-delete-tag {
+            color: var(--text-faint);
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            opacity: 0;
+            transition: opacity 0.15s, color 0.15s;
+        }
+
+        .popover-item:hover .popover-delete-tag {
+            opacity: 1;
+        }
+
+        .popover-delete-tag:hover {
+            color: var(--error);
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .popover-create-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 10px;
+            margin: 4px 6px;
+            border-radius: 4px;
+            background: rgba(8, 172, 210, 0.1);
+            color: var(--primary);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px dashed rgba(8, 172, 210, 0.3);
+            transition: all 0.15s;
+        }
+
+        .popover-create-btn:hover {
+            background: rgba(8, 172, 210, 0.2);
+            border-color: var(--primary);
         }
 
         /* Group Divider */
         tr.group-divider td {
-            background: rgba(8, 172, 210, 0.1);
+            background: rgba(8, 172, 210, 0.08);
             color: var(--primary);
             font-weight: 700;
-            padding: 20px 16px;
+            padding: 14px 16px;
             cursor: pointer;
-            border-top: 2px solid var(--primary);
+            border-top: 1px solid rgba(8, 172, 210, 0.35);
+            border-bottom: 1px solid rgba(8, 172, 210, 0.2);
         }
 
         tr.group-divider:hover td {
-            background: rgba(8, 172, 210, 0.15);
+            background: rgba(8, 172, 210, 0.13);
         }
         
         .group-stats {
@@ -230,56 +762,63 @@
             display: flex;
             align-items: center;
             gap: 6px;
+            flex-wrap: wrap;
         }
 
         .stats-badge {
-            font-size: 12px;
-            padding: 4px 8px;
-            border-radius: 6px;
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 5px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.15s;
+            border: 1px solid transparent;
         }
-        .stats-badge:hover {
-            transform: scale(1.05);
-            opacity: 0.8;
-        }
-        .active-filter {
-            box-shadow: 0 0 0 2px white;
-            transform: scale(1.05);
-        }
-        .stats-total { background: rgba(0,0,0,0.3); color: var(--text-main); }
-        .stats-jednokratno { background: rgba(34, 197, 94, 0.15); color: #4ade80; }
-        .stats-2rate { background: rgba(168, 85, 247, 0.15); color: #c084fc; }
-        .stats-90 { background: rgba(56, 189, 248, 0.15); color: #7dd3fc; }
-        .stats-90rate { background: rgba(56, 189, 248, 0.3); color: #38bdf8; }
-        .stats-180 { background: rgba(251, 146, 60, 0.15); color: #fdba74; }
-        .stats-180rate { background: rgba(251, 146, 60, 0.3); color: #fb923c; }
 
-        /* Edit Mode */
+        .stats-badge:hover {
+            transform: translateY(-1px);
+            opacity: 0.9;
+        }
+
+        .active-filter {
+            box-shadow: 0 0 0 1.5px white;
+            transform: scale(1.05);
+        }
+
+        .stats-total { background: rgba(0,0,0,0.3); color: var(--text-main); border-color: var(--border); }
+        .stats-jednokratno { background: rgba(34, 197, 94, 0.15); color: #4ade80; border-color: rgba(34, 197, 94, 0.25); }
+        .stats-2rate { background: rgba(168, 85, 247, 0.15); color: #c084fc; border-color: rgba(168, 85, 247, 0.25); }
+        .stats-400 { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border-color: rgba(56, 189, 248, 0.25); }
+        .stats-400rate { background: rgba(56, 189, 248, 0.25); color: #7dd3fc; border-color: rgba(56, 189, 248, 0.4); }
+        .stats-600 { background: rgba(251, 146, 60, 0.15); color: #fb923c; border-color: rgba(251, 146, 60, 0.25); }
+        .stats-600rate { background: rgba(251, 146, 60, 0.25); color: #fdba74; border-color: rgba(251, 146, 60, 0.4); }
+        .stats-paid { background: rgba(34, 197, 94, 0.2); color: #4ade80; border-color: rgba(34, 197, 94, 0.35); }
+        .stats-unpaid { background: rgba(239, 68, 68, 0.2); color: #f87171; border-color: rgba(239, 68, 68, 0.35); }
+
+        /* Edit Mode Inputs */
         .edit-input {
             width: 100%;
             background: var(--bg-dark);
             border: 1px solid var(--primary);
             color: white;
-            padding: 6px 10px;
+            padding: 5px 8px;
             border-radius: 4px;
-            font-size: 14px;
+            font-size: 13px;
         }
 
         .loader {
             display: none;
             text-align: center;
-            padding: 40px;
+            padding: 60px;
         }
         
         .spinner {
-            width: 40px;
-            height: 40px;
+            width: 44px;
+            height: 44px;
             border: 3px solid rgba(255,255,255,0.1);
             border-top-color: var(--primary);
             border-radius: 50%;
-            animation: spin 1s infinite linear;
+            animation: spin 0.8s infinite linear;
             margin: 0 auto;
         }
 
@@ -290,16 +829,21 @@
             position: fixed;
             bottom: 24px;
             right: 24px;
-            background: var(--success);
+            background: var(--bg-card);
+            border: 1px solid var(--success);
             color: white;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-weight: 600;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            padding: 12px 20px;
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+            font-size: 14px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
             transform: translateY(100px);
             opacity: 0;
-            transition: all 0.3s ease;
-            z-index: 1000;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         #toast.show {
@@ -308,7 +852,47 @@
         }
         
         #toast.error {
-            background: var(--error);
+            border-color: var(--error);
+        }
+
+        /* Floating Unsaved Changes Bar */
+        #unsavedBar {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(120px);
+            background: #1e293b;
+            border: 1px solid rgba(8, 172, 210, 0.5);
+            border-radius: 12px;
+            padding: 12px 20px;
+            box-shadow: 0 16px 36px rgba(0,0,0,0.6), 0 0 20px rgba(8, 172, 210, 0.2);
+            z-index: 1500;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #unsavedBar.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .unsaved-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #fbbf24;
+            box-shadow: 0 0 8px #fbbf24;
+            animation: pulseDot 1.5s infinite;
+        }
+
+        @keyframes pulseDot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.85); }
         }
 
         .hidden-row {
@@ -317,30 +901,20 @@
 
         .edit-col-header, .edit-col-cell {
             display: none;
-            width: 80px;
+            width: 70px;
             text-align: center;
-        }
-
-        .action-icon {
-            cursor: pointer;
-            color: var(--primary);
-            font-size: 14px;
-            margin-right: 8px;
-            padding: 4px;
-        }
-        
-        .action-icon:hover {
-            color: var(--text-main);
         }
 
         .checkbox-cell {
             display: none;
-            width: 40px;
+            width: 36px;
             text-align: center;
         }
+
         .row-checkbox {
-            width: 18px;
-            height: 18px;
+            width: 16px;
+            height: 16px;
+            accent-color: var(--primary);
             cursor: pointer;
         }
     </style>
@@ -350,85 +924,267 @@
     <!-- LOGIN SCREEN -->
     <div id="loginScreen">
         <div class="login-box">
-            <h2>Admin Login</h2>
+            <div style="font-size: 32px; color: var(--primary); margin-bottom: 12px;">
+                <i class="fa-solid fa-layer-group"></i>
+            </div>
+            <h2>Ursa Admin</h2>
+            <p>Upravljanje transakcijama i klijentima</p>
             <input type="password" id="passInput" class="input-field" placeholder="Unesi lozinku" onkeydown="if(event.key==='Enter') login()" />
-            <button class="btn" onclick="login()">Prijavi se <i class="fa-solid fa-arrow-right"></i></button>
+            <button class="btn" style="width: 100%" onclick="login()">Prijavi se <i class="fa-solid fa-arrow-right"></i></button>
         </div>
     </div>
 
     <!-- DASHBOARD SCREEN -->
     <div id="dashboardScreen">
+        <!-- TOP HEADER -->
         <div class="header">
-            <div>
-                <h1 style="margin-bottom: 8px;">Transakcije</h1>
-                <p style="color: var(--text-muted);">Pregled i upravljanje SureCart narudžbama</p>
+            <div class="header-title-wrap">
+                <div class="header-icon">
+                    <i class="fa-solid fa-table-list"></i>
+                </div>
+                <div>
+                    <h1 style="font-size: 24px; font-weight: 800; letter-spacing: -0.5px;">Transakcije & Narudžbe</h1>
+                    <p style="color: var(--text-muted); font-size: 13px;">Notion baza kupnji, paketa i statusa uplata</p>
+                </div>
             </div>
-            <div style="display: flex; gap: 8px;">
-                <a class="btn btn-secondary btn-small" href="/admin/plan/" style="text-decoration: none;"><i class="fa-solid fa-calendar-days"></i> Plan</a>
-                <button class="btn btn-secondary btn-small" onclick="logout()"><i class="fa-solid fa-sign-out"></i> Odjava</button>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <a class="btn btn-secondary btn-small" href="/admin/plan/" style="text-decoration: none;"><i class="fa-solid fa-calendar-days"></i> Content Plan</a>
+                <button class="btn btn-secondary btn-small" onclick="logout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Odjava</button>
             </div>
         </div>
 
-        <div class="controls">
-            <button class="btn btn-small" onclick="loadData()"><i class="fa-solid fa-rotate-right"></i> Osvježi</button>
-            <button class="btn btn-secondary btn-small" onclick="toggleSortMode()" id="sortBtn"><i class="fa-solid fa-arrow-down-z-a"></i> Novije na vrhu</button>
-            <button class="btn btn-secondary btn-small" onclick="toggleEditMode()" id="editModeBtn"><i class="fa-solid fa-pen"></i> Uredi</button>
-            
-            <div id="editControls" style="display: none; gap: 8px; flex-wrap: wrap;">
-                <div style="width: 1px; background: var(--border); height: 30px; margin: 0 4px;"></div>
-                <button class="btn btn-small" style="background: var(--success)" onclick="addNewRow()"><i class="fa-solid fa-plus"></i> Dodaj Narudžbu</button>
-                <button class="btn btn-secondary btn-small" onclick="groupSelectedRows()"><i class="fa-solid fa-object-group"></i> Nova Grupa</button>
-                <button class="btn btn-secondary btn-small" onclick="addSelectedToGroup()"><i class="fa-solid fa-folder-plus"></i> Dodaj u Grupu</button>
-                <button class="btn btn-secondary btn-small" onclick="removeSelectedFromGroup()"><i class="fa-solid fa-folder-minus"></i> Makni iz Grupe</button>
-                <button class="btn btn-small" style="background: var(--error)" onclick="deleteSelectedRows()"><i class="fa-solid fa-trash-can"></i> Obriši Označeno</button>
-                <button class="btn btn-small" onclick="saveChanges()"><i class="fa-solid fa-save"></i> Spremi</button>
+        <!-- NOTION KPI SUMMARY CARDS -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label"><i class="fa-solid fa-users" style="color:var(--primary)"></i> Ukupno Narudžbi</div>
+                <div class="kpi-value" id="kpiTotal">0</div>
+                <div class="kpi-sub" id="kpiTotalSub">Svi evidentirani klijenti</div>
             </div>
-            
-            <div style="flex-grow: 1"></div>
-            <!-- APPS SCRIPT URL INPUT (For setting up) -->
-            <input type="text" id="apiUrlInput" class="input-field" style="max-width: 300px; margin-bottom:0;" placeholder="Apps Script Web App URL" onchange="saveApiUrl()" />
+            <div class="kpi-card" style="border-left: 3px solid #22c55e;">
+                <div class="kpi-label"><i class="fa-solid fa-circle-check" style="color:#22c55e"></i> Plaćeno</div>
+                <div class="kpi-value" style="color: #4ade80;" id="kpiPaid">0</div>
+                <div class="kpi-sub" id="kpiPaidPercent">0% naplaćeno</div>
+            </div>
+            <div class="kpi-card" style="border-left: 3px solid #ef4444;">
+                <div class="kpi-label"><i class="fa-solid fa-circle-xmark" style="color:#ef4444"></i> Nije Plaćeno</div>
+                <div class="kpi-value" style="color: #f87171;" id="kpiUnpaid">0</div>
+                <div class="kpi-sub">Čeka naplatu / provjeru</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label"><i class="fa-solid fa-tag" style="color:#38bdf8"></i> 400€ (90 dana)</div>
+                <div class="kpi-value" style="color: #38bdf8;" id="kpi400">0</div>
+                <div class="kpi-sub" id="kpi400Sub">Paket 90 dana</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label"><i class="fa-solid fa-tag" style="color:#fb923c"></i> 600€ (180 dana)</div>
+                <div class="kpi-value" style="color: #fb923c;" id="kpi600">0</div>
+                <div class="kpi-sub" id="kpi600Sub">Paket 180 dana</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label"><i class="fa-solid fa-coins" style="color:#eab308"></i> Procijenjeni Prihod</div>
+                <div class="kpi-value" style="color: #facc15;" id="kpiRevenue">€0</div>
+                <div class="kpi-sub">Na temelju aktivnih paketa</div>
+            </div>
         </div>
 
+        <!-- NOTION DATABASE TOOLBAR -->
+        <div class="notion-toolbar">
+            <div class="notion-toolbar-row">
+                <!-- Search Input -->
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="searchInput" class="search-input" placeholder="Pretraži klijenta, email, telefon, ID..." oninput="onSearchChange(this.value)" />
+                    <i class="fa-solid fa-xmark search-clear" id="searchClearBtn" onclick="clearSearch()"></i>
+                </div>
+
+                <!-- Global Payment Status Filter -->
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <span class="filter-group-label">Status:</span>
+                    <div class="segmented-controls">
+                        <button type="button" class="segmented-btn active" id="btnFilterStatusAll" onclick="setGlobalPaymentFilter('all')">Sve</button>
+                        <button type="button" class="segmented-btn" id="btnFilterStatusPaid" onclick="setGlobalPaymentFilter('paid')"><i class="fa-solid fa-circle-check" style="font-size:10px; color:#22c55e"></i> Plaćeno</button>
+                        <button type="button" class="segmented-btn" id="btnFilterStatusUnpaid" onclick="setGlobalPaymentFilter('unpaid')"><i class="fa-solid fa-circle-xmark" style="font-size:10px; color:#ef4444"></i> Neplaćeno</button>
+                    </div>
+                </div>
+
+                <!-- Global Badge Filter -->
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <span class="filter-group-label">Paket:</span>
+                    <select id="badgeFilterSelect" class="badge-filter-select" onchange="setGlobalBadgeFilter(this.value)">
+                        <option value="all">Svi paketi / oznake</option>
+                        <option value="400€">400€ (90 dana)</option>
+                        <option value="600€">600€ (180 dana)</option>
+                        <option value="Jednokratno">Jednokratno</option>
+                        <option value="2 rate">2 rate</option>
+                        <!-- Custom badges injected here -->
+                    </select>
+                </div>
+
+                <!-- Clear Active Filters -->
+                <button type="button" class="clear-filters-btn" id="clearFiltersBtn" onclick="clearAllFilters()">
+                    <i class="fa-solid fa-filter-circle-xmark"></i> Poništi filtere
+                </button>
+
+                <div class="filtered-count-badge" id="filteredCount">Učitavanje...</div>
+            </div>
+
+            <!-- Action Controls Row -->
+            <div class="notion-toolbar-row" style="border-top: 1px solid var(--border-soft); padding-top: 10px;">
+                <button class="btn btn-small btn-secondary" onclick="loadData()"><i class="fa-solid fa-rotate-right"></i> Osvježi</button>
+                <button class="btn btn-small btn-secondary" onclick="toggleSortMode()" id="sortBtn"><i class="fa-solid fa-arrow-down-z-a"></i> Novije na vrhu</button>
+                <button class="btn btn-small btn-secondary" onclick="toggleEditMode()" id="editModeBtn"><i class="fa-solid fa-pen-to-square"></i> Uredi redke</button>
+                
+                <div id="editControls" style="display: none; gap: 8px; flex-wrap: wrap;">
+                    <div style="width: 1px; background: var(--border); height: 28px; margin: 0 4px;"></div>
+                    <button class="btn btn-small" style="background: var(--success)" onclick="addNewRow()"><i class="fa-solid fa-plus"></i> Dodaj Narudžbu</button>
+                    <button class="btn btn-secondary btn-small" onclick="groupSelectedRows()"><i class="fa-solid fa-object-group"></i> Nova Mjesečna Grupa</button>
+                    <button class="btn btn-secondary btn-small" onclick="addSelectedToGroup()"><i class="fa-solid fa-folder-plus"></i> Dodaj u Grupu</button>
+                    <button class="btn btn-secondary btn-small" onclick="removeSelectedFromGroup()"><i class="fa-solid fa-folder-minus"></i> Makni iz Grupe</button>
+                    <button class="btn btn-small" style="background: var(--error)" onclick="deleteSelectedRows()"><i class="fa-solid fa-trash-can"></i> Obriši Označeno</button>
+                </div>
+
+                <div style="flex-grow: 1"></div>
+                <input type="text" id="apiUrlInput" class="input-field" style="max-width: 280px; margin-bottom: 0; padding: 6px 10px; font-size: 12px;" placeholder="Apps Script Web App URL" onchange="saveApiUrl()" />
+            </div>
+        </div>
+
+        <!-- LOADER -->
         <div class="loader" id="loader">
             <div class="spinner"></div>
-            <p style="margin-top: 16px; color: var(--text-muted);">Učitavanje podataka iz baze...</p>
+            <p style="margin-top: 16px; color: var(--text-muted); font-size: 14px;">Sinkronizacija baze podataka...</p>
         </div>
 
+        <!-- TABLE CONTAINER -->
         <div class="table-container" id="tableContainer" style="display: none;">
             <table id="dataTable">
                 <thead>
                     <tr>
                         <th class="checkbox-cell"></th>
-                        <th style="width: 50px; padding-left: 8px; padding-right: 8px;">#</th>
-                        <th style="width: 17%">Ime i Prezime</th>
-                        <th style="width: 17%">Email</th>
-                        <th style="width: 12%">Mobitel</th>
-                        <th style="width: 22%; text-align: right;">Vrsta Plaćanja / Paket</th>
-                        <th style="width: 12%">Datum</th>
-                        <th style="width: 10%">Order ID</th>
-                        <th class="edit-col-header" style="width: 80px">Akcije</th>
+                        <th style="width: 50px; text-align: center;">#</th>
+                        <th style="width: 120px;"><i class="fa-solid fa-circle-check"></i> Status</th>
+                        <th style="width: 17%"><i class="fa-solid fa-user"></i> Klijent</th>
+                        <th style="width: 25%"><i class="fa-solid fa-tags"></i> Paket / Oznake</th>
+                        <th style="width: 17%"><i class="fa-regular fa-envelope"></i> Email</th>
+                        <th style="width: 12%"><i class="fa-solid fa-phone"></i> Mobitel</th>
+                        <th style="width: 11%"><i class="fa-regular fa-calendar"></i> Datum</th>
+                        <th style="width: 9%"><i class="fa-solid fa-hashtag"></i> Order ID</th>
+                        <th class="edit-col-header" style="width: 70px">Akcije</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody">
-                    <!-- Data will be injected here -->
+                    <!-- Dynamic Rows -->
                 </tbody>
             </table>
         </div>
     </div>
 
+    <!-- NOTION BADGE DROPDOWN POPOVER -->
+    <div id="badgePopover">
+        <div class="popover-header">
+            <i class="fa-solid fa-tag" style="color:var(--primary); font-size: 12px;"></i>
+            <input type="text" id="popoverSearchInput" class="popover-search-input" placeholder="Pretraži ili unesi novu oznaku..." oninput="onPopoverSearch(this.value)" onkeydown="if(event.key==='Enter') createCustomBadgeFromInput()" />
+        </div>
+        <div class="popover-body" id="popoverBadgeList">
+            <!-- Badges list rendered here -->
+        </div>
+        <div id="popoverCreateContainer"></div>
+    </div>
+
+    <!-- FLOATING UNSAVED CHANGES BAR -->
+    <div id="unsavedBar">
+        <div class="unsaved-dot"></div>
+        <div style="font-size: 13px; font-weight: 600;">Imaš nespremljene promjene</div>
+        <div style="display: flex; gap: 8px;">
+            <button class="btn btn-small" onclick="saveChanges()"><i class="fa-solid fa-floppy-disk"></i> Spremi promjene (Ctrl+S)</button>
+            <button class="btn btn-secondary btn-small" onclick="discardChanges()">Odbaci</button>
+        </div>
+    </div>
+
     <!-- Toast Notification -->
-    <div id="toast">Poruka spremljena</div>
+    <div id="toast">
+        <i class="fa-solid fa-circle-check" style="color:var(--success)"></i>
+        <span id="toastMsg">Poruka spremljena</span>
+    </div>
 
     <script>
         const VALID_PASS = "Ursakis357982";
         let isEditMode = false;
         let sortMode = 'desc'; // 'desc' or 'asc'
         let tableData = []; 
-        let headerRow = ["Order ID", "Ime i Prezime", "Email", "Mobitel", "Vrsta Plaćanja / Paket", "Datum"];
+        let headerRow = ["Order ID", "Ime i Prezime", "Email", "Mobitel", "Vrsta Plaćanja / Paket", "Datum", "Plaćeno"];
         let groupMeta = []; // format: { name: "Travanj", orderIds: ["id1", "id2"] }
+        let customBadges = []; // custom tag names: ["VIP", "Preporuka", ...]
         let apiUrl = localStorage.getItem('ursaAdminApiUrl') || 'https://script.google.com/macros/s/AKfycbyWQsjnenPCvl_S3hKMjeDwc_af4Q7k0zHT2mLV0DvaCoMKx7fRTYHAcfE_n5-DksO4Xg/exec';
         let lastCheckedBox = null;
         let groupFilters = {}; // { 'groupId': 'filterType' }
+        let hasUnsavedChanges = false;
+
+        // Global Filters state
+        let globalFilters = {
+            search: '',
+            payment: 'all', // 'all', 'paid', 'unpaid'
+            badge: 'all'    // 'all' or specific badge string
+        };
+
+        // Active popover context
+        let activePopoverRowIdx = null;
+
+        // Notion Color Presets
+        const NOTION_PILL_CLASSES = {
+            '400€': 'notion-pill-blue',
+            '600€': 'notion-pill-orange',
+            'Jednokratno': 'notion-pill-green',
+            '2 rate': 'notion-pill-purple'
+        };
+
+        const CUSTOM_COLOR_PALETTES = [
+            'notion-pill-yellow',
+            'notion-pill-pink',
+            'notion-pill-teal',
+            'notion-pill-gray',
+            'notion-pill-blue',
+            'notion-pill-orange',
+            'notion-pill-green',
+            'notion-pill-purple'
+        ];
+
+        function getPillClass(badgeName) {
+            if (NOTION_PILL_CLASSES[badgeName]) return NOTION_PILL_CLASSES[badgeName];
+            // Deterministic color from string hash
+            let hash = 0;
+            for (let i = 0; i < badgeName.length; i++) {
+                hash = (hash << 5) - hash + badgeName.charCodeAt(i);
+            }
+            const idx = Math.abs(hash) % CUSTOM_COLOR_PALETTES.length;
+            return CUSTOM_COLOR_PALETTES[idx];
+        }
+
+        // --- LOAD CUSTOM BADGES ---
+        try {
+            const saved = localStorage.getItem('ursaCustomBadges');
+            if (saved) customBadges = JSON.parse(saved);
+        } catch(e) {}
+
+        // --- KEYBOARD SHORTCUTS ---
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+                e.preventDefault();
+                saveChanges();
+            }
+            if (e.key === 'Escape') {
+                closeBadgePopover();
+            }
+        });
+
+        // Close popover on click outside
+        document.addEventListener('click', (e) => {
+            const popover = document.getElementById('badgePopover');
+            if (popover && popover.style.display === 'flex') {
+                if (!popover.contains(e.target) && !e.target.closest('.notion-badges-cell')) {
+                    closeBadgePopover();
+                }
+            }
+        });
 
         // Shift-click logic for bulk selection
         document.addEventListener('DOMContentLoaded', () => {
@@ -442,7 +1198,7 @@
                             const min = Math.min(start, end);
                             const max = Math.max(start, end);
                             for (let i = min; i <= max; i++) {
-                                checkboxes[i].checked = true; // Always check on shift click assuming intent to select
+                                checkboxes[i].checked = true;
                             }
                         }
                     }
@@ -485,25 +1241,130 @@
         // --- TOAST ---
         function showToast(msg, isError = false) {
             const toast = document.getElementById('toast');
-            toast.textContent = msg;
+            const toastMsg = document.getElementById('toastMsg');
+            toastMsg.textContent = msg;
             toast.className = isError ? 'show error' : 'show';
+            toast.querySelector('i').className = isError ? 'fa-solid fa-triangle-exclamation' : 'fa-solid fa-circle-check';
+            toast.querySelector('i').style.color = isError ? 'var(--error)' : 'var(--success)';
             setTimeout(() => toast.className = toast.className.replace('show', ''), 3000);
+        }
+
+        // --- UNSAVED BAR ---
+        function markUnsavedChanges() {
+            hasUnsavedChanges = true;
+            document.getElementById('unsavedBar').classList.add('show');
+        }
+
+        function clearUnsavedChanges() {
+            hasUnsavedChanges = false;
+            document.getElementById('unsavedBar').classList.remove('show');
+        }
+
+        function discardChanges() {
+            if (confirm("Sigurno želiš odbaciti sve nespremljene promjene i ponovno učitati podatke?")) {
+                clearUnsavedChanges();
+                loadData();
+            }
         }
 
         // --- COPY ---
         function copyText(el, text) {
             if (isEditMode) return;
             navigator.clipboard.writeText(text).then(() => {
-                const originalText = el.innerHTML;
+                const originalHtml = el.innerHTML;
                 el.innerHTML = '<i class="fa-solid fa-check" style="color:var(--success)"></i> Kopirano';
                 el.style.color = 'var(--success)';
                 setTimeout(() => {
-                    el.innerHTML = originalText;
+                    el.innerHTML = originalHtml;
                     el.style.color = '';
-                }, 1500);
+                }, 1400);
             });
         }
 
+        // --- INTELLIGENT BADGE PARSING ---
+        function parseBadges(rawStr) {
+            if (!rawStr || typeof rawStr !== 'string') return [];
+            rawStr = rawStr.trim();
+            if (!rawStr) return [];
+
+            const tokens = rawStr.split(',').map(s => s.trim()).filter(Boolean);
+            const badgesSet = new Set();
+
+            for (let token of tokens) {
+                const lower = token.toLowerCase();
+                let matched = false;
+
+                // 400€ (90 dana)
+                if (lower.includes('90 dana') || lower.includes('90d') || lower.includes('400') || lower.includes('spreman')) {
+                    badgesSet.add('400€');
+                    matched = true;
+                }
+                // 600€ (180 dana)
+                if (lower.includes('180 dana') || lower.includes('180d') || lower.includes('600') || lower.includes('potpuna')) {
+                    badgesSet.add('600€');
+                    matched = true;
+                }
+                // 2 rate
+                if (lower.includes('2 rate') || lower.includes('dvije rate') || lower.includes('na rate')) {
+                    badgesSet.add('2 rate');
+                    matched = true;
+                }
+                // Jednokratno
+                if (lower.includes('jednokratno')) {
+                    badgesSet.add('Jednokratno');
+                    matched = true;
+                }
+
+                if (token === '400€' || token === '600€' || token === 'Jednokratno' || token === '2 rate') {
+                    badgesSet.add(token);
+                    matched = true;
+                }
+
+                if (!matched && token) {
+                    badgesSet.add(token);
+                    // Also record in custom badges if not present
+                    if (!customBadges.includes(token)) {
+                        customBadges.push(token);
+                        saveCustomBadges();
+                    }
+                }
+            }
+
+            return Array.from(badgesSet);
+        }
+
+        function serializeBadges(badgeArr) {
+            if (!badgeArr || badgeArr.length === 0) return '';
+            return badgeArr.join(', ');
+        }
+
+        function saveCustomBadges() {
+            try {
+                localStorage.setItem('ursaCustomBadges', JSON.stringify(customBadges));
+            } catch(e) {}
+            populateBadgeFilterOptions();
+        }
+
+        // --- PAYMENT STATUS HELPER ---
+        function isRowPaid(row) {
+            if (!row || row.length < 7) return true; // Default is PAID
+            const val = String(row[6]).trim().toUpperCase();
+            if (val === 'NE' || val === 'FALSE' || val === 'NEPLAĆENO' || val === 'UNPAID' || val === '0') {
+                return false;
+            }
+            return true;
+        }
+
+        function toggleRowPaid(idx, e) {
+            if (e) e.stopPropagation();
+            const currentlyPaid = isRowPaid(tableData[idx]);
+            tableData[idx][6] = currentlyPaid ? 'NE' : 'DA';
+            markUnsavedChanges();
+            renderTable();
+            showToast(currentlyPaid ? 'Označeno kao: Nije plaćeno' : 'Označeno kao: Plaćeno');
+        }
+
+        // --- LOAD DATA ---
         async function loadData() {
             if (!apiUrl) {
                 showToast("Unesi Apps Script URL gore desno!", true);
@@ -519,14 +1380,37 @@
                 
                 if (result.status === 'success') {
                     let fullData = result.data || [];
-                    if (fullData.length > 0) headerRow = fullData.shift(); // Ukloni i sačuvaj 1. red iz sheetova (header)
+                    if (fullData.length > 0) {
+                        headerRow = fullData.shift();
+                        while (headerRow.length < 7) headerRow.push("");
+                        headerRow[6] = "Plaćeno";
+                    }
 
-                    tableData = fullData.filter(r => r[0] && !String(r[0]).startsWith('###GROUP###'));
+                    tableData = fullData
+                        .filter(r => r[0] && !String(r[0]).startsWith('###GROUP###'))
+                        .map(r => {
+                            // Ensure 7 columns
+                            while (r.length < 6) r.push("");
+                            if (r.length === 6) {
+                                r.push("DA"); // Default paid
+                            } else if (!r[6] || String(r[6]).trim() === '') {
+                                r[6] = "DA";
+                            }
+                            return r;
+                        });
                     
                     groupMeta = [];
                     if (result.meta && result.meta.length > 0) {
                         for(let mRow of result.meta) {
                             if (!mRow[0]) continue;
+                            if (String(mRow[0]) === '###CUSTOM_BADGES###') {
+                                const loadedTags = mRow.slice(1).filter(t => t.trim() !== '');
+                                loadedTags.forEach(t => {
+                                    if (!customBadges.includes(t)) customBadges.push(t);
+                                });
+                                saveCustomBadges();
+                                continue;
+                            }
                             groupMeta.push({
                                 name: String(mRow[0]),
                                 orderIds: mRow.slice(1).filter(id => id.trim() !== '')
@@ -534,6 +1418,19 @@
                         }
                     }
 
+                    // Extract custom badges from existing table data
+                    tableData.forEach(r => {
+                        const parsed = parseBadges(r[4]);
+                        parsed.forEach(tag => {
+                            if (!['400€', '600€', 'Jednokratno', '2 rate'].includes(tag) && !customBadges.includes(tag)) {
+                                customBadges.push(tag);
+                            }
+                        });
+                    });
+                    saveCustomBadges();
+
+                    clearUnsavedChanges();
+                    populateBadgeFilterOptions();
                     renderTable();
                     document.getElementById('tableContainer').style.display = 'block';
                 } else {
@@ -547,9 +1444,81 @@
             }
         }
 
-        // --- FILTERS ---
-        function setFilter(groupId, filterType, e) {
-            e.stopPropagation();
+        // --- FILTER CONTROLS ---
+        function populateBadgeFilterOptions() {
+            const select = document.getElementById('badgeFilterSelect');
+            const currentVal = select.value;
+            
+            // Standard options
+            let html = `
+                <option value="all">Svi paketi / oznake</option>
+                <option value="400€">400€ (90 dana)</option>
+                <option value="600€">600€ (180 dana)</option>
+                <option value="Jednokratno">Jednokratno</option>
+                <option value="2 rate">2 rate</option>
+            `;
+
+            if (customBadges.length > 0) {
+                html += `<optgroup label="Prilagođene Oznake">`;
+                customBadges.forEach(tag => {
+                    html += `<option value="${tag}">${tag}</option>`;
+                });
+                html += `</optgroup>`;
+            }
+
+            select.innerHTML = html;
+            select.value = currentVal;
+        }
+
+        function onSearchChange(val) {
+            globalFilters.search = val.trim().toLowerCase();
+            document.getElementById('searchClearBtn').style.display = val ? 'block' : 'none';
+            updateActiveFiltersBar();
+            renderTable();
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            onSearchChange('');
+        }
+
+        function setGlobalPaymentFilter(val) {
+            globalFilters.payment = val;
+            
+            document.getElementById('btnFilterStatusAll').className = 'segmented-btn' + (val === 'all' ? ' active' : '');
+            document.getElementById('btnFilterStatusPaid').className = 'segmented-btn' + (val === 'paid' ? ' active paid' : '');
+            document.getElementById('btnFilterStatusUnpaid').className = 'segmented-btn' + (val === 'unpaid' ? ' active unpaid' : '');
+
+            updateActiveFiltersBar();
+            renderTable();
+        }
+
+        function setGlobalBadgeFilter(val) {
+            globalFilters.badge = val;
+            updateActiveFiltersBar();
+            renderTable();
+        }
+
+        function updateActiveFiltersBar() {
+            const isAnyActive = (globalFilters.search !== '') || (globalFilters.payment !== 'all') || (globalFilters.badge !== 'all');
+            document.getElementById('clearFiltersBtn').style.display = isAnyActive ? 'inline-flex' : 'none';
+        }
+
+        function clearAllFilters() {
+            globalFilters.search = '';
+            globalFilters.payment = 'all';
+            globalFilters.badge = 'all';
+            groupFilters = {};
+
+            document.getElementById('searchInput').value = '';
+            document.getElementById('searchClearBtn').style.display = 'none';
+            document.getElementById('badgeFilterSelect').value = 'all';
+
+            setGlobalPaymentFilter('all');
+        }
+
+        function setGroupFilter(groupId, filterType, e) {
+            if (e) e.stopPropagation();
             if (groupFilters[groupId] === filterType) {
                 delete groupFilters[groupId];
             } else {
@@ -562,47 +1531,152 @@
         function toggleSortMode() {
             sortMode = sortMode === 'desc' ? 'asc' : 'desc';
             const btn = document.getElementById('sortBtn');
-            if(sortMode === 'desc') {
-                btn.innerHTML = `<i class="fa-solid fa-arrow-down-z-a"></i> Novije na vrhu`;
-            } else {
-                btn.innerHTML = `<i class="fa-solid fa-arrow-up-a-z"></i> Starije na vrhu`;
-            }
+            btn.innerHTML = sortMode === 'desc' 
+                ? `<i class="fa-solid fa-arrow-down-z-a"></i> Novije na vrhu` 
+                : `<i class="fa-solid fa-arrow-up-a-z"></i> Starije na vrhu`;
             renderTable();
+        }
+
+        // --- STATS HELPER ---
+        function calculateStats(items) {
+            let s = {
+                total: 0,
+                paid: 0,
+                unpaid: 0,
+                eur400: 0,
+                eur400Rate: 0,
+                eur600: 0,
+                eur600Rate: 0,
+                jednokratno: 0,
+                rate2: 0,
+                revenue: 0
+            };
+
+            items.forEach(item => {
+                const isPaid = isRowPaid(item.row);
+                if (isPaid) s.paid++;
+                else s.unpaid++;
+
+                const badges = parseBadges(item.row[4]);
+                let is400 = badges.includes('400€');
+                let is600 = badges.includes('600€');
+                let is2Rate = badges.includes('2 rate');
+                let isJednokratno = badges.includes('Jednokratno');
+
+                if (is400) {
+                    s.eur400++;
+                    if (is2Rate) s.eur400Rate++;
+                    s.revenue += 400;
+                }
+                if (is600) {
+                    s.eur600++;
+                    if (is2Rate) s.eur600Rate++;
+                    s.revenue += 600;
+                }
+                if (isJednokratno) s.jednokratno++;
+                if (is2Rate) s.rate2++;
+
+                s.total++;
+            });
+
+            return s;
+        }
+
+        function renderGroupStatsHtml(s, groupId) {
+            let html = '';
+            const active = groupFilters[groupId];
+
+            if (s.eur400 > 0) {
+                html += `<span class="stats-badge stats-400 ${active==='400'?'active-filter':''}" onclick="setGroupFilter('${groupId}', '400', event)">400€: ${s.eur400}</span>`;
+            }
+            if (s.eur600 > 0) {
+                html += `<span class="stats-badge stats-600 ${active==='600'?'active-filter':''}" onclick="setGroupFilter('${groupId}', '600', event)">600€: ${s.eur600}</span>`;
+            }
+            if (s.jednokratno > 0) {
+                html += `<span class="stats-badge stats-jednokratno ${active==='jednokratno'?'active-filter':''}" onclick="setGroupFilter('${groupId}', 'jednokratno', event)">Jednokratno: ${s.jednokratno}</span>`;
+            }
+            if (s.rate2 > 0) {
+                html += `<span class="stats-badge stats-2rate ${active==='2rate'?'active-filter':''}" onclick="setGroupFilter('${groupId}', '2rate', event)">2 rate: ${s.rate2}</span>`;
+            }
+            if (s.unpaid > 0) {
+                html += `<span class="stats-badge stats-unpaid ${active==='unpaid'?'active-filter':''}" onclick="setGroupFilter('${groupId}', 'unpaid', event)"><i class="fa-solid fa-circle-xmark"></i> Neplaćeno: ${s.unpaid}</span>`;
+            }
+            html += `<span class="stats-badge stats-total ${active==='all'?'active-filter':''}" onclick="setGroupFilter('${groupId}', 'all', event)">${s.total} UKUPNO</span>`;
+            return html;
+        }
+
+        // --- UPDATE NOTION KPIS ---
+        function updateKpis() {
+            const allItems = tableData.map((row, idx) => ({row, idx}));
+            const s = calculateStats(allItems);
+
+            document.getElementById('kpiTotal').textContent = s.total;
+            document.getElementById('kpiPaid').textContent = s.paid;
+            const paidPct = s.total > 0 ? Math.round((s.paid / s.total) * 100) : 0;
+            document.getElementById('kpiPaidPercent').textContent = `${paidPct}% od ukupnog broja`;
+
+            document.getElementById('kpiUnpaid').textContent = s.unpaid;
+            document.getElementById('kpi400').textContent = s.eur400;
+            document.getElementById('kpi400Sub').textContent = `${s.eur400Rate} na rate, ${s.eur400 - s.eur400Rate} jednokratno`;
+
+            document.getElementById('kpi600').textContent = s.eur600;
+            document.getElementById('kpi600Sub').textContent = `${s.eur600Rate} na rate, ${s.eur600 - s.eur600Rate} jednokratno`;
+
+            document.getElementById('kpiRevenue').textContent = `€${s.revenue.toLocaleString('hr-HR')}`;
         }
 
         // --- RENDER TABLE ---
         function renderTable() {
+            updateKpis();
+
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
             
-            // Track which orders have been rendered in groups
             const renderedIds = new Set();
-            
-            // Map tableData by ID for fast lookup
             const getRowId = (r, idx) => r[0] ? String(r[0]) : "INDEX_"+idx;
             const dataMap = new Map();
             tableData.forEach((row, idx) => {
                 dataMap.set(getRowId(row, idx), {row, idx});
             });
 
+            let visibleRowCount = 0;
+
             // Helper to render a single row
             function createRowHtml(rowObj, groupId) {
                 const {row, idx} = rowObj;
                 const tr = document.createElement('tr');
                 tr.className = `data-row ${groupId}`;
-                if(sortMode !== 'desc' && !isEditMode && groupId !== 'unassigned') tr.classList.add('hidden-row'); // Folded
+                if(sortMode !== 'desc' && !isEditMode && groupId !== 'unassigned') tr.classList.add('hidden-row');
                 const orderIdStr = getRowId(row, idx);
+                const isPaid = isRowPaid(row);
+                const badges = parseBadges(row[4]);
+
+                // Badges HTML
+                let badgesHtml = badges.map(b => `<span class="notion-pill ${getPillClass(b)}">${b}</span>`).join('');
+                if (badgesHtml === '') {
+                    badgesHtml = `<span style="color:var(--text-faint); font-size:12px;">+ Dodaj oznaku</span>`;
+                }
 
                 if (isEditMode) {
                     tr.innerHTML = `
                         <td class="checkbox-cell" style="display:table-cell">
                             <input type="checkbox" class="row-checkbox" data-id="${orderIdStr}">
                         </td>
-                        <td><strong>${rowObj.orderNumber || ''}</strong></td>
+                        <td style="text-align:center;"><strong>${rowObj.orderNumber || ''}</strong></td>
+                        <td>
+                            <button type="button" class="notion-status-btn ${isPaid ? 'status-paid' : 'status-unpaid'}" onclick="toggleRowPaid(${idx}, event)">
+                                <span class="status-dot"></span> ${isPaid ? 'Plaćeno' : 'Nije plaćeno'}
+                            </button>
+                        </td>
                         <td><input type="text" class="edit-input" value="${row[1] || ''}" onchange="updateData(${idx}, 1, this.value)"></td>
+                        <td>
+                            <div class="notion-badges-cell" onclick="openBadgePopover(${idx}, this, event)">
+                                ${badgesHtml}
+                                <span class="add-badge-btn" title="Uredi bedževe"><i class="fa-solid fa-plus"></i></span>
+                            </div>
+                        </td>
                         <td><input type="text" class="edit-input" value="${row[2] || ''}" onchange="updateData(${idx}, 2, this.value)"></td>
                         <td><input type="text" class="edit-input" value="${row[3] || ''}" onchange="updateData(${idx}, 3, this.value)"></td>
-                        <td><input type="text" class="edit-input" value="${row[4] || ''}" onchange="updateData(${idx}, 4, this.value)"></td>
                         <td><input type="text" class="edit-input" value="${row[5] || ''}" onchange="updateData(${idx}, 5, this.value)"></td>
                         <td><input type="text" class="edit-input" value="${row[0] || ''}" onchange="updateData(${idx}, 0, this.value)"></td>
                         <td class="edit-col-cell" style="display:table-cell">
@@ -612,99 +1686,87 @@
                 } else {
                     tr.innerHTML = `
                         <td class="checkbox-cell"></td>
-                        <td style="color:var(--primary); font-weight:700; padding-left: 8px; padding-right: 8px;">${rowObj.orderNumber || ''}</td>
+                        <td style="color:var(--primary); font-weight:700; text-align:center; padding-left: 8px; padding-right: 8px;">${rowObj.orderNumber || ''}</td>
+                        <td>
+                            <button type="button" class="notion-status-btn ${isPaid ? 'status-paid' : 'status-unpaid'}" onclick="toggleRowPaid(${idx}, event)" title="Klikni za promjenu statusa plaćanja">
+                                <span class="status-dot"></span> ${isPaid ? 'Plaćeno' : 'Nije plaćeno'}
+                            </button>
+                        </td>
                         <td><span class="copyable" onclick="copyText(this, '${row[1]}')"><strong>${row[1] || '-'}</strong></span></td>
+                        <td>
+                            <div class="notion-badges-cell" onclick="openBadgePopover(${idx}, this, event)" title="Klikni za odabir ili dodavanje oznaka">
+                                ${badgesHtml}
+                                <span class="add-badge-btn" title="Uredi bedževe"><i class="fa-solid fa-plus"></i></span>
+                            </div>
+                        </td>
                         <td><span class="copyable" onclick="copyText(this, '${row[2]}')">${row[2] || '-'}</span></td>
                         <td><span class="copyable" onclick="copyText(this, '${row[3]}')">${row[3] || '-'}</span></td>
-                        <td style="direction: rtl; text-align: right;"><span class="copyable" style="direction: ltr; unicode-bidi: embed;" onclick="copyText(this, '${row[4]}')">${row[4] || '-'}</span></td>
-                        <td>${formatDate(row[5]) || '-'}</td>
-                        <td><span class="copyable" onclick="copyText(this, '${row[0]}')">${row[0] || '-'}</span></td>
+                        <td style="color: var(--text-muted); font-size:13px;">${formatDate(row[5]) || '-'}</td>
+                        <td><span class="copyable" onclick="copyText(this, '${row[0]}')" style="font-family: monospace; font-size:12px; color: var(--text-muted);">${row[0] || '-'}</span></td>
                         <td class="edit-col-cell"></td>
                     `;
                 }
                 return tr;
             }
 
-            // Helper for generating detailed stats
-            function getStats(items) {
-                let s = { jednokratno: 0, rate2: 0, dana90: 0, dana180: 0, dana90Rate: 0, dana180Rate: 0, total: 0 };
-                items.forEach(item => {
-                    const vrsta = item.row[4] ? String(item.row[4]).trim() : '';
-                    if (!vrsta) return;
-                    
-                    const isSpreman = vrsta.startsWith('Spreman');
-                    const isPotpuna = vrsta.startsWith('Potpuna');
-                    
-                    // We check if it's a valid client through Spreman/Potpuna but count specific other flags
-                    if (isSpreman || isPotpuna || vrsta.toLowerCase().includes('jednokratno') || vrsta.toLowerCase().includes('2 rate')) {
-                        s.total++;
-                        if (vrsta.toLowerCase().includes('jednokratno')) s.jednokratno++;
-                        if (vrsta.toLowerCase().includes('2 rate')) s.rate2++;
-                        if (vrsta.includes('90 dana')) {
-                            s.dana90++;
-                            if (vrsta.toLowerCase().includes('2 rate')) s.dana90Rate++;
-                        }
-                        if (vrsta.includes('180 dana')) {
-                            s.dana180++;
-                            if (vrsta.toLowerCase().includes('2 rate')) s.dana180Rate++;
-                        }
-                    }
-                });
-                return s;
+            // FILTER ROW EVALUATION
+            function matchesFilters(item, groupId) {
+                const r = item.row;
+                const isPaid = isRowPaid(r);
+                const badges = parseBadges(r[4]);
+
+                // 1. Global Search
+                if (globalFilters.search) {
+                    const q = globalFilters.search;
+                    const combinedText = `${r[0]} ${r[1]} ${r[2]} ${r[3]} ${r[4]}`.toLowerCase();
+                    if (!combinedText.includes(q)) return false;
+                }
+
+                // 2. Global Payment Status
+                if (globalFilters.payment === 'paid' && !isPaid) return false;
+                if (globalFilters.payment === 'unpaid' && isPaid) return false;
+
+                // 3. Global Badge Filter
+                if (globalFilters.badge !== 'all') {
+                    if (!badges.includes(globalFilters.badge)) return false;
+                }
+
+                // 4. Group Specific Filter
+                const activeGroupFilter = groupFilters[groupId];
+                if (activeGroupFilter) {
+                    if (activeGroupFilter === '400' && !badges.includes('400€')) return false;
+                    if (activeGroupFilter === '600' && !badges.includes('600€')) return false;
+                    if (activeGroupFilter === 'jednokratno' && !badges.includes('Jednokratno')) return false;
+                    if (activeGroupFilter === '2rate' && !badges.includes('2 rate')) return false;
+                    if (activeGroupFilter === 'unpaid' && isPaid) return false;
+                }
+
+                return true;
             }
 
-            function renderStatsHtml(s, groupId) {
-                let html = '';
-                const active = groupFilters[groupId];
-                if(s.jednokratno > 0) html += `<span class="stats-badge stats-jednokratno ${active==='jednokratno'?'active-filter':''}" onclick="setFilter('${groupId}', 'jednokratno', event)">Jednokratno: ${s.jednokratno}</span>`;
-                if(s.rate2 > 0) html += `<span class="stats-badge stats-2rate ${active==='2rate'?'active-filter':''}" onclick="setFilter('${groupId}', '2rate', event)">2 rate: ${s.rate2}</span>`;
-                if(s.dana90 > 0) html += `<span class="stats-badge stats-90 ${active==='90'?'active-filter':''}" onclick="setFilter('${groupId}', '90', event)">90d: ${s.dana90}</span>`;
-                if(s.dana90Rate > 0) html += `<span class="stats-badge stats-90rate ${active==='90rate'?'active-filter':''}" onclick="setFilter('${groupId}', '90rate', event)">90d na rate: ${s.dana90Rate}</span>`;
-                if(s.dana180 > 0) html += `<span class="stats-badge stats-180 ${active==='180'?'active-filter':''}" onclick="setFilter('${groupId}', '180', event)">180d: ${s.dana180}</span>`;
-                if(s.dana180Rate > 0) html += `<span class="stats-badge stats-180rate ${active==='180rate'?'active-filter':''}" onclick="setFilter('${groupId}', '180rate', event)">180d na rate: ${s.dana180Rate}</span>`;
-                html += `<span class="stats-badge stats-total ${active==='client'?'active-filter':''}" onclick="setFilter('${groupId}', 'client', event)">${s.total} UKUPNO</span>`;
-                return html;
-            }
-
-            // 1. DYNAMICALLY BUILD UI
+            // 1. BUILD GROUPS
             const groupsToRender = sortMode === 'desc' ? [...groupMeta].reverse() : groupMeta;
-            
             const groupSections = [];
 
             for (let g = 0; g < groupsToRender.length; g++) {
                 const grp = groupsToRender[g];
                 const validItems = grp.orderIds.map(id => dataMap.get(id)).filter(item => item !== undefined);
-                
-                // Obavezno sortiraj kronološki prema Google Sheetu prije reversea!
                 validItems.sort((a, b) => a.idx - b.idx);
                 
                 let orderCounter = 1;
                 validItems.forEach(item => {
-                    const vrsta = item.row[4] ? String(item.row[4]).trim() : '';
-                    if (vrsta) {
-                        const isSpreman = vrsta.startsWith('Spreman');
-                        const isPotpuna = vrsta.startsWith('Potpuna');
-                        if (isSpreman || isPotpuna || vrsta.toLowerCase().includes('jednokratno') || vrsta.toLowerCase().includes('2 rate')) {
-                            item.orderNumber = orderCounter++;
-                        } else {
-                            item.orderNumber = '';
-                        }
-                    } else {
-                        item.orderNumber = '';
-                    }
+                    item.orderNumber = orderCounter++;
                 });
 
                 const groupId = 'group-div-' + g;
-                
                 const tr = document.createElement('tr');
                 tr.className = 'group-divider';
-                
-                const stats = getStats(validItems);
+                const stats = calculateStats(validItems);
 
                 if (isEditMode) {
                     const originalGrpIndex = sortMode === 'desc' ? groupMeta.length - 1 - g : g;
                     tr.innerHTML = `
-                        <td colspan="8">
+                        <td colspan="9">
                             <i class="fa-solid fa-folder"></i> &nbsp; 
                             <input type="text" style="background:rgba(0,0,0,0.5); border:1px solid var(--primary); color:var(--primary); font-weight:bold; padding:4px 8px; border-radius:4px" 
                                 value="${grp.name}" 
@@ -715,9 +1777,9 @@
                 } else {
                     tr.setAttribute('onclick', `toggleGroup('${groupId}')`);
                     tr.innerHTML = `
-                        <td colspan="9" style="overflow: visible; white-space: normal;">
-                            <i class="fa-solid fa-chevron-${sortMode === 'desc' ? 'down' : 'right'}"></i> &nbsp; ${grp.name}
-                            <span class="group-stats">${renderStatsHtml(stats, groupId)}</span>
+                        <td colspan="10" style="overflow: visible; white-space: normal;">
+                            <i class="fa-solid fa-chevron-${sortMode === 'desc' ? 'down' : 'right'}"></i> &nbsp; <i class="fa-regular fa-folder" style="color:var(--primary); margin-right:4px;"></i> <strong>${grp.name}</strong> <span style="font-size:12px; opacity:0.8;">(${validItems.length})</span>
+                            <span class="group-stats">${renderGroupStatsHtml(stats, groupId)}</span>
                         </td>
                     `;
                 }
@@ -725,21 +1787,9 @@
                 const domNodes = [tr];
                 const itemsToRender = sortMode === 'desc' ? [...validItems].reverse() : validItems;
                 itemsToRender.forEach(item => {
-                    // MUST BE AT THE TOP! Otherwise filtered items spill out into Unassigned group due to missing renderedIds tracking!
                     renderedIds.add(getRowId(item.row, item.idx));
-                    
-                    const active = groupFilters[groupId];
-                    if (active) {
-                        const v = item.row[4] ? String(item.row[4]).toLowerCase() : '';
-                        if (active === 'jednokratno' && !v.includes('jednokratno')) return;
-                        if (active === '2rate' && !v.includes('2 rate')) return;
-                        if (active === '90' && !v.includes('90 dana')) return;
-                        if (active === '90rate' && !(v.includes('90 dana') && v.includes('2 rate'))) return;
-                        if (active === '180' && !v.includes('180 dana')) return;
-                        if (active === '180rate' && !(v.includes('180 dana') && v.includes('2 rate'))) return;
-                        if (active === 'client' && !(v.startsWith('spreman') || v.startsWith('potpuna') || v.includes('jednokratno') || v.includes('2 rate'))) return;
-                    }
-
+                    if (!matchesFilters(item, groupId)) return;
+                    visibleRowCount++;
                     domNodes.push(createRowHtml(item, groupId));
                 });
 
@@ -757,73 +1807,177 @@
             unassignedItems.sort((a, b) => a.idx - b.idx);
             let unassignedOrderCounter = 1;
             unassignedItems.forEach(item => {
-                const vrsta = item.row[4] ? String(item.row[4]).trim() : '';
-                if (vrsta) {
-                    const isSpreman = vrsta.startsWith('Spreman');
-                    const isPotpuna = vrsta.startsWith('Potpuna');
-                    if (isSpreman || isPotpuna || vrsta.toLowerCase().includes('jednokratno') || vrsta.toLowerCase().includes('2 rate')) {
-                        item.orderNumber = unassignedOrderCounter++;
-                    } else {
-                        item.orderNumber = '';
-                    }
-                } else {
-                    item.orderNumber = '';
-                }
+                item.orderNumber = unassignedOrderCounter++;
             });
 
             const unassignedDomNodes = [];
             if (unassignedItems.length > 0) {
                 const tr = document.createElement('tr');
                 tr.className = 'group-divider';
-                const unassignedStats = getStats(unassignedItems);
+                const unassignedStats = calculateStats(unassignedItems);
                 tr.innerHTML = `
-                    <td colspan="9" style="background:rgba(34, 197, 94, 0.1); border-top:2px solid var(--success); color:var(--success); overflow: visible; white-space: normal;">
-                        <i class="fa-solid fa-inbox"></i> &nbsp; Najnovije (Nove narudžbe / Nema grupe)
-                        <span class="group-stats">${renderStatsHtml(unassignedStats, 'unassigned')}</span>
+                    <td colspan="10" style="background:rgba(34, 197, 94, 0.08); border-top:2px solid var(--success); color:var(--success); overflow: visible; white-space: normal;">
+                        <i class="fa-solid fa-inbox"></i> &nbsp; <strong>Nove narudžbe / Nema grupe</strong> <span style="font-size:12px; opacity:0.8;">(${unassignedItems.length})</span>
+                        <span class="group-stats">${renderGroupStatsHtml(unassignedStats, 'unassigned')}</span>
                     </td>
                 `;
                 
                 unassignedDomNodes.push(tr);
                 const iterItems = sortMode === 'desc' ? [...unassignedItems].reverse() : unassignedItems;
                 iterItems.forEach(item => {
-                    const active = groupFilters['unassigned'];
-                    if (active) {
-                        const v = item.row[4] ? String(item.row[4]).toLowerCase() : '';
-                        if (active === 'jednokratno' && !v.includes('jednokratno')) return;
-                        if (active === '2rate' && !v.includes('2 rate')) return;
-                        if (active === '90' && !v.includes('90 dana')) return;
-                        if (active === '90rate' && !(v.includes('90 dana') && v.includes('2 rate'))) return;
-                        if (active === '180' && !v.includes('180 dana')) return;
-                        if (active === '180rate' && !(v.includes('180 dana') && v.includes('2 rate'))) return;
-                        if (active === 'client' && !(v.startsWith('spreman') || v.startsWith('potpuna') || v.includes('jednokratno') || v.includes('2 rate'))) return;
-                    }
+                    if (!matchesFilters(item, 'unassigned')) return;
+                    visibleRowCount++;
                     unassignedDomNodes.push(createRowHtml(item, 'unassigned'));
                 });
             }
 
-            // APPEND TO DOM RESPECTING SORT ORDER
+            // APPEND NODES ACCORDING TO SORT MODE
             if (sortMode === 'desc') {
-                // If DESC: Newest Unassigned at top, then Newest Groups below
                 unassignedDomNodes.forEach(node => tbody.appendChild(node));
-                groupSections.forEach(nodesArray => {
-                    nodesArray.forEach(node => tbody.appendChild(node));
-                });
+                groupSections.forEach(nodesArray => nodesArray.forEach(node => tbody.appendChild(node)));
             } else {
-                // If ASC: Oldest Groups at top, then Oldest Unassigned items at bottom
-                groupSections.forEach(nodesArray => {
-                    nodesArray.forEach(node => tbody.appendChild(node));
-                });
+                groupSections.forEach(nodesArray => nodesArray.forEach(node => tbody.appendChild(node)));
                 unassignedDomNodes.forEach(node => tbody.appendChild(node));
             }
 
-            // Headers
+            // Update filtered count badge
+            document.getElementById('filteredCount').textContent = `Prikazano ${visibleRowCount} od ${tableData.length}`;
+
+            // Visibility of Edit Mode Columns
             document.querySelectorAll('.edit-col-header').forEach(h => h.style.display = isEditMode ? 'table-cell' : 'none');
             document.querySelectorAll('.checkbox-cell').forEach(h => h.style.display = isEditMode ? 'table-cell' : 'none');
             
-            // Clean up lastCheckedBox tracking when re-rendering
             lastCheckedBox = null;
         }
 
+        // --- NOTION BADGE POPOVER LOGIC ---
+        function openBadgePopover(rowIndex, triggerEl, e) {
+            e.stopPropagation();
+            activePopoverRowIdx = rowIndex;
+
+            const popover = document.getElementById('badgePopover');
+            const rect = triggerEl.getBoundingClientRect();
+
+            // Position popover right below trigger
+            let top = rect.bottom + window.scrollY + 6;
+            let left = rect.left + window.scrollX;
+            if (left + 300 > window.innerWidth) {
+                left = window.innerWidth - 310;
+            }
+
+            popover.style.top = top + 'px';
+            popover.style.left = left + 'px';
+            popover.style.display = 'flex';
+
+            document.getElementById('popoverSearchInput').value = '';
+            renderPopoverBadgeList('');
+            setTimeout(() => document.getElementById('popoverSearchInput').focus(), 50);
+        }
+
+        function closeBadgePopover() {
+            const popover = document.getElementById('badgePopover');
+            if (popover) popover.style.display = 'none';
+            activePopoverRowIdx = null;
+        }
+
+        function onPopoverSearch(query) {
+            renderPopoverBadgeList(query.trim());
+        }
+
+        function renderPopoverBadgeList(query) {
+            if (activePopoverRowIdx === null) return;
+            const currentBadges = parseBadges(tableData[activePopoverRowIdx][4]);
+
+            const allAvailable = ['400€', '600€', 'Jednokratno', '2 rate', ...customBadges];
+            // Deduplicate
+            const uniqueBadges = Array.from(new Set(allAvailable));
+
+            const listEl = document.getElementById('popoverBadgeList');
+            const createContainer = document.getElementById('popoverCreateContainer');
+
+            const filtered = uniqueBadges.filter(b => b.toLowerCase().includes(query.toLowerCase()));
+
+            let html = '';
+            filtered.forEach(badge => {
+                const isSelected = currentBadges.includes(badge);
+                const isStandard = ['400€', '600€', 'Jednokratno', '2 rate'].includes(badge);
+
+                html += `
+                    <div class="popover-item" onclick="toggleBadgeForRow('${badge}')">
+                        <div class="popover-item-left">
+                            <span class="popover-check">${isSelected ? '<i class="fa-solid fa-check"></i>' : ''}</span>
+                            <span class="notion-pill ${getPillClass(badge)}">${badge}</span>
+                        </div>
+                        ${!isStandard ? `<button type="button" class="popover-delete-tag" onclick="deleteCustomBadge('${badge}', event)" title="Ukloni ovu oznaku"><i class="fa-solid fa-trash-can"></i></button>` : ''}
+                    </div>
+                `;
+            });
+
+            if (filtered.length === 0 && !query) {
+                html = `<div style="padding: 12px; text-align: center; color: var(--text-muted); font-size: 12px;">Nema dostupnih oznaka</div>`;
+            }
+
+            listEl.innerHTML = html;
+
+            // Check if exact match exists, if not, show "Kreiraj oznaku"
+            const exactMatch = uniqueBadges.some(b => b.toLowerCase() === query.toLowerCase());
+            if (query && !exactMatch) {
+                createContainer.innerHTML = `
+                    <div class="popover-create-btn" onclick="createCustomBadgeFromInput()">
+                        <i class="fa-solid fa-plus"></i> Kreiraj novu oznaku "<strong>${escapeHtml(query)}</strong>"
+                    </div>
+                `;
+            } else {
+                createContainer.innerHTML = '';
+            }
+        }
+
+        function toggleBadgeForRow(badgeName) {
+            if (activePopoverRowIdx === null) return;
+            const row = tableData[activePopoverRowIdx];
+            let badges = parseBadges(row[4]);
+
+            if (badges.includes(badgeName)) {
+                badges = badges.filter(b => b !== badgeName);
+            } else {
+                badges.push(badgeName);
+            }
+
+            row[4] = serializeBadges(badges);
+            markUnsavedChanges();
+            renderTable();
+            renderPopoverBadgeList(document.getElementById('popoverSearchInput').value.trim());
+        }
+
+        function createCustomBadgeFromInput() {
+            const input = document.getElementById('popoverSearchInput');
+            const val = input.value.trim();
+            if (!val) return;
+
+            if (!customBadges.includes(val)) {
+                customBadges.push(val);
+                saveCustomBadges();
+            }
+
+            toggleBadgeForRow(val);
+            input.value = '';
+            renderPopoverBadgeList('');
+        }
+
+        function deleteCustomBadge(badgeName, e) {
+            if (e) e.stopPropagation();
+            if (confirm(`Želiš li trajno ukloniti oznaku "${badgeName}" s popisa dostupnih oznaka?`)) {
+                customBadges = customBadges.filter(b => b !== badgeName);
+                saveCustomBadges();
+                renderPopoverBadgeList(document.getElementById('popoverSearchInput').value.trim());
+            }
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m]);
+        }
+
+        // --- GROUP TOGGLE ---
         function toggleGroup(groupId) {
             if (isEditMode) return;
             const rows = document.querySelectorAll(`.${groupId}`);
@@ -844,6 +1998,7 @@
             }
         }
 
+        // --- EDIT MODE ---
         function toggleEditMode() {
             isEditMode = !isEditMode;
             const btn = document.getElementById('editModeBtn');
@@ -867,27 +2022,29 @@
             try {
                 if(!dateStr) return '';
                 const d = new Date(dateStr);
-                if (isNaN(d.valueOf())) return dateStr; // Ako nije datum (već neka napomena) vrati čisti tekst
+                if (isNaN(d.valueOf())) return dateStr;
                 return d.toLocaleDateString('hr-HR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute:'2-digit' });
             } catch(e) { return dateStr; }
         }
 
         function updateData(rowIndex, colIndex, value) {
             tableData[rowIndex][colIndex] = value;
+            markUnsavedChanges();
         }
 
         function updateGroupName(metaIndex, value) {
             groupMeta[metaIndex].name = value;
+            markUnsavedChanges();
         }
 
         function deleteRow(index) {
             if(confirm("Sigurno želiš obrisati ovaj red?")) {
                 const deletedRowArr = tableData.splice(index, 1);
-                // Also remove it from any existing groupMeta mappings so it doesn't leave ghost ids
                 const deletedId = deletedRowArr[0][0];
                 groupMeta.forEach(g => {
                     g.orderIds = g.orderIds.filter(id => id !== deletedId);
                 });
+                markUnsavedChanges();
                 renderTable();
             }
         }
@@ -895,13 +2052,22 @@
         function deleteGroup(metaIndex) {
             if(confirm("Sigurno želiš otkačiti ovu grupu? Svi klijenti u njoj vratit će se u Nepoznato / Nedodijeljeno (gore), ali neće se obrisati!")) {
                 groupMeta.splice(metaIndex, 1);
+                markUnsavedChanges();
                 renderTable();
             }
         }
 
         function addNewRow() {
-            // Assign a temporary unique ID for grouping functionality
-            tableData.push(["URSA_"+Math.floor(Math.random()*1000000), "", "", "", "", new Date().toISOString()]);
+            tableData.push([
+                "URSA_" + Math.floor(Math.random() * 1000000), 
+                "", 
+                "", 
+                "", 
+                "400€, Jednokratno", 
+                new Date().toISOString(),
+                "DA"
+            ]);
+            markUnsavedChanges();
             renderTable();
         }
 
@@ -918,16 +2084,15 @@
             }
             if (!confirm(`Sigurno želiš obrisati ${selectedIds.length} označenih redaka?`)) return;
 
-            // Remove from tableData
             const idSet = new Set(selectedIds);
             tableData = tableData.filter((row, idx) => {
                 const rowId = row[0] ? String(row[0]) : 'INDEX_' + idx;
                 return !idSet.has(rowId);
             });
-            // Remove from all groups
             groupMeta.forEach(g => {
                 g.orderIds = g.orderIds.filter(id => !idSet.has(id));
             });
+            markUnsavedChanges();
             renderTable();
             showToast(`Obrisano ${selectedIds.length} redaka.`);
         }
@@ -942,17 +2107,16 @@
             const name = prompt("Unesi ime nove Mjesečne Grupe (npr. 'Svibanj 2026'):");
             if (!name) return;
             
-            // Remove them from other groups if they already belonged to one
             groupMeta.forEach(g => {
                 g.orderIds = g.orderIds.filter(id => !selectedIds.includes(id));
             });
 
-            // Create new group
             groupMeta.push({
                 name: name,
                 orderIds: selectedIds
             });
             
+            markUnsavedChanges();
             renderTable();
             showToast(`Kreirana nova grupa "${name}" s ${selectedIds.length} članova.`);
         }
@@ -967,7 +2131,6 @@
                 showToast("Nema postojećih grupa. Prvo kreiraj grupu.", true);
                 return;
             }
-            // Build group list for user to pick
             const groupList = groupMeta.map((g, i) => `${i + 1}. ${g.name}`).join('\n');
             const choice = prompt(`U koju grupu dodati označene?\n\n${groupList}\n\nUpiši broj grupe:`);
             if (!choice) return;
@@ -976,16 +2139,15 @@
                 showToast("Nevažeći broj grupe.", true);
                 return;
             }
-            // Remove selected from any current groups first
             groupMeta.forEach(g => {
                 g.orderIds = g.orderIds.filter(id => !selectedIds.includes(id));
             });
-            // Add to chosen group (avoid duplicates)
             selectedIds.forEach(id => {
                 if (!groupMeta[idx].orderIds.includes(id)) {
                     groupMeta[idx].orderIds.push(id);
                 }
             });
+            markUnsavedChanges();
             renderTable();
             showToast(`Dodano ${selectedIds.length} u grupu "${groupMeta[idx].name}".`);
         }
@@ -1003,14 +2165,16 @@
                 g.orderIds = g.orderIds.filter(id => !idSet.has(id));
                 removedCount += before - g.orderIds.length;
             });
-            renderTable();
             if (removedCount > 0) {
-                showToast(`Maknuto ${removedCount} zapisa iz grupa (prebačeno u Nove narudžbe).`);
+                markUnsavedChanges();
+                renderTable();
+                showToast(`Maknuto ${removedCount} zapisa iz grupa.`);
             } else {
                 showToast("Označeni reci nisu bili u nijednoj grupi.", true);
             }
         }
 
+        // --- SAVE CHANGES ---
         async function saveChanges() {
             if (!apiUrl) return;
             document.getElementById('loader').style.display = 'block';
@@ -1024,16 +2188,31 @@
                 });
             };
 
-            const paddedTableData = tableData.length > 0 ? padArray(tableData, 6) : [["","","","","",""]];
-            const dataToSave = [headerRow, ...paddedTableData]; // Prependaj zaglavlje nazad na vrh sheeta!
+            // Ensure 7 columns: [Order ID, Ime, Email, Mobitel, Paket, Datum, Plaćeno]
+            const cleanTableData = tableData.map(row => {
+                const copy = [...row];
+                while (copy.length < 6) copy.push("");
+                if (copy.length === 6) copy.push("DA");
+                if (!copy[6] || String(copy[6]).trim() === '') copy[6] = "DA";
+                return copy;
+            });
+
+            const paddedTableData = cleanTableData.length > 0 ? padArray(cleanTableData, 7) : [["","","","","","","DA"]];
+            
+            // Header row
+            const completeHeader = ["Order ID", "Ime i Prezime", "Email", "Mobitel", "Vrsta Plaćanja / Paket", "Datum", "Plaćeno"];
+            const dataToSave = [completeHeader, ...paddedTableData];
             
             let metaArr = groupMeta.map(g => [g.name, ...g.orderIds]);
+            if (customBadges.length > 0) {
+                metaArr.push(['###CUSTOM_BADGES###', ...customBadges]);
+            }
             if (metaArr.length === 0) metaArr = [["_NO_GROUPS_"]];
             
             const paddedMeta = padArray(metaArr, 2);
             
             try {
-                const res = await fetch(apiUrl, {
+                await fetch(apiUrl, {
                     method: 'POST',
                     mode: 'no-cors',
                     headers: { 'Content-Type': 'application/json' },
@@ -1045,12 +2224,14 @@
                 });
                 
                 showToast("Promjene uspješno spremljene!");
-                toggleEditMode();
-                setTimeout(() => loadData(), 1000); // Reload fresh data
+                clearUnsavedChanges();
+                if (isEditMode) toggleEditMode();
+                setTimeout(() => loadData(), 1000);
                 
             } catch (err) {
                 console.error(err);
                 showToast("Spremljeno (CORS opomena), osvježavam...", false);
+                clearUnsavedChanges();
                 setTimeout(() => loadData(), 1500);
             }
         }

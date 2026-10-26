@@ -1107,7 +1107,9 @@
     </div>
 
     <script>
-        const VALID_PASS = "Ursakis357982";
+        const VALID_PASS = "2804Fleka!";
+        // Bump when the password changes: any session saved with an older value is logged out on next load
+        const AUTH_TOKEN = "v2-2026-10-26";
         let isEditMode = false;
         let sortMode = 'desc'; // 'desc' or 'asc'
         let tableData = []; 
@@ -1210,7 +1212,7 @@
 
         // --- AUTH ---
         function checkAuth() {
-            if (localStorage.getItem('ursaAdminAuth') === 'true') {
+            if (localStorage.getItem('ursaAdminAuth') === AUTH_TOKEN) {
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('dashboardScreen').style.display = 'flex';
                 document.getElementById('apiUrlInput').value = apiUrl;
@@ -1221,7 +1223,7 @@
         function login() {
             const pass = document.getElementById('passInput').value;
             if (pass === VALID_PASS) {
-                localStorage.setItem('ursaAdminAuth', 'true');
+                localStorage.setItem('ursaAdminAuth', AUTH_TOKEN);
                 checkAuth();
             } else {
                 showToast("Neispravna lozinka!", true);

@@ -748,7 +748,9 @@
 
     <script>
         // ================= CONFIG =================
-        const VALID_PASS = "Ursakis357982"; // isto kao /admin
+        const VALID_PASS = "2804Fleka!"; // isto kao /admin
+        // isto kao /admin – bump to log everyone out
+        const AUTH_TOKEN = "v2-2026-10-26";
         const DEFAULT_API = 'https://script.google.com/macros/s/AKfycbyWQsjnenPCvl_S3hKMjeDwc_af4Q7k0zHT2mLV0DvaCoMKx7fRTYHAcfE_n5-DksO4Xg/exec';
         const LS_STATE = 'ursaPlanState_v1';
         const LS_DIRTY = 'ursaPlanDirty_v1';
@@ -855,7 +857,7 @@
 
         // ================= AUTH =================
         function checkAuth() {
-            if (localStorage.getItem('ursaAdminAuth') === 'true') {
+            if (localStorage.getItem('ursaAdminAuth') === AUTH_TOKEN) {
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('app').classList.add('active');
                 startApp();
@@ -865,7 +867,7 @@
         }
         function login() {
             if (document.getElementById('passInput').value === VALID_PASS) {
-                localStorage.setItem('ursaAdminAuth', 'true');
+                localStorage.setItem('ursaAdminAuth', AUTH_TOKEN);
                 checkAuth();
             } else {
                 showToast('Neispravna lozinka!', { error: true });

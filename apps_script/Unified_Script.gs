@@ -57,6 +57,56 @@ function doPost(e) {
             Logger.log("Backup error: " + backupErr);
         }
 
+        // Guard: a save may only blank cells the admin cleared by hand and drop rows the admin deleted.
+        // Filled cells that arrive blank are kept, and rows missing from the payload (e.g. orders that
+        // came in after the admin page loaded) are appended back.
+        try {
+            const existingRows = mainSheet.getDataRange().getDisplayValues().slice(1)
+                .filter(function(r) { return r[0] && String(r[0]).indexOf('###GROUP###') !== 0; });
+            const cleared = {};
+            (payload.explicitClears || []).forEach(function(k) { cleared[String(k)] = true; });
+            const deleted = {};
+            (payload.deletedIds || []).forEach(function(id) { deleted[String(id)] = true; });
+
+            // Duplicate Order IDs exist, so match rows by id + occurrence number
+            const keysOf = function(rows) {
+                const seen = {};
+                return rows.map(function(r) {
+                    const id = String(r && r[0] !== undefined && r[0] !== null ? r[0] : '');
+                    seen[id] = (seen[id] || 0) + 1;
+                    return id + '#' + seen[id];
+                });
+            };
+            const existingKeys = keysOf(existingRows);
+            const existingByKey = {};
+            existingKeys.forEach(function(k, i) { existingByKey[k] = existingRows[i]; });
+
+            const incoming = rawData.slice(1);
+            const incomingKeys = keysOf(incoming);
+            const incomingKeySet = {};
+            incomingKeys.forEach(function(k, i) {
+                incomingKeySet[k] = true;
+                const old = existingByKey[k];
+                const row = incoming[i];
+                if (!old || !row) return;
+                for (let c = 1; c <= 5; c++) {
+                    const had = String(old[c] || '').trim();
+                    const now = String(row[c] !== undefined && row[c] !== null ? row[c] : '').trim();
+                    if (had && !now && !cleared[row[0] + '|' + c]) row[c] = old[c];
+                }
+            });
+            existingKeys.forEach(function(k, i) {
+                const old = existingRows[i];
+                if (!incomingKeySet[k] && !deleted[String(old[0])]) rawData.push(old.slice());
+            });
+        } catch(guardErr) {
+            Logger.log("Guard error: " + guardErr);
+            return ContentService.createTextOutput(JSON.stringify({
+                status: "error",
+                message: "Odbijeno: ne mogu provjeriti postojeće podatke prije spremanja."
+            })).setMimeType(ContentService.MimeType.JSON);
+        }
+
         // Server-side normalization: ensure 100% uniform rectangle
         const maxCols = Math.max.apply(null, rawData.map(function(r) { return r ? r.length : 0; }));
         const cleanData = rawData.map(function(r) {

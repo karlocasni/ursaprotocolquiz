@@ -1261,6 +1261,65 @@
         function clearUnsavedChanges() {
             hasUnsavedChanges = false;
             document.getElementById('unsavedBar').classList.remove('show');
+            explicitClears = new Set();
+            deletedIds = new Set();
+        }
+
+        // --- SAVE GUARD ---
+        // Only cells the user emptied by hand and rows the user deleted may disappear on save.
+        // Anything else that is filled in the sheet but blank/missing here gets restored before saving.
+        let explicitClears = new Set(); // "orderId|col"
+        let deletedIds = new Set();
+
+        // Duplicate Order IDs exist, so match rows by id + occurrence number
+        function rowKeys(rows) {
+            const seen = {};
+            return rows.map(r => {
+                const id = String(r[0] ?? '');
+                seen[id] = (seen[id] || 0) + 1;
+                return id + '#' + seen[id];
+            });
+        }
+
+        async function guardAgainstDataLoss() {
+            const res = await fetch(apiUrl + "?action=getOrders");
+            const result = await res.json();
+            if (result.status !== 'success' || !Array.isArray(result.data) || result.data.length < 2) {
+                throw new Error('Could not read current sheet');
+            }
+            const sheetRows = result.data.slice(1).filter(r => r[0] && !String(r[0]).startsWith('###GROUP###'));
+            const sheetKeys = rowKeys(sheetRows);
+            const sheetByKey = new Map(sheetKeys.map((k, i) => [k, sheetRows[i]]));
+            const localKeys = rowKeys(tableData);
+            const localKeySet = new Set(localKeys);
+            let restoredCells = 0, restoredRows = 0;
+
+            localKeys.forEach((k, i) => {
+                const server = sheetByKey.get(k);
+                if (!server) return;
+                const row = tableData[i];
+                for (let c = 1; c <= 5; c++) {
+                    const had = String(server[c] ?? '').trim();
+                    const now = String(row[c] ?? '').trim();
+                    if (had && !now && !explicitClears.has(row[0] + '|' + c)) {
+                        row[c] = server[c];
+                        restoredCells++;
+                    }
+                }
+            });
+
+            // Rows added to the sheet after this page loaded (e.g. new orders from the webhook)
+            sheetKeys.forEach((k, i) => {
+                const r = sheetRows[i];
+                if (localKeySet.has(k) || deletedIds.has(String(r[0]))) return;
+                const copy = r.slice(0, 7);
+                while (copy.length < 7) copy.push('');
+                if (!String(copy[6]).trim()) copy[6] = 'DA';
+                tableData.push(copy);
+                restoredRows++;
+            });
+
+            return { restoredCells, restoredRows };
         }
 
         function discardChanges() {
@@ -1949,6 +2008,8 @@
             }
 
             row[4] = serializeBadges(badges);
+            const clearKey = row[0] + '|4';
+            if (String(row[4]).trim() === '') explicitClears.add(clearKey); else explicitClears.delete(clearKey);
             markUnsavedChanges();
             renderTable();
             renderPopoverBadgeList(document.getElementById('popoverSearchInput').value.trim());
@@ -2033,7 +2094,13 @@
         }
 
         function updateData(rowIndex, colIndex, value) {
-            tableData[rowIndex][colIndex] = value;
+            const row = tableData[rowIndex];
+            if (colIndex === 0 && row[0] && String(row[0]) !== value) deletedIds.add(String(row[0])); // renamed ID: old one must not come back
+            if (colIndex > 0) {
+                const key = row[0] + '|' + colIndex;
+                if (String(value).trim() === '') explicitClears.add(key); else explicitClears.delete(key);
+            }
+            row[colIndex] = value;
             markUnsavedChanges();
         }
 
@@ -2046,6 +2113,7 @@
             if(confirm("Sigurno želiš obrisati ovaj red?")) {
                 const deletedRowArr = tableData.splice(index, 1);
                 const deletedId = deletedRowArr[0][0];
+                if (deletedId) deletedIds.add(String(deletedId));
                 groupMeta.forEach(g => {
                     g.orderIds = g.orderIds.filter(id => id !== deletedId);
                 });
@@ -2090,6 +2158,7 @@
             if (!confirm(`Sigurno želiš obrisati ${selectedIds.length} označenih redaka?`)) return;
 
             const idSet = new Set(selectedIds);
+            selectedIds.forEach(id => deletedIds.add(String(id)));
             tableData = tableData.filter((row, idx) => {
                 const rowId = row[0] ? String(row[0]) : 'INDEX_' + idx;
                 return !idSet.has(rowId);
@@ -2195,6 +2264,19 @@
             }
             document.getElementById('loader').style.display = 'block';
 
+            let guardNote = '';
+            try {
+                const g = await guardAgainstDataLoss();
+                if (g.restoredCells || g.restoredRows) {
+                    guardNote = ` (zaštita vratila ${g.restoredCells} polja i ${g.restoredRows} redaka iz tablice)`;
+                }
+            } catch (err) {
+                console.error(err);
+                document.getElementById('loader').style.display = 'none';
+                showToast("Ne mogu provjeriti tablicu prije spremanja – spremanje prekinuto. Pokušaj ponovno.", true);
+                return;
+            }
+
             // Build uniform rectangular matrix
             // Ensure headerRow and all data rows have the EXACT same number of columns
             const allRows = [headerRow, ...tableData];
@@ -2251,11 +2333,13 @@
                     body: JSON.stringify({
                         action: 'syncSheet',
                         data: dataToSave,
-                        meta: paddedMeta
+                        meta: paddedMeta,
+                        explicitClears: [...explicitClears],
+                        deletedIds: [...deletedIds]
                     })
                 });
                 
-                showToast("Promjene uspješno spremljene!");
+                showToast("Promjene uspješno spremljene!" + guardNote);
                 clearUnsavedChanges();
                 if (isEditMode) toggleEditMode();
                 setTimeout(() => loadData(), 1000);

@@ -431,7 +431,7 @@ const META_DEFAULT_API_VERSION = 'v26.0';
 const PURCHASE_EVENT_SOURCE_URL = 'https://nemaneide.ursaprotocol.com/';
 const POSTHOG_CAPTURE_URL = 'https://eu.i.posthog.com/i/v0/e/';
 // Public PostHog project ingestion key (already in the site's HTML). Not a secret.
-const POSTHOG_PROJECT_KEY = 'phc_fDON0VrLGNJfrRZtdpYKUuNj9G4GBvZILjOM7kadxP';
+const POSTHOG_PROJECT_KEY = 'phc_AuRfJaborn4gGwAvKQAzWJtkQ8KWBbk6ruoBPymR3jAo';
 
 const ATTRIBUTION_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_id', 'utm_term', 'utm_content',
     'fbclid', 'ad_id', 'adset_id', 'placement'];

@@ -49,10 +49,10 @@ Otvori node **Config** i upiši:
 
 | Polje | Vrijednost |
 | --- | --- |
-| `META_PIXEL_ID` | **obavezno**: ID dataseta/pixela (Events Manager, broj ispod imena dataseta). Dok je `SET_ME`, CAPI se preskače. |
+| `META_PIXEL_ID` | već upisano: `1375315374544689` (dataset "Ursa Protocol (ursaprotocol.com)"). Dok je `SET_ME`, CAPI se preskače. |
 | `META_API_VERSION` | `v26.0` (ne diraj dok Meta ne ugasi verziju) |
 | `META_TEST_EVENT_CODE` | prazno. Samo za testiranje: kod iz Events Manager → **Test events** (npr. `TEST12345`). Poslije obavezno obrisati. |
-| `POSTHOG_PROJECT_ID` | **obavezno**: broj projekta (PostHog → Settings → Project → *Project ID*, ili broj u URL-u `/project/12345`). Dok je `SET_ME`, nema mailova ni Slacka. |
+| `POSTHOG_PROJECT_ID` | već upisano: `367703`. Dok je `SET_ME`, nema mailova ni Slacka. |
 | `POSTHOG_HOST` | `https://eu.posthog.com` |
 | `SLACK_CHANNEL` | `ursa-odobrenje` |
 | `EMAIL_FROM` | `Ursa <ursa@nemaneide.com>` |

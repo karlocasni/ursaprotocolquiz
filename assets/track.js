@@ -7,7 +7,7 @@
  * Ovdje nema tajni: pixel ID i webhook URL su javni po prirodi.
  */
 (function () {
-    const PIXEL_ID = ''; // Meta dataset/pixel ID; dok je prazan, pixel se ne učitava
+    const PIXEL_ID = '1375315374544689'; // Meta dataset "Ursa Protocol (ursaprotocol.com)"; prazan = pixel se ne učitava
     const CAPI_URL = 'https://egzosfera.app.n8n.cloud/webhook/ursa-capi';
     const KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_id', 'utm_term', 'utm_content', 'fbclid', 'ad_id', 'adset_id', 'placement'];
     const ROOT = /(^|\.)ursaprotocol\.com$/.test(location.hostname) ? 'ursaprotocol.com' : '';

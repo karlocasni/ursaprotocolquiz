@@ -83,7 +83,7 @@
             {
               "id": "8668451f-7e40-4d29-a49b-dae4c376a563",
               "name": "META_PIXEL_ID",
-              "value": "SET_ME",
+              "value": "1375315374544689",
               "type": "string"
             },
             {
@@ -101,7 +101,7 @@
             {
               "id": "17193886-9645-4a50-a8bf-bfd4ecb1d2d0",
               "name": "POSTHOG_PROJECT_ID",
-              "value": "SET_ME",
+              "value": "367703",
               "type": "string"
             },
             {

@@ -13,7 +13,7 @@ Pušta je vlasnik, i tek nakon što je dedup potvrđen u Test Events (docs/track
 | | | Isključeno: followeri Pagea/IG-a, postojeći klijenti (customer lista), kupci (`Purchase` 180 dana) |
 | Ad | `STATIC_LETAK_4x5` | statika 4:5, letak "Tražim ljude koji su sve probali i ništa nije upalilo" |
 | Ad | `STATIC_ISTIPLAN_4x5` | statika 4:5, billboard "Isti plan ne radi za sva tijela" |
-| Ad | `VIDEO_4RAZLOGA_25s` | **iz postojećeg organskog reela (post ID), nikad fresh upload** |
+| Ad | `VIDEO_4RAZLOGA_58s` | video 9:16, dark post (odluka vlasnika 25. 11. 2026.) |
 
 Sva tri ada u istom ad setu, ne dijeliti po spolu.
 
@@ -98,4 +98,19 @@ Headline "Saznaj koji si od 4 tipa tijela" · Description "Besplatni kviz, 2 min
 
 Obje: Advantage+ creative i automatske preinake (tekst, slika, animacija) isključeni, isti `url_tags` kao prije.
 
-**VIDEO_4RAZLOGA**: `IMG_5903.MP4`, 57,6 s, 1080×1920. Čeka odluku: objaviti kao reel pa oglas iz posta (pravilo iz briefa) ili upload kao dark post.
+**VIDEO_4RAZLOGA_58s** (ad `120255099056770120`, kreativa `28531678013173914`, video `1118486477885143`)
+
+`IMG_5903.MP4`, 57,6 s, 1080×1920. Vlasnik je 25. 11. 2026. odlučio da ide kao **dark post** (samo oglas, bez organske objave),
+iznimka od pravila iz briefa. Kod skaliranja i dupliciranja koristiti **isti post** (`effective_object_story_id`
+ovog oglasa), da lajkovi i komentari ostanu na jednom mjestu. Video je na Metu povučen s privremenog brancha koji je obrisan.
+
+> Postoje 4 razloga zbog kojih ljudi ne dođu do forme koju žele. Ja znam sva četiri. Ne znam samo koji je tvoj.
+>
+> Zato sam napravio kviz od 10 kratkih pitanja. Traje 2 minute, a na kraju saznaješ koji si od 4 tipa tijela i što ti točno treba u sljedećih 90 dana.
+>
+> — Stjepan Ursa
+
+Headline "Koji je tvoj razlog?" · Description "Besplatni kviz, 2 minute" · CTA Learn more
+
+Napomene za iduću verziju videa: rez na ~25 s, početi s "Postoje točno 4 razloga…" umjesto kadra iz teretane,
+"90 % planova" i "3 %" zamijeniti formulacijom bez brojki, izbaciti "savršen izgled" (Meta pravilo o negativnoj slici o sebi).

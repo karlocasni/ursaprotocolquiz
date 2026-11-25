@@ -1,0 +1,46 @@
+<!--
+  Ursa: Meta pixel za checkout na nemaneide.ursaprotocol.com (SureCart / WordPress).
+  Ovo nije dio sajta na GitHub Pagesu. Zalijepi ga u <head> svih stranica checkout weba
+  (npr. plugin WPCode → Header, "Site Wide Header"). Ne instaliraj usput još jedan Meta plugin:
+  dva pixela = dvostruki eventi.
+
+  Što radi:
+  - PageView na svakoj stranici checkouta
+  - Purchase na stranici potvrde, i to SAMO ako iz URL-a pročita SureCart order ID.
+    Taj ID je eventID, isti kao event_id koji Apps Script šalje u Conversions API → Meta ih spaja.
+    Bez order ID-a ne šalje ništa, pa Purchase pokriva sam CAPI i nema dvostrukog brojanja.
+  - value/currency čita iz cookieja ursa_ck koji VSL postavi pri kliku na checkout.
+
+  PIXEL_ID je javan podatak (nije token). Vrijednost: isti ID kao u assets/track.js.
+  Ako nakon testne uplate URL potvrde ne sadrži nijedan od ORDER_PARAMS, javi kako izgleda pa se lista dopuni.
+-->
+<script>
+(function () {
+  var PIXEL_ID = 'SET_ME';
+  var ORDER_PARAMS = ['sc_order', 'order_id', 'order'];
+  if (!PIXEL_ID || PIXEL_ID === 'SET_ME') return;
+
+  !function (f, b, e, v, n, t, s) {
+    if (f.fbq) return; n = f.fbq = function () { n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments); };
+    if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0'; n.queue = []; t = b.createElement(e); t.async = !0;
+    t.src = v; s = b.getElementsByTagName(e)[0]; s.parentNode.insertBefore(t, s);
+  }(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', PIXEL_ID);
+  fbq('track', 'PageView');
+
+  var q = new URLSearchParams(location.search), orderId = '';
+  for (var i = 0; i < ORDER_PARAMS.length && !orderId; i++) orderId = q.get(ORDER_PARAMS[i]) || '';
+  if (!orderId) return;
+
+  // Ne šalji isti Purchase dvaput ako se stranica potvrde osvježi
+  var seenKey = 'ursa_purchase_' + orderId;
+  try { if (localStorage.getItem(seenKey)) return; localStorage.setItem(seenKey, '1'); } catch (e) {}
+
+  var ck = {};
+  try { var m = document.cookie.match(/(?:^|; )ursa_ck=([^;]*)/); if (m) ck = JSON.parse(decodeURIComponent(m[1])); } catch (e) {}
+  var data = { currency: ck.currency || 'EUR' };
+  if (ck.value) data.value = Number(ck.value);
+  if (ck.plan) data.content_name = ck.plan;
+  fbq('track', 'Purchase', data, { eventID: orderId });
+})();
+</script>

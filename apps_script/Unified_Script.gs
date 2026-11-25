@@ -150,12 +150,7 @@ function doPost(e) {
     
     // 3. KVIZ: NORMAL LEAD (If applicable from frontend instead of SureCart)
     if (payload.action === 'lead') {
-        let leadsSheet = ss.getSheetByName('Leads');
-        if (!leadsSheet) {
-            leadsSheet = ss.insertSheet('Leads');
-            leadsSheet.appendRow(["Timestamp", "Ime", "Email", "Vrsta", "Cilj", "DatumPrijave"]);
-        }
-        leadsSheet.appendRow([new Date(), payload.name || "", payload.email || "", "Lead", payload.goal || "", new Date()]);
+        handleLead(payload, ss);
         return response;
     }
 
@@ -168,12 +163,16 @@ function doPost(e) {
             return response;
         }
 
+        // Filled in only when a NEW row lands in Sheet1; sent after the lock is released (see finally)
+        let purchaseJob = null;
+
         try {
             const eventData = payload.data.object || payload.data;
 
         // --- STEP 1: Extract a stable transaction ID from the raw payload BEFORE any API calls ---
-        // Use the most stable identifier available: initial_order > id from eventData
-        const rawTransactionId = String(eventData.initial_order || eventData.id || '');
+        // This is the SureCart ORDER id: charge.order > purchase.initial_order > id (an order object's own id).
+        // See extractSureCartOrderId(). It doubles as the dedup key and as the Meta/PostHog event_id.
+        const rawTransactionId = extractSureCartOrderId(eventData);
 
         // --- STEP 2: Log to RawLogs immediately ---
         const logSheet = ss.getSheetByName("RawLogs") || ss.insertSheet("RawLogs");
@@ -209,12 +208,13 @@ function doPost(e) {
         };
 
         let name = "N/A", email = "N/A", phone = "N/A", variantName = "Ursa Protocol", cleanId = orderId;
+        let custData = null, priceData = null, orderData = null; // kept for the Purchase tracking below
 
         // Fetch Customer
         if (customerId) {
             const custRes = UrlFetchApp.fetch("https://api.surecart.com/v1/customers/" + customerId, options);
             if (custRes.getResponseCode() === 200) {
-                const custData = JSON.parse(custRes.getContentText());
+                custData = JSON.parse(custRes.getContentText());
                 name = custData.name || (custData.first_name + " " + (custData.last_name || "")) || "N/A";
                 email = custData.email || "N/A";
                 phone = custData.phone || "N/A";
@@ -225,7 +225,7 @@ function doPost(e) {
         if (priceId) {
             const priceRes = UrlFetchApp.fetch("https://api.surecart.com/v1/prices/" + priceId, options);
             if (priceRes.getResponseCode() === 200) {
-                const priceData = JSON.parse(priceRes.getContentText());
+                priceData = JSON.parse(priceRes.getContentText());
                 variantName = priceData.label || priceData.name || variantName;
             }
         }
@@ -234,7 +234,7 @@ function doPost(e) {
         if (orderId) {
             const orderRes = UrlFetchApp.fetch("https://api.surecart.com/v1/orders/" + orderId, options);
             if (orderRes.getResponseCode() === 200) {
-                const orderData = JSON.parse(orderRes.getContentText());
+                orderData = JSON.parse(orderRes.getContentText());
                 cleanId = orderData.number || orderId;
             }
         }
@@ -262,11 +262,24 @@ function doPost(e) {
                 new Date().toISOString(),
                 "DA" // Plaćeno default
             ]);
+
+            purchaseJob = {
+                // Prefer the id SureCart itself returned for the order; fall back to the webhook's order id
+                orderId: String((orderData && orderData.id) || orderId),
+                orderNumber: String(cleanId),
+                email: email, phone: phone, name: name, variantName: variantName,
+                eventData: eventData, custData: custData, priceData: priceData, orderData: orderData
+            };
         }
 
         return response;
         } finally {
             lock.releaseLock();
+            // Meta CAPI + PostHog Purchase. Runs after the lock is released (a duplicate webhook already
+            // finds this order in RawLogs), and can never throw into the webhook response.
+            if (purchaseJob) {
+                try { sendPurchaseTracking(ss, purchaseJob); } catch (trackErr) { Logger.log("Purchase tracking error: " + trackErr); }
+            }
         }
     }
 
@@ -371,7 +384,25 @@ function updateDropoffTally(doc) {
   statsSheet.appendRow(["Pitanje na kojem je korisnik odustao", "Broj ljudi"]);
   statsSheet.getRange("A1:B1").setFontWeight("bold");
   
-  const dropoffSteps = ['Kartica 1 (Početak)','Pitanje 1 (Spol)','Pitanje 2 (Cilj)','Pitanje 3 (Godine)','Pitanje 4 (Tip tijela)','Pitanje 5 (Ime)','Pitanje 6 (Motivacija)','Pitanje 7 (Iskustvo)','Pitanje 8 (Pokušaji)','Pitanje 9 (Prehrana)','Pitanje 10 (Frustracija)','Pitanje 11 (Razlog zašto ne)','Loading ekran...','Pitanje 12 (Strah)','Pitanje 13 (Jedna stvar)','Email unos','Zadnji ekran (Spreman)','Završio kviz (VSL)'];
+  // Flow order of the step names the quiz sends (index.html). Unknown names are appended below.
+  const dropoffSteps = [
+    'Kartica 1 (Početak)',
+    'Pitanje 1 (Spol)',
+    'Pitanje 2 (Cilj)',
+    'Pitanje 3 (Godine)',
+    'Pitanje 4 (Tip tijela)',
+    'Pitanje 5 (Ime)',
+    'Pitanje 6 (Motivacija)',
+    'Pitanje 7 (Iskustvo)',
+    'Pitanje 8 (Pokušaji)',
+    'Pitanje 9 (Prehrana)',
+    'Pitanje 10 (Strah)',
+    'Video je spreman',
+    'Loading ekran...',
+    'Rezultat (Tip tijela)',
+    'Zadnji ekran (Spreman)',
+    'Završio kviz (VSL)'
+  ];
   
   let totalRows = [];
   dropoffSteps.forEach(function(step) {
@@ -389,6 +420,363 @@ function updateDropoffTally(doc) {
   if (totalRows.length > 0) {
     statsSheet.getRange(2, 1, totalRows.length, 2).setValues(totalRows);
   }
+}
+
+
+// --- LEADS + PURCHASE TRACKING (Meta CAPI, PostHog) ---
+// Contract: docs/tracking.md. No secrets here: Meta values come from Script Properties
+// META_PIXEL_ID, META_CAPI_TOKEN, optional META_TEST_EVENT_CODE, optional META_API_VERSION.
+const SPREADSHEET_ID = '1jbSOKSfX6I0vMwiiSJiuHOtmhK_ozJ0L6yO11xppKlQ';
+const META_DEFAULT_API_VERSION = 'v26.0';
+const PURCHASE_EVENT_SOURCE_URL = 'https://nemaneide.ursaprotocol.com/';
+const POSTHOG_CAPTURE_URL = 'https://eu.i.posthog.com/i/v0/e/';
+// Public PostHog project ingestion key (already in the site's HTML). Not a secret.
+const POSTHOG_PROJECT_KEY = 'phc_fDON0VrLGNJfrRZtdpYKUuNj9G4GBvZILjOM7kadxP';
+
+const ATTRIBUTION_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_id', 'utm_term', 'utm_content',
+    'fbclid', 'ad_id', 'adset_id', 'placement'];
+// Original 'Leads' columns. Never reorder or rename: old rows depend on them.
+const LEAD_BASE_HEADERS = ["Timestamp", "Ime", "Email", "Vrsta", "Cilj", "DatumPrijave"];
+// Added to the RIGHT of the existing columns. Rows are written by header name, so order drift is harmless.
+const LEAD_EXTRA_HEADERS = ['event_id', 'bodytype', 'age', 'motivation', 'struggle', 'tried', 'diet', 'fear']
+    .concat(ATTRIBUTION_KEYS)
+    .concat(['fbp', 'fbc', 'user_agent', 'ph_distinct_id', 'page_url']);
+const LEAD_QUIZ_KEYS = ['bodytype', 'age', 'motivation', 'struggle', 'tried', 'diet', 'fear'];
+
+// Quiz lead -> 'Leads' sheet. Keeps the old 6 columns, appends the tracking columns by header name.
+function handleLead(payload, ss) {
+    const lock = LockService.getScriptLock();
+    let locked = false;
+    try { lock.waitLock(10000); locked = true; } catch (lockErr) { /* write anyway, as before */ }
+    try {
+        const sheet = ss.getSheetByName('Leads') || ss.insertSheet('Leads');
+        const headers = ensureHeaders(sheet, LEAD_BASE_HEADERS.concat(LEAD_EXTRA_HEADERS));
+
+        // Fields arrive at the top level (docs/tracking.md); nested attribution/quiz objects are a fallback
+        const attr = (payload.attribution && typeof payload.attribution === 'object') ? payload.attribution : {};
+        const quiz = (payload.quiz && typeof payload.quiz === 'object') ? payload.quiz : {};
+        const pick = function (key, nested) {
+            const v = payload[key];
+            if (v !== undefined && v !== null && v !== '') return String(v);
+            const n = nested && nested[key];
+            return (n !== undefined && n !== null) ? String(n) : '';
+        };
+
+        const now = new Date();
+        const values = {};
+        values['timestamp'] = now;
+        values['ime'] = payload.name || "";
+        values['email'] = String(payload.email || "").trim().toLowerCase();
+        values['vrsta'] = "Lead";
+        values['cilj'] = payload.goal || "";
+        values['datumprijave'] = now;
+        LEAD_EXTRA_HEADERS.forEach(function (h) {
+            const nested = ATTRIBUTION_KEYS.indexOf(h) > -1 ? attr : (LEAD_QUIZ_KEYS.indexOf(h) > -1 ? quiz : null);
+            values[h] = pick(h, nested);
+        });
+
+        const row = headers.map(function (h) {
+            const k = String(h).trim().toLowerCase();
+            return Object.prototype.hasOwnProperty.call(values, k) ? values[k] : '';
+        });
+        const rowIndex = sheet.getLastRow() + 1;
+        // Tracking columns as plain text, so Sheets never turns a utm value into a date or number
+        const textCells = [];
+        headers.forEach(function (h, i) {
+            if (LEAD_EXTRA_HEADERS.indexOf(String(h).trim().toLowerCase()) > -1) textCells.push(columnLetter(i + 1) + rowIndex);
+        });
+        if (textCells.length) sheet.getRangeList(textCells).setNumberFormat('@');
+        sheet.getRange(rowIndex, 1, 1, row.length).setValues([row]);
+    } finally {
+        if (locked) lock.releaseLock();
+    }
+}
+
+// Makes sure every wanted header exists in row 1. Existing headers stay where they are (old rows are not
+// touched); missing ones are added to the right. Returns the full header row.
+function ensureHeaders(sheet, wanted) {
+    const lastCol = sheet.getLastColumn();
+    const headers = (sheet.getLastRow() > 0 && lastCol > 0)
+        ? sheet.getRange(1, 1, 1, lastCol).getValues()[0].map(function (h) { return String(h); })
+        : [];
+    const have = {};
+    headers.forEach(function (h) { have[h.trim().toLowerCase()] = true; });
+    const missing = wanted.filter(function (h) { return !have[h.trim().toLowerCase()]; });
+    if (missing.length) {
+        sheet.getRange(1, headers.length + 1, 1, missing.length).setValues([missing]);
+        return headers.concat(missing);
+    }
+    return headers;
+}
+
+function columnLetter(n) {
+    let s = '';
+    while (n > 0) {
+        const m = (n - 1) % 26;
+        s = String.fromCharCode(65 + m) + s;
+        n = Math.floor((n - 1) / 26);
+    }
+    return s;
+}
+
+// Most recent 'Leads' row with this email, as {lowercased header: display value}. null if none.
+function findLatestLead(ss, email) {
+    const target = String(email || '').trim().toLowerCase();
+    if (!target || target === 'n/a') return null;
+    const sheet = ss.getSheetByName('Leads');
+    if (!sheet || sheet.getLastRow() < 2) return null;
+    const data = sheet.getDataRange().getDisplayValues();
+    const headers = data[0].map(function (h) { return String(h).trim().toLowerCase(); });
+    const emailCol = headers.indexOf('email');
+    if (emailCol === -1) return null;
+    for (let i = data.length - 1; i >= 1; i--) {
+        if (String(data[i][emailCol]).trim().toLowerCase() === target) {
+            const lead = {};
+            headers.forEach(function (h, c) { if (h) lead[h] = String(data[i][c] || '').trim(); });
+            return lead;
+        }
+    }
+    return null;
+}
+
+function idOf(v) {
+    if (!v) return '';
+    if (typeof v === 'object') return v.id ? String(v.id) : '';
+    return String(v);
+}
+
+// SureCart ORDER id of a webhook object (used for dedup in RawLogs/Sheet1 and as the Purchase event_id):
+// - charge objects reference their order in `order`            -> charge.order
+// - purchase objects reference the order that created them      -> purchase.initial_order
+// - order objects (order.created)                               -> order.id
+// Values may be plain ids or expanded objects. For purchase/order objects this returns the same value as
+// the previous `initial_order || id`, so RawLogs dedup keeps matching older rows.
+function extractSureCartOrderId(obj) {
+    if (!obj) return '';
+    return idOf(obj.order) || idOf(obj.initial_order) || idOf(obj.id);
+}
+
+function firstNumber() {
+    for (let i = 0; i < arguments.length; i++) {
+        const v = arguments[i];
+        if (v === undefined || v === null || v === '') continue;
+        const n = Number(v);
+        if (isFinite(n)) return n;
+    }
+    return null;
+}
+
+function sureCartGet(path) {
+    try {
+        const res = UrlFetchApp.fetch("https://api.surecart.com/v1/" + path, {
+            method: "GET",
+            headers: { "Authorization": "Bearer " + SURECART_API_KEY },
+            muteHttpExceptions: true
+        });
+        if (res.getResponseCode() === 200) return JSON.parse(res.getContentText());
+    } catch (err) {
+        Logger.log("SureCart GET " + path + " failed: " + err);
+    }
+    return null;
+}
+
+// Paid amount in euros. SureCart amounts are integer cents. The order object has no total, its checkout
+// does (total_amount = after discounts), so the checkout is fetched when only its id is known.
+function resolvePurchaseAmount(job) {
+    const ev = job.eventData || {}, order = job.orderData || {}, price = job.priceData || {};
+    let checkout = (order.checkout && typeof order.checkout === 'object') ? order.checkout
+        : (ev.checkout && typeof ev.checkout === 'object') ? ev.checkout : null;
+    const checkoutId = checkout ? '' : (idOf(order.checkout) || idOf(ev.checkout));
+    if (!checkout && checkoutId) checkout = sureCartGet('checkouts/' + encodeURIComponent(checkoutId));
+    checkout = checkout || {};
+
+    let cents = firstNumber(checkout.total_amount, checkout.amount_due, order.total_amount,
+        ev.total_amount, ev.amount);
+    if (cents === null && price.amount !== undefined) {
+        const unit = firstNumber(price.amount);
+        if (unit !== null) cents = unit * (firstNumber(ev.quantity) || 1);
+    }
+    const currency = String(checkout.currency || order.currency || ev.currency || price.currency || 'EUR').toUpperCase();
+    return { value: cents === null ? 0 : Math.round(cents) / 100, currency: currency, checkout: checkout };
+}
+
+function sha256Hex(str) {
+    const bytes = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, str, Utilities.Charset.UTF_8);
+    return bytes.map(function (b) { return ((b + 256) % 256).toString(16); })
+        .map(function (h) { return h.length === 1 ? '0' + h : h; }).join('');
+}
+
+function normalizeText(v) {
+    const s = String(v || '').trim().toLowerCase();
+    return (s === 'n/a' || s === 'null' || s === 'undefined') ? '' : s;
+}
+
+// Digits only, '00' prefix dropped, a single leading '0' (Croatian national format) becomes '385'.
+function normalizePhone(v) {
+    let d = String(v || '').replace(/\D/g, '');
+    if (d.indexOf('00') === 0) d = d.slice(2);
+    else if (d.indexOf('0') === 0) d = '385' + d.slice(1);
+    return d;
+}
+
+function hashedIfPresent(value) {
+    return value ? sha256Hex(value) : '';
+}
+
+function logCapi(ss, target, orderId, code, body) {
+    try {
+        const sheet = ss.getSheetByName('CapiLog') || ss.insertSheet('CapiLog');
+        if (sheet.getLastRow() === 0) sheet.appendRow(["Timestamp", "Target", "OrderID", "Code", "Response"]);
+        sheet.appendRow([new Date(), target, String(orderId || ''), String(code), String(body || '').slice(0, 1000)]);
+    } catch (err) {
+        Logger.log("CapiLog error: " + err);
+    }
+}
+
+// Builds the Purchase payload from the SureCart data and sends it to Meta CAPI and PostHog.
+// Every step is isolated: a failure here never touches Sheet1 or the webhook response.
+function sendPurchaseTracking(ss, job) {
+    let amount = { value: 0, currency: 'EUR', checkout: {} };
+    try { amount = resolvePurchaseAmount(job); } catch (err) { Logger.log("Amount error: " + err); }
+    const checkout = amount.checkout || {};
+    const cust = job.custData || {};
+
+    const email = normalizeText(job.email) || normalizeText(checkout.email);
+    const phone = normalizeText(job.phone) || normalizeText(checkout.phone);
+    // Customer first/last name > split of the customer's full name > checkout first/last name
+    const nameParts = normalizeText(job.name).split(/\s+/).filter(String);
+    const firstName = normalizeText(cust.first_name) || nameParts[0] || normalizeText(checkout.first_name);
+    const lastName = normalizeText(cust.last_name) || nameParts.slice(1).join(' ') || normalizeText(checkout.last_name);
+
+    let lead = null;
+    try { lead = findLatestLead(ss, email); } catch (err) { Logger.log("Leads lookup error: " + err); }
+
+    const purchase = {
+        eventId: job.orderId,
+        orderNumber: job.orderNumber,
+        value: amount.value,
+        currency: amount.currency,
+        contentName: job.variantName,
+        email: email, phone: phone, firstName: firstName, lastName: lastName,
+        lead: lead
+    };
+
+    try { sendMetaPurchase(ss, purchase); } catch (err) { logCapi(ss, 'meta', purchase.eventId, 'exception', err); }
+    try { sendPostHogPurchase(ss, purchase); } catch (err) { logCapi(ss, 'posthog', purchase.eventId, 'exception', err); }
+}
+
+function sendMetaPurchase(ss, p) {
+    const props = PropertiesService.getScriptProperties();
+    const pixelId = props.getProperty('META_PIXEL_ID');
+    const token = props.getProperty('META_CAPI_TOKEN');
+    if (!pixelId || !token) {
+        logCapi(ss, 'meta', p.eventId, 'skipped', 'META_PIXEL_ID or META_CAPI_TOKEN not set');
+        return null;
+    }
+    const version = props.getProperty('META_API_VERSION') || META_DEFAULT_API_VERSION;
+    const testCode = props.getProperty('META_TEST_EVENT_CODE');
+    const lead = p.lead || {};
+
+    const userData = {};
+    const em = hashedIfPresent(p.email);
+    const ph = hashedIfPresent(normalizePhone(p.phone));
+    const fn = hashedIfPresent(p.firstName);
+    const ln = hashedIfPresent(p.lastName);
+    if (em) { userData.em = [em]; userData.external_id = [em]; } // external_id = SHA-256 of the lowercased email
+    if (ph) userData.ph = [ph];
+    if (fn) userData.fn = [fn];
+    if (ln) userData.ln = [ln];
+    if (lead.fbc) userData.fbc = lead.fbc;
+    if (lead.fbp) userData.fbp = lead.fbp;
+    if (lead.user_agent) userData.client_user_agent = lead.user_agent;
+
+    const body = {
+        data: [{
+            event_name: 'Purchase',
+            event_time: Math.floor(Date.now() / 1000),
+            event_id: String(p.eventId),
+            action_source: 'website',
+            event_source_url: PURCHASE_EVENT_SOURCE_URL,
+            user_data: userData,
+            custom_data: {
+                value: Number(p.value) || 0,
+                currency: String(p.currency || 'EUR').toUpperCase(),
+                content_name: String(p.contentName || ''),
+                order_id: String(p.eventId)
+            }
+        }]
+    };
+    if (testCode) body.test_event_code = testCode;
+
+    const url = 'https://graph.facebook.com/' + version + '/' + encodeURIComponent(pixelId) +
+        '/events?access_token=' + encodeURIComponent(token);
+    const res = UrlFetchApp.fetch(url, {
+        method: 'post',
+        contentType: 'application/json',
+        payload: JSON.stringify(body),
+        muteHttpExceptions: true
+    });
+    const code = res.getResponseCode();
+    const text = res.getContentText();
+    logCapi(ss, testCode ? 'meta (test)' : 'meta', p.eventId, code, text);
+    return { code: code, body: text };
+}
+
+function sendPostHogPurchase(ss, p) {
+    const lead = p.lead || {};
+    const properties = {
+        value: Number(p.value) || 0,
+        currency: String(p.currency || 'EUR').toUpperCase(),
+        plan: String(p.contentName || ''),
+        order_id: String(p.eventId),
+        order_number: String(p.orderNumber || ''),
+        event_id: String(p.eventId),
+        $insert_id: String(p.eventId)
+    };
+    if (p.email) properties.$set = { email: p.email };
+    ATTRIBUTION_KEYS.forEach(function (k) { if (lead[k]) properties[k] = lead[k]; });
+
+    const res = UrlFetchApp.fetch(POSTHOG_CAPTURE_URL, {
+        method: 'post',
+        contentType: 'application/json',
+        payload: JSON.stringify({
+            api_key: POSTHOG_PROJECT_KEY,
+            event: 'purchase',
+            // Same id as posthog.identify(email) in the quiz; without an email fall back to the order
+            distinct_id: p.email || ('order_' + p.eventId),
+            timestamp: new Date().toISOString(),
+            properties: properties
+        }),
+        muteHttpExceptions: true
+    });
+    logCapi(ss, 'posthog', p.eventId, res.getResponseCode(), res.getContentText());
+}
+
+// Manual check from the Apps Script editor: sends one fake Purchase to Meta Test Events only.
+// Refuses to run unless META_TEST_EVENT_CODE is set, so it can never count as a real sale.
+function testPurchaseCapi() {
+    const props = PropertiesService.getScriptProperties();
+    if (!props.getProperty('META_TEST_EVENT_CODE')) {
+        throw new Error('META_TEST_EVENT_CODE nije postavljen u Script Properties. Test se ne šalje.');
+    }
+    if (!props.getProperty('META_PIXEL_ID') || !props.getProperty('META_CAPI_TOKEN')) {
+        throw new Error('META_PIXEL_ID i META_CAPI_TOKEN moraju biti postavljeni u Script Properties.');
+    }
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    const result = sendMetaPurchase(ss, {
+        eventId: 'test_' + Date.now(),
+        orderNumber: 'TEST',
+        value: 1,
+        currency: 'EUR',
+        contentName: 'TEST purchase',
+        email: 'test@example.com',
+        phone: '0911234567',
+        firstName: 'test',
+        lastName: 'kupac',
+        lead: null
+    });
+    Logger.log(JSON.stringify(result));
+    return result;
 }
 
 

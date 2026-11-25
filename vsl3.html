@@ -18,16 +18,19 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="icon" type="image/png" href="images/favicon.png" />
     <link rel="stylesheet" href="assets/ursa.css?v=1" />
-    <link rel="stylesheet" href="assets/vsl.css?v=1" />
+    <link rel="stylesheet" href="assets/vsl.css?v=2" />
     <link rel="stylesheet" href="assets/sale.css?v=1" />
     <!-- PostHog Snippet -->
     <script>
         !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once register_for_session unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group identify setPersonProperties setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags resetGroups onFeatureFlags addFeatureFlagsHandler onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey getNextSurveyStep".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
         posthog.init('phc_fDON0VrLGNJfrRZtdpYKUuNj9G4GBvZILjOM7kadxP', {
             api_host: 'https://eu.i.posthog.com',
-            defaults: '2026-01-30'
+            defaults: '2026-01-30',
+            disable_session_recording: true // replay samo na quizu
         })
     </script>
+    <!-- Meta pixel + atribucija (docs/tracking.md) -->
+    <script src="assets/track.js?v=1"></script>
 </head>
 
 <!-- Sadržaj ponude, zaključavanje i analitika: assets/vsl-page.js. Player: assets/vsl-player.js -->
@@ -56,7 +59,7 @@
 
     <script src="assets/vsl-player.js?v=1"></script>
     <script src="assets/sale.js?v=1"></script>
-    <script src="assets/vsl-page.js?v=2"></script>
+    <script src="assets/vsl-page.js?v=3"></script>
 </body>
 
 </html>

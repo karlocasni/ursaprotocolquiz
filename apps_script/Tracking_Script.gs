@@ -131,12 +131,10 @@ function updateDropoffTally(doc) {
     'Pitanje 7 (Iskustvo)',
     'Pitanje 8 (Pokušaji)',
     'Pitanje 9 (Prehrana)',
-    'Pitanje 10 (Frustracija)',
-    'Pitanje 11 (Razlog zašto ne)',
+    'Pitanje 10 (Strah)',
+    'Video je spreman',
     'Loading ekran...',
-    'Pitanje 12 (Strah)',
-    'Pitanje 13 (Jedna stvar)',
-    'Email unos',
+    'Rezultat (Tip tijela)',
     'Zadnji ekran (Spreman)',
     'Završio kviz (VSL)'
   ];

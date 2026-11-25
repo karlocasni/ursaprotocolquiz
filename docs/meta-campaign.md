@@ -11,8 +11,8 @@ Pušta je vlasnik, i tek nakon što je dedup potvrđen u Test Events (docs/track
 | Ad set | `BROAD_HR_25-54` | Budžet na ad setu: **20 €/dan je placeholder**, iznos postavlja vlasnik; optimizacija `OFFSITE_CONVERSIONS` na `Lead` (pixel), billing `IMPRESSIONS`, `LOWEST_COST_WITHOUT_CAP` |
 | | | Targeting: HR, 25–54, oba spola, broad (bez interesa), Advantage+ audience isključen, automatski placementi |
 | | | Isključeno: followeri Pagea/IG-a, postojeći klijenti (customer lista), kupci (`Purchase` 180 dana) |
-| Ad | `STATIC_JELACIC_4x5` | statika 4:5 |
-| Ad | `STATIC_BILJEZNICA_4x5` | statika 4:5 |
+| Ad | `STATIC_LETAK_4x5` | statika 4:5, letak "Tražim ljude koji su sve probali i ništa nije upalilo" |
+| Ad | `STATIC_ISTIPLAN_4x5` | statika 4:5, billboard "Isti plan ne radi za sva tijela" |
 | Ad | `VIDEO_4RAZLOGA_25s` | **iz postojećeg organskog reela (post ID), nikad fresh upload** |
 
 Sva tri ada u istom ad setu, ne dijeliti po spolu.
@@ -31,8 +31,8 @@ Kad `Purchase` dođe na ~50 tjedno, za optimizaciju na `Purchase` radi se nova S
 | Dataset/pixel | Ursa Protocol (ursaprotocol.com) | `1375315374544689` |
 | Kampanja | URSA_QUIZ_COLD_2026-11 | `120255092194980120` |
 | Ad set | BROAD_HR_25-54 | `120255092196950120` |
-| Ad | STATIC_JELACIC_4x5 | `120255092206890120` |
-| Ad | STATIC_BILJEZNICA_4x5 | `120255092207080120` |
+| Ad | STATIC_ISTIPLAN_4x5 (prije STATIC_JELACIC_4x5) | `120255092206890120`, kreativa `29784618354475009` |
+| Ad | STATIC_LETAK_4x5 (prije STATIC_BILJEZNICA_4x5) | `120255092207080120`, kreativa `3436249950085852` |
 | Publika | RT_LANDED_NO_QUIZ_7D | `120255092186730120` |
 | Publika | RT_QUIZ_NO_LEAD_14D | `120255092186980120` |
 | Publika (isključena) | EXCL_BUYERS_180D | `120255092187470120` |
@@ -72,3 +72,30 @@ atributima čitatelja ("jesi li debeo", "tvoj višak kilograma") — Meta to odb
 **Headline:** Koji si od 4 tipa tijela?
 **Description:** Besplatni kviz, 2 minute
 **CTA:** Learn more
+
+## Kreative v2 (25. 11. 2026., univerzalne za muškarce i žene)
+
+Slike: `images/ads/STATIC_LETAK_4x5.jpg`, `images/ads/STATIC_JELACIC_4x5.v3.jpg` (1600×2000, Gemini, provenance advertiser).
+Stare kreative (žene, bilježnica) zamijenjene prije ikakvog spenda, pa `utm_content` = novo ime oglasa.
+
+**STATIC_LETAK_4x5**
+> Dijeta. Teretana. Aplikacije. Trčanje u siječnju.
+>
+> Ako ti ništa od toga nije potrajalo, problem vjerojatno nije u tebi, nego u planu koji nije napravljen za tvoje tijelo.
+>
+> Odgovori na 10 kratkih pitanja i saznaj koji si od 4 tipa tijela i što ti točno treba u sljedećih 90 dana. Traje 2 minute, besplatno je.
+
+Headline "Koji si od 4 tipa tijela?" · Description "Besplatni kviz, 2 minute" · CTA Learn more
+
+**STATIC_ISTIPLAN_4x5**
+> Isti plan ne radi za sva tijela.
+>
+> Netko izgubi kile čim izbaci kruh. Netko drugi mjesecima broji kalorije, a vaga se ne pomakne. To nije pitanje volje, nego tipa tijela.
+>
+> Odgovori na 10 kratkih pitanja, saznaj koji si od 4 tipa i što ti točno treba u sljedećih 90 dana. Traje 2 minute.
+
+Headline "Saznaj koji si od 4 tipa tijela" · Description "Besplatni kviz, 2 minute" · CTA Learn more
+
+Obje: Advantage+ creative i automatske preinake (tekst, slika, animacija) isključeni, isti `url_tags` kao prije.
+
+**VIDEO_4RAZLOGA**: `IMG_5903.MP4`, 57,6 s, 1080×1920. Čeka odluku: objaviti kao reel pa oglas iz posta (pravilo iz briefa) ili upload kao dark post.

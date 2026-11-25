@@ -74,7 +74,8 @@ Ključevi: `utm_source utm_medium utm_campaign utm_id utm_term utm_content fbcli
 
 ## Preglednik → Apps Script (lead u Sheet)
 
-Postojeći `SHEETS_URL`, `action: 'lead'`. Uz stara polja (`name`, `email`, `gender`, `goal`) dodaje:
+`SHEETS_URL` u `index.html` je deployment `Unified_Script.gs` (isti kao admin i SureCart webhook), `action: 'lead'`.
+Prije je quiz slao na zaseban `Tracking_Script` deployment, pa Purchase nije mogao naći lead po emailu. Uz stara polja (`name`, `email`, `gender`, `goal`) dodaje:
 `event_id, bodytype, age, motivation, struggle, tried, diet, fear, fbp, fbc, user_agent, ph_distinct_id,
 page_url` i sve ključeve atribucije na vrhu objekta. Apps Script ih piše u sheet `Leads` kao nove stupce
 desno od postojećih, da `Purchase` može po emailu naći `fbc`, `fbp`, user agent i UTM.

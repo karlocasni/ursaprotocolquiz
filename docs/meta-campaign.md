@@ -8,8 +8,8 @@ Pušta je vlasnik, i tek nakon što je dedup potvrđen u Test Events (docs/track
 | Razina | Ime | Postavke |
 | --- | --- | --- |
 | Kampanja | `URSA_QUIZ_COLD_2026-11` | Objective `OUTCOME_LEADS` (vidi napomenu), bez campaign budgeta (ABO), special ad categories `NONE` |
-| Ad set | `BROAD_HR_25-54` | Budžet na ad setu: **20 €/dan je placeholder**, iznos postavlja vlasnik; optimizacija `OFFSITE_CONVERSIONS` na `Lead` (pixel), billing `IMPRESSIONS`, `LOWEST_COST_WITHOUT_CAP` |
-| | | Targeting: HR, 25–54, oba spola, broad (bez interesa), Advantage+ audience isključen, automatski placementi |
+| Ad set | `BROAD_HR_25-54` | Budžet na ad setu: **20 €/dan** (dogovoreno s vlasnikom 25. 11. 2026., prvih 4–5 dana bez izmjena); optimizacija `OFFSITE_CONVERSIONS` na `Lead` (pixel), billing `IMPRESSIONS`, `LOWEST_COST_WITHOUT_CAP` |
+| | | Targeting: HR, 25–54, oba spola, broad (bez interesa), Advantage+ audience isključen. Placementi ručno (25. 11. 2026.): FB Feed, Stories, Reels; IG Feed, Stories, Reels, Explore home. Isključeno: Audience Network, Messenger, Threads, Search, Marketplace, in-stream, right column. Doseg ~1,4–1,7 mil. |
 | | | Isključeno: followeri Pagea/IG-a, postojeći klijenti (customer lista), kupci (`Purchase` 180 dana) |
 | Ad | `STATIC_LETAK_4x5` | statika 4:5, letak "Tražim ljude koji su sve probali i ništa nije upalilo" |
 | Ad | `STATIC_ISTIPLAN_4x5` | statika 4:5, billboard "Isti plan ne radi za sva tijela" |
@@ -114,3 +114,16 @@ Headline "Koji je tvoj razlog?" · Description "Besplatni kviz, 2 minute" · CTA
 
 Napomene za iduću verziju videa: rez na ~25 s, početi s "Postoje točno 4 razloga…" umjesto kadra iz teretane,
 "90 % planova" i "3 %" zamijeniti formulacijom bez brojki, izbaciti "savršen izgled" (Meta pravilo o negativnoj slici o sebi).
+
+## Još nije isključeno: Instagram publika
+
+`EXCL_PAGE_FOLLOWERS` pokriva samo Facebook Page. Instagram engageri (followeri koji su lajkali, komentirali, gledali)
+nisu isključeni. API odbija IG engagement publiku (`#2654`), pa je vlasnik radi u Audiences:
+Custom audience → Instagram account → "Everyone who engaged with this professional account", 365 dana,
+ime `EXCL_IG_ENGAGERS_365D`. Zatim se doda u `excluded_custom_audiences` ad seta `BROAD_HR_25-54`.
+
+## Sljedeći ad setovi (kad budžet poraste)
+
+1. `LAL_CLIENTS_1-3` lookalike 1–3 % iz `EXCL_CLIENTS_LIST` (oko 1.000 kupaca), Hrvatska.
+2. Warm kampanja na IG/FB engagere i followere koji nisu kupili (glavni izvor prihoda do sada), mali budžet.
+3. Retargeting `RT_QUIZ_NO_LEAD_14D` i `RT_LANDED_NO_QUIZ_7D` kad prijeđu ~1.000 ljudi.

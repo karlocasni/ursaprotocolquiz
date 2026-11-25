@@ -1,0 +1,88 @@
+/* Zajednički dizajn za kviz i sve VSL stranice: boje, tipografija, gumbi */
+:root {
+    color-scheme: dark;
+    --bg: #0e0f10;
+    --bg-2: #151618;
+    --bg-3: #1f2124;
+    --line: #2f3236;
+    --text: #fff;
+    --muted: #b6b9be;
+    --faint: #abafb5;
+    --y: #f2b632;
+    --y-hi: #ffcb52;
+    --ink: #141414;
+    --red: #e5604d;
+    --display: 'Archivo', 'Inter', system-ui, sans-serif;
+    --body: 'Inter', system-ui, -apple-system, sans-serif;
+    --gutter: max(5vw, 18px);
+    --wide: 1360px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
+body {
+    font-family: var(--body);
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--text);
+    background: var(--bg) url(../images/web/bg-tile.webp) center top / 1400px;
+    overflow-x: clip;
+    -webkit-font-smoothing: antialiased;
+}
+
+img { display: block; max-width: 100%; height: auto; }
+button { font: inherit; color: inherit; }
+a { color: inherit; }
+
+h1, h2, h3, .display {
+    font-family: var(--display);
+    font-variation-settings: 'wdth' 116;
+    font-weight: 800;
+    line-height: 1.06;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+}
+
+:focus-visible { outline: 3px solid var(--y); outline-offset: 3px; }
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-height: 60px;
+    padding: 16px 34px;
+    border: 0;
+    border-radius: 6px;
+    background: var(--y);
+    color: var(--ink);
+    font-family: var(--display);
+    font-variation-settings: 'wdth' 108;
+    font-weight: 800;
+    font-size: 1.08rem;
+    line-height: 1.2;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    touch-action: manipulation;
+    transition: background 0.18s ease, transform 0.18s ease;
+}
+.btn:hover { background: var(--y-hi); transform: translateY(-2px); }
+.btn:active { transform: translateY(0); }
+.btn--white { background: #fff; color: var(--ink); }
+.btn--white:hover { background: #ececec; }
+.btn--ink { background: var(--ink); color: #fff; }
+.btn--ink:hover { background: #2b2b2b; }
+.btn--line { background: transparent; color: var(--muted); border: 1.5px solid var(--line); font-weight: 600; }
+.btn--line:hover { background: var(--bg-2); color: #fff; }
+
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}
+
+@media (max-width: 680px) {
+    body { background-size: 980px; }
+}

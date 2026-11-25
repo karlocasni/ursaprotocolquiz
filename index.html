@@ -7,878 +7,17 @@
     <title>Tvoj Personalizirani Plan Transformacije</title>
     <meta name="description"
         content="Saznaj svoj personalizirani plan transformacije tijela za 90 dana. Odgovori na kratki kviz i dobij plan napravljen točno za tebe." />
+    <meta name="theme-color" content="#0e0f10" />
     <meta property="og:image" content="https://ursaprotocol.com/images/ogimage.jpeg" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
-        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="icon" type="image/png" href="images/favicon.png" />
-
-    <style>
-        *,
-        *::before,
-        *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        :root {
-            --bg-grad-start: #1D283B;
-            --bg-grad-end: #2D1D3B;
-            --container-bg: rgba(17, 17, 17, 0.75);
-            --text: #ffffff;
-            --accent1: #2596be;
-            --accent2: #08acd2;
-            --accent1-hover: #1d7fa3;
-            --accent2-hover: #069ab9;
-            --option-bg: rgba(255, 255, 255, 0.05);
-            --option-border: rgba(255, 255, 255, 0.12);
-            --option-hover-bg: rgba(37, 150, 190, 0.15);
-            --option-hover-border: #2596be;
-            --option-selected-bg: rgba(37, 150, 190, 0.25);
-            --option-selected-border: #2596be;
-            --green-check: #22c55e;
-            --card-radius: 20px;
-        }
-
-        html,
-        body {
-            height: 100%;
-            font-family: 'Inter', sans-serif;
-            color: var(--text);
-            background: linear-gradient(135deg, var(--bg-grad-start) 0%, var(--bg-grad-end) 100%);
-            background-attachment: fixed;
-            overflow: hidden;
-        }
-
-        body {
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 16px;
-        }
-
-        @media (max-width: 600px) {
-            body {
-                align-items: flex-start;
-                padding-top: 16px;
-                padding-bottom: 16px;
-                height: auto;
-                min-height: 100vh;
-                overflow: auto;
-            }
-
-            html,
-            body {
-                overflow: auto;
-            }
-
-            .quiz-wrapper {
-                max-height: none;
-            }
-
-            .card {
-                max-height: none;
-                overflow-y: visible;
-            }
-        }
-
-        .quiz-wrapper {
-            width: 100%;
-            max-width: 600px;
-            position: relative;
-            max-height: 92vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* ── CARD ── */
-        .card {
-            display: none;
-            background: var(--container-bg);
-            backdrop-filter: blur(18px);
-            -webkit-backdrop-filter: blur(18px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: var(--card-radius);
-            padding: 40px 36px 44px;
-            animation: fadeSlideIn 0.45s cubic-bezier(0.34, 1.2, 0.64, 1) both;
-            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
-            overflow-y: auto;
-            max-height: 100%;
-            scrollbar-width: none;
-            /* Firefox */
-        }
-
-        .card::-webkit-scrollbar {
-            display: none;
-            /* Safari and Chrome */
-        }
-
-        .card.active {
-            display: block;
-        }
-
-        @keyframes fadeSlideIn {
-            from {
-                opacity: 0;
-                transform: translateY(22px) scale(0.98);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
-        /* ── PROGRESS BAR ── */
-        .progress-wrap {
-            margin-bottom: 28px;
-        }
-
-        .progress-label {
-            font-size: 11px;
-            font-weight: 500;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            color: rgba(255, 255, 255, 0.45);
-            margin-bottom: 8px;
-            text-align: right;
-        }
-
-        .progress-track {
-            height: 5px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 99px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--accent1), var(--accent2));
-            border-radius: 99px;
-            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 0 10px rgba(8, 172, 210, 0.6);
-        }
-
-        /* ── TITLE / TEXT ── */
-        .card-title {
-            font-size: 1.85rem;
-            font-weight: 800;
-            line-height: 1.3;
-            margin-bottom: 28px;
-            text-align: center;
-        }
-
-        .card-title span.accent {
-            color: var(--accent2);
-        }
-
-        .card-header-label {
-            font-size: 12px;
-            font-weight: 600;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: var(--accent2);
-            text-align: center;
-            margin-bottom: 10px;
-        }
-
-        .card-text {
-            font-size: 0.95rem;
-            color: rgba(255, 255, 255, 0.75);
-            line-height: 1.7;
-            margin-bottom: 22px;
-            text-align: center;
-        }
-
-        /* ── BULLET LIST ── */
-        .bullet-list {
-            list-style: none;
-            margin-bottom: 24px;
-        }
-
-        .bullet-list li {
-            font-size: 1rem;
-            color: rgba(255, 255, 255, 0.8);
-            padding: 8px 0;
-            padding-left: 20px;
-            position: relative;
-            line-height: 1.5;
-        }
-
-        .bullet-list li::before {
-            content: '›';
-            position: absolute;
-            left: 0;
-            color: var(--accent2);
-            font-weight: 700;
-            font-size: 1.2rem;
-        }
-
-        .bullet-list.no-arrows li::before {
-            content: none;
-        }
-
-        .bullet-list.no-arrows li {
-            padding-left: 0;
-            text-align: center;
-        }
-
-        /* ── CHECK LIST ── */
-        .check-list {
-            list-style: none;
-            margin-bottom: 28px;
-        }
-
-        .check-list li {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 0.95rem;
-            color: rgba(255, 255, 255, 0.85);
-            padding: 9px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-        }
-
-        .check-list li:last-child {
-            border-bottom: none;
-        }
-
-        .check-list .check-icon {
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
-            background: rgba(34, 197, 94, 0.15);
-            border: 1.5px solid var(--green-check);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            color: var(--green-check);
-            font-size: 11px;
-        }
-
-        /* ── OPTIONS ── */
-        .options-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-bottom: 10px;
-        }
-
-        .options-grid.two-col {
-            flex-direction: row;
-            gap: 14px;
-        }
-
-        .option-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            width: 100%;
-            padding: 16px 20px;
-            background: var(--option-bg);
-            border: 1.5px solid var(--option-border);
-            border-radius: 12px;
-            color: var(--text);
-            font-family: 'Inter', sans-serif;
-            font-size: 0.95rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.22s ease;
-            text-align: center;
-            line-height: 1.4;
-            user-select: none;
-            -webkit-user-select: none;
-            touch-action: manipulation;
-        }
-
-        .option-btn:hover {
-            background: var(--option-hover-bg);
-            border-color: var(--option-hover-border);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(37, 150, 190, 0.2);
-        }
-
-        .option-btn.selected {
-            background: var(--option-selected-bg);
-            border-color: var(--option-selected-border);
-            box-shadow: 0 0 0 1px var(--accent2) inset, 0 6px 20px rgba(37, 150, 190, 0.2);
-        }
-
-        .option-btn .opt-icon {
-            font-size: 1.5rem;
-            line-height: 1;
-        }
-
-        .option-body-img {
-            width: 48px;
-            height: 70px;
-            object-fit: cover;
-            border-radius: 6px;
-            background: rgba(255, 255, 255, 0.08);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-            flex-shrink: 0;
-        }
-
-        /* ── PRIMARY BUTTON ── */
-        .btn-primary {
-            display: block;
-            width: 100%;
-            padding: 17px 24px;
-            background: linear-gradient(135deg, var(--accent1), var(--accent2));
-            border: none;
-            border-radius: 12px;
-            color: #fff;
-            font-family: 'Inter', sans-serif;
-            font-size: 1.05rem;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            cursor: pointer;
-            transition: all 0.25s ease;
-            text-align: center;
-            box-shadow: 0 8px 24px rgba(8, 172, 210, 0.35);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn-primary::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, transparent 60%);
-            border-radius: 12px;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 32px rgba(8, 172, 210, 0.5);
-        }
-
-        .btn-primary:active {
-            transform: translateY(0);
-        }
-
-        .btn-secondary {
-            display: block;
-            width: 100%;
-            padding: 15px 24px;
-            background: rgba(255, 255, 255, 0.07);
-            border: 1.5px solid rgba(255, 255, 255, 0.18);
-            border-radius: 12px;
-            color: rgba(255, 255, 255, 0.55);
-            font-family: 'Inter', sans-serif;
-            font-size: 1rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.22s ease;
-            text-align: center;
-            margin-top: 10px;
-        }
-
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.11);
-            color: rgba(255, 255, 255, 0.75);
-        }
-
-        /* ── INPUT FIELD ── */
-        .input-group {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: rgba(255, 255, 255, 0.06);
-            border: 1.5px solid rgba(255, 255, 255, 0.14);
-            border-radius: 12px;
-            padding: 0 18px;
-            margin-bottom: 20px;
-            transition: border-color 0.2s;
-        }
-
-        .input-group:focus-within {
-            border-color: var(--accent2);
-            background: rgba(8, 172, 210, 0.06);
-        }
-
-        .input-group i {
-            color: rgba(255, 255, 255, 0.35);
-            font-size: 1rem;
-        }
-
-        .input-group input {
-            flex: 1;
-            background: transparent;
-            border: none;
-            outline: none;
-            color: #fff;
-            font-family: 'Inter', sans-serif;
-            font-size: 1rem;
-            padding: 17px 0;
-        }
-
-        .input-group input::placeholder {
-            color: rgba(255, 255, 255, 0.3);
-        }
-
-        /* ── TRANSFORMATION IMAGES ── */
-        .transform-images {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 24px;
-        }
-
-        .transform-img {
-            flex: 1;
-            aspect-ratio: 3/4;
-            background: rgba(255, 255, 255, 0.07);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            gap: 8px;
-            border: 1.5px solid rgba(255, 255, 255, 0.1);
-            font-size: 0.75rem;
-            font-weight: 700;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: rgba(255, 255, 255, 0.5);
-            min-height: 180px;
-        }
-
-        .transform-img i {
-            font-size: 2.5rem;
-            opacity: 0.25;
-        }
-
-        .transform-label {
-            background: rgba(0, 0, 0, 0.5);
-            padding: 4px 14px;
-            border-radius: 6px;
-            font-size: 0.7rem;
-            font-weight: 800;
-            letter-spacing: 3px;
-        }
-
-        /* ── TESTIMONIAL ── */
-        .testimonial-icon-wrap {
-            text-align: center;
-            font-size: 3.5rem;
-            margin-bottom: 16px;
-        }
-
-        .testimonial-imgs {
-            width: 100%;
-            aspect-ratio: 16/7;
-            background: rgba(255, 255, 255, 0.06);
-            border-radius: 12px;
-            border: 1.5px dashed rgba(255, 255, 255, 0.15);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            gap: 8px;
-            margin: 20px 0;
-            color: rgba(255, 255, 255, 0.3);
-            font-size: 0.8rem;
-        }
-
-        .testimonial-imgs i {
-            font-size: 2rem;
-            opacity: 0.4;
-        }
-
-        /* ── LOADER CARD ── */
-        .loader-wrap {
-            text-align: center;
-            padding: 20px 0 10px;
-        }
-
-        .spinner {
-            width: 72px;
-            height: 72px;
-            border: 4px solid rgba(255, 255, 255, 0.1);
-            border-top-color: var(--accent2);
-            border-radius: 50%;
-            animation: spin 0.9s linear infinite;
-            margin: 0 auto 24px;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        .loader-percent {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: var(--accent2);
-            margin-bottom: 8px;
-        }
-
-        .loader-label {
-            font-size: 0.85rem;
-            font-weight: 700;
-            letter-spacing: 2.5px;
-            text-transform: uppercase;
-            color: rgba(255, 255, 255, 0.55);
-            margin-bottom: 28px;
-        }
-
-        .loader-steps {
-            list-style: none;
-            text-align: left;
-            display: inline-block;
-        }
-
-        .loader-steps li {
-            font-size: 0.8rem;
-            letter-spacing: 1.5px;
-            color: rgba(255, 255, 255, 0.35);
-            padding: 5px 0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-transform: uppercase;
-        }
-
-        .loader-steps li::before {
-            content: '';
-            display: inline-block;
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: var(--accent2);
-            opacity: 0.4;
-        }
-
-        .loader-steps li.done {
-            color: var(--green-check);
-        }
-
-        .loader-steps li.done::before {
-            opacity: 1;
-            background: var(--green-check);
-        }
-
-        /* ── FINAL RESULTS CARD (16) ── */
-        .results-header {
-            text-align: center;
-            font-size: 1.4rem;
-            font-weight: 800;
-            margin-bottom: 20px;
-            line-height: 1.3;
-        }
-
-        .results-block {
-            background: rgba(37, 150, 190, 0.12);
-            border: 1.5px solid rgba(37, 150, 190, 0.3);
-            border-radius: 16px;
-            padding: 28px 24px;
-            margin-bottom: 24px;
-        }
-
-        .results-block-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: rgba(255, 255, 255, 0.6);
-            text-align: center;
-            margin-bottom: 18px;
-        }
-
-        .results-action-title {
-            font-size: 1.65rem;
-            font-weight: 800;
-            text-align: center;
-            margin-bottom: 22px;
-            line-height: 1.3;
-        }
-
-        .results-action-btns {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-bottom: 18px;
-        }
-
-        .date-goal-box {
-            background: rgba(8, 172, 210, 0.08);
-            border: 1.5px solid rgba(8, 172, 210, 0.25);
-            border-radius: 12px;
-            padding: 16px 20px;
-            margin: 18px 0;
-            text-align: center;
-        }
-
-        .date-goal-box p {
-            font-size: 1.05rem;
-            font-weight: 600;
-            color: var(--accent2);
-        }
-
-        .date-goal-box .goal-sub {
-            font-size: 0.85rem;
-            color: rgba(255, 255, 255, 0.55);
-            margin-top: 4px;
-            font-weight: 400;
-        }
-
-        .graph-placeholder {
-            width: 100%;
-            aspect-ratio: 16/7;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1.5px dashed rgba(255, 255, 255, 0.15);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            gap: 8px;
-            color: rgba(255, 255, 255, 0.25);
-            font-size: 0.8rem;
-            margin: 8px 0 6px;
-        }
-
-        .graph-placeholder i {
-            font-size: 2.5rem;
-            opacity: 0.3;
-        }
-
-        .section-title {
-            font-size: 1.2rem;
-            font-weight: 700;
-            margin: 28px 0 16px;
-            text-align: center;
-        }
-
-        .value-stack-box {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1.5px solid rgba(255, 255, 255, 0.1);
-            border-radius: 14px;
-            padding: 24px;
-            margin-bottom: 28px;
-        }
-
-        .value-stack-heading {
-            font-size: 0.7rem;
-            font-weight: 800;
-            letter-spacing: 2.5px;
-            text-transform: uppercase;
-            color: var(--accent2);
-            text-align: center;
-            margin-bottom: 20px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .value-item {
-            display: flex;
-            gap: 14px;
-            margin-bottom: 16px;
-            align-items: flex-start;
-        }
-
-        .value-item:last-child {
-            margin-bottom: 0;
-        }
-
-        .value-check {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background: rgba(34, 197, 94, 0.15);
-            border: 1.5px solid var(--green-check);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            color: var(--green-check);
-            font-size: 11px;
-            margin-top: 2px;
-        }
-
-        .value-text {
-            font-size: 0.92rem;
-            color: rgba(255, 255, 255, 0.8);
-            line-height: 1.55;
-        }
-
-        .value-text strong {
-            color: #fff;
-            font-weight: 600;
-        }
-
-        .video-placeholder {
-            width: 100%;
-            aspect-ratio: 16/9;
-            background: rgba(0, 0, 0, 0.4);
-            border: 1.5px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            gap: 14px;
-            cursor: pointer;
-            transition: border-color 0.2s, background 0.2s;
-            margin-bottom: 8px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .video-placeholder::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, rgba(37, 150, 190, 0.08), rgba(45, 29, 59, 0.3));
-        }
-
-        .play-btn-icon {
-            width: 64px;
-            height: 64px;
-            border-radius: 50%;
-            background: rgba(37, 150, 190, 0.85);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.4rem;
-            color: #fff;
-            position: relative;
-            z-index: 1;
-            box-shadow: 0 4px 24px rgba(37, 150, 190, 0.5);
-        }
-
-        .video-label {
-            font-size: 0.8rem;
-            color: rgba(255, 255, 255, 0.4);
-            position: relative;
-            z-index: 1;
-        }
-
-        /* ── DIVIDER ── */
-        .divider {
-            height: 1px;
-            background: rgba(255, 255, 255, 0.08);
-            margin: 24px 0;
-        }
-
-        /* ── BODY TYPE BUTTONS ── */
-        .body-type-btn {
-            position: relative;
-            display: flex;
-            align-items: center;
-            width: 100%;
-            padding: 16px 20px;
-            padding-right: 100px;
-            background: var(--option-bg);
-            border: 1.5px solid var(--option-border);
-            border-radius: 12px;
-            color: var(--text);
-            font-family: 'Inter', sans-serif;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.22s ease;
-            text-align: left;
-            min-height: 64px;
-            overflow: visible;
-            line-height: 1.3;
-            user-select: none;
-            -webkit-user-select: none;
-            touch-action: manipulation;
-        }
-
-        .body-type-btn:hover {
-            background: var(--option-hover-bg);
-            border-color: var(--option-hover-border);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(37, 150, 190, 0.2);
-        }
-
-        .body-type-btn.selected {
-            background: var(--option-selected-bg);
-            border-color: var(--option-selected-border);
-            box-shadow: 0 0 0 1px var(--accent2) inset, 0 6px 20px rgba(37, 150, 190, 0.2);
-        }
-
-        .body-type-btn .bt-img {
-            position: absolute;
-            right: 10px;
-            bottom: 0;
-            height: 100px;
-            width: auto;
-            object-fit: contain;
-            pointer-events: none;
-            filter: drop-shadow(0 -2px 6px rgba(0, 0, 0, 0.15));
-        }
-
-        .body-type-btn .bt-sub {
-            font-size: 0.75rem;
-            font-weight: 400;
-            color: rgba(255, 255, 255, 0.45);
-            display: block;
-            margin-top: 2px;
-        }
-
-        /* ── BACK BUTTON ── */
-        .back-btn {
-            display: none;
-            align-items: center;
-            gap: 7px;
-            background: transparent;
-            border: none;
-            color: rgba(255, 255, 255, 0.38);
-            font-family: 'Inter', sans-serif;
-            font-size: 0.82rem;
-            font-weight: 500;
-            cursor: pointer;
-            padding: 0;
-            margin-bottom: 18px;
-            transition: color 0.2s;
-            letter-spacing: 0.2px;
-        }
-
-        .back-btn:hover {
-            color: rgba(255, 255, 255, 0.75);
-        }
-
-        .back-btn i {
-            font-size: 0.78rem;
-        }
-
-        .back-btn.visible {
-            display: flex;
-        }
-
-        /* ── RESPONSIVE ── */
-        @media (max-width: 480px) {
-            .card {
-                padding: 28px 20px 36px;
-            }
-
-            .card-title {
-                font-size: 1.5rem;
-            }
-
-            .results-action-title {
-                font-size: 1.35rem;
-            }
-
-            .options-grid.two-col {
-                flex-direction: column;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="assets/ursa.css?v=1" />
+    <link rel="stylesheet" href="assets/quiz.css?v=1" />
     <!-- PostHog Snippet -->
     <script>
         !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once register_for_session unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group identify setPersonProperties setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags resetGroups onFeatureFlags addFeatureFlagsHandler onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey getNextSurveyStep".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
@@ -890,26 +29,29 @@
 </head>
 
 <body>
-    <div class="quiz-wrapper">
-
+    <header class="q-bar">
         <button class="back-btn" id="global-back-btn" onclick="goBack()"><i class="fa-solid fa-arrow-left"></i>
             Nazad</button>
+        <img src="images/web/logo.webp" width="640" height="510" alt="URSA PROTOCOL">
+        <div class="q-step" id="q-step"></div>
+    </header>
+    <div class="q-track" aria-hidden="true"><span id="q-fill"></span></div>
+
+    <main class="quiz-wrapper">
+
 
         <!-- CARD 1 -->
         <div class="card active" id="card-1">
-            <h1 class="card-title">Još uvijek ne izgledaš onako kako želiš? Evo zašto i što točno trebaš promijeniti.</h1>
-            <p class="card-text">Klikni na gumb ispod, odgovori na nekoliko jednostavnih pitanja i odmah ćeš dobiti personalizirani video s točnim rješenjem za svoju situaciju. Traje samo 1–2 minute.</p>
-            <button class="btn-primary" onclick="goTo(2)" id="btn-card1-start">Želim svoje rješenje →</button>
+            <div class="intro">
+                <h1 class="card-title">Još uvijek ne izgledaš onako kako želiš? Evo zašto i što točno trebaš promijeniti.</h1>
+                <p class="card-text">Klikni na gumb ispod, odgovori na nekoliko jednostavnih pitanja i odmah ćeš dobiti personalizirani video s točnim rješenjem za svoju situaciju. Traje samo 1–2 minute.</p>
+                <button class="btn" onclick="goTo(2)" id="btn-card1-start">Želim svoje rješenje →</button>
+            </div>
+            <div class="intro-img"><img class="claws" src="images/web/claws.webp" alt=""><img src="images/web/ursa.webp" width="975" height="1300" alt="Ursa"></div>
         </div>
 
         <!-- CARD 2 — Q1 -->
         <div class="card" id="card-2">
-            <div class="progress-wrap">
-                <div class="progress-label">PITANJE 1/10</div>
-                <div class="progress-track">
-                    <div class="progress-fill" style="width:10%"></div>
-                </div>
-            </div>
             <h2 class="card-title">Koji si spol?</h2>
             <div class="options-grid two-col">
                 <button class="option-btn" id="btn-spol-musko" onclick="selectGender(this,'Muško'); goTo(3)"><span
@@ -921,12 +63,6 @@
 
         <!-- CARD 3 — Q2 -->
         <div class="card" id="card-3">
-            <div class="progress-wrap">
-                <div class="progress-label">PITANJE 2/10</div>
-                <div class="progress-track">
-                    <div class="progress-fill" style="width:20%"></div>
-                </div>
-            </div>
             <h2 class="card-title">Što želiš postići?</h2>
             <div class="options-grid">
                 <button class="option-btn" id="btn-cilj-1" onclick="selectOption(this,'goal'); goTo(4)">Izgubiti višak
@@ -942,12 +78,6 @@
 
         <!-- CARD 4 — Q3 -->
         <div class="card" id="card-4">
-            <div class="progress-wrap">
-                <div class="progress-label">PITANJE 3/10</div>
-                <div class="progress-track">
-                    <div class="progress-fill" style="width:30%"></div>
-                </div>
-            </div>
             <h2 class="card-title">Koliko imaš godina?</h2>
             <div class="options-grid">
                 <button class="option-btn" id="btn-god-1" onclick="selectOption(this,'age'); goTo(5)">18–24</button>
@@ -959,51 +89,33 @@
 
         <!-- CARD 5 — Q4 body type -->
         <div class="card" id="card-5">
-            <div class="progress-wrap">
-                <div class="progress-label">PITANJE 4/10</div>
-                <div class="progress-track">
-                    <div class="progress-fill" style="width:40%"></div>
-                </div>
-            </div>
             <h2 class="card-title">Koji tip tijela najbolje opisuje tvoju trenutnu građu?</h2>
-            <div class="options-grid" style="padding-top:8px;">
+            <div class="options-grid">
                 <button class="body-type-btn" id="btn-tip-1" onclick="selectOption(this,'bodytype'); goTo(6)"><span
-                        data-male="Mršav" data-female="Mršava">Mršav</span><img class="bt-img" src="images/mrsav.png"
+                        data-male="Mršav" data-female="Mršava">Mršav</span><img class="bt-img" src="images/web/mrsav.webp"
                         alt="Mršav" /></button>
                 <button class="body-type-btn" id="btn-tip-2" onclick="selectOption(this,'bodytype'); goTo(6)"><span
                         data-male="Prosječan" data-female="Prosječna">Prosječan</span><img class="bt-img"
-                        src="images/prosjEcan.png" alt="Prosječan" /></button>
+                        src="images/web/prosjEcan.webp" alt="Prosječan" /></button>
                 <button class="body-type-btn" id="btn-tip-3" onclick="selectOption(this,'bodytype'); goTo(6)"><span
-                        data-male="Krupan" data-female="Krupna">Krupan</span><img class="bt-img" src="images/krupan.png"
+                        data-male="Krupan" data-female="Krupna">Krupan</span><img class="bt-img" src="images/web/krupan.webp"
                         alt="Krupan" /></button>
                 <button class="body-type-btn" id="btn-tip-4" onclick="selectOption(this,'bodytype'); goTo(6)"><span
                         data-male="Pretežak" data-female="Preteška">Pretežak</span><img class="bt-img"
-                        src="images/pretezak.png" alt="Pretežak" /></button>
+                        src="images/web/pretezak.webp" alt="Pretežak" /></button>
             </div>
         </div>
 
         <!-- CARD 6 — Q5 name -->
         <div class="card" id="card-6">
-            <div class="progress-wrap">
-                <div class="progress-label">PITANJE 5/10</div>
-                <div class="progress-track">
-                    <div class="progress-fill" style="width:50%"></div>
-                </div>
-            </div>
             <h2 class="card-title">Kako se zoveš?</h2>
-            <div class="input-group"><i class="fa-solid fa-user"></i><input type="text" id="input-name"
+            <div class="q-form"><div class="input-group"><i class="fa-solid fa-user"></i><input type="text" id="input-name"
                     placeholder="Unesi svoje ime/nadimak" autocomplete="given-name" /></div>
-            <button class="btn-primary" id="btn-ime-nastavi" onclick="submitName()">Nastavi →</button>
+            <button class="btn" id="btn-ime-nastavi" onclick="submitName()">Nastavi →</button></div>
         </div>
 
         <!-- CARD 7 — Q6 -->
         <div class="card" id="card-7">
-            <div class="progress-wrap">
-                <div class="progress-label">PITANJE 6/10</div>
-                <div class="progress-track">
-                    <div class="progress-fill" style="width:60%"></div>
-                </div>
-            </div>
             <h2 class="card-title">Zamisli sebe za 90 dana s tijelom kakvo zaista želiš. Što bi ti to promijenilo?</h2>
             <div class="options-grid">
                 <button class="option-btn" id="btn-90d-1"
@@ -1024,12 +136,6 @@
 
         <!-- CARD 8 — Q7 -->
         <div class="card" id="card-8">
-            <div class="progress-wrap">
-                <div class="progress-label">PITANJE 7/10</div>
-                <div class="progress-track">
-                    <div class="progress-fill" style="width:70%"></div>
-                </div>
-            </div>
             <h2 class="card-title">Koliko dugo se već boriš s treningom?</h2>
             <div class="options-grid">
                 <button class="option-btn" id="btn-borba-1" data-male="Nikad nisam ozbiljno ni počeo"
@@ -1050,12 +156,6 @@
 
         <!-- CARD 9 — Q8 -->
         <div class="card" id="card-9">
-            <div class="progress-wrap">
-                <div class="progress-label">PITANJE 8/10</div>
-                <div class="progress-track">
-                    <div class="progress-fill" style="width:80%"></div>
-                </div>
-            </div>
             <h2 class="card-title" id="c9-title">Što si sve već probao da bi došao do rezultata?</h2>
             <div class="options-grid">
                 <button class="option-btn" id="btn-prob-1" onclick="selectOption(this,'tried'); goTo(10)">Ništa
@@ -1079,12 +179,6 @@
 
         <!-- CARD 10 — Q9 -->
         <div class="card" id="card-10">
-            <div class="progress-wrap">
-                <div class="progress-label">PITANJE 9/10</div>
-                <div class="progress-track">
-                    <div class="progress-fill" style="width:90%"></div>
-                </div>
-            </div>
             <h2 class="card-title" id="c10-title">Ako si potpuno iskren sa sobom, kakva ti je prehrana?</h2>
             <div class="options-grid">
                 <button class="option-btn" id="btn-preh-1" onclick="selectOption(this,'diet'); goTo(12)">Nemam pojma
@@ -1107,8 +201,8 @@
         <!-- CARD 11 — LOADER -->
         <div class="card" id="card-11">
             <div class="loader-wrap">
-                <div class="spinner" id="loader-spinner"></div>
-                <div class="loader-percent" id="loader-percent">0%</div>
+                <div class="loader-dial"><div class="spinner" id="loader-spinner"></div>
+                <div class="loader-percent" id="loader-percent">0%</div></div>
                 <div class="loader-label" id="loader-name-label">ANALIZIRAMO TVOJE ODGOVORE...</div>
                 <ul class="loader-steps">
                     <li id="lstep-1">PREGLEDAVAMO TVOJE CILJEVE...</li>
@@ -1120,12 +214,6 @@
 
         <!-- CARD 12 — Q12 -->
         <div class="card" id="card-12">
-            <div class="progress-wrap">
-                <div class="progress-label">PITANJE 10/10</div>
-                <div class="progress-track">
-                    <div class="progress-fill" style="width:100%"></div>
-                </div>
-            </div>
             <h2 class="card-title">Čega se najviše bojiš?</h2>
             <div class="options-grid">
                 <button class="option-btn" id="btn-boj-1" onclick="selectOption(this,'fear'); goTo(14)">Da ću zauvijek
@@ -1143,31 +231,24 @@
 
         <!-- CARD 14 — EMAIL -->
         <div class="card" id="card-14">
-            <div class="progress-wrap">
-                <div class="progress-track">
-                    <div class="progress-fill" style="width:100%"></div>
-                </div>
-            </div>
             <h2 class="card-title">Prikupili smo sve što nam treba. Tvoj personalizirani video je spreman.</h2>
-            <button class="btn-primary" id="btn-email-submit" onclick="submitEmail()"
-                style="background:linear-gradient(135deg,#2596be,#22c55e); padding: 22px 24px; font-size: 1.2rem;">Pokaži mi rješenje</button>
+            <button class="btn" id="btn-email-submit" onclick="submitEmail()">Pokaži mi rješenje</button>
         </div>
 
         <!-- CARD SPREMAN -->
         <div class="card" id="card-spreman">
             <div class="card-header-label">Još malo...</div>
             <h2 class="card-title" id="spreman-title">Jesi li napokon spreman napraviti promjenu?</h2>
-            <div class="options-grid" style="margin-top:8px;">
-                <button class="btn-primary" id="btn-spreman-1" data-male="Da, spreman sam 💪"
+            <div class="stack-btns">
+                <button class="btn" id="btn-spreman-1" data-male="Da, spreman sam 💪"
                     data-female="Da, spremna sam 💪" onclick="handleSpreman()">Da, spreman sam 💪</button>
-                <button class="btn-primary" id="btn-spreman-2" onclick="handleSpreman()"
-                    style="background:linear-gradient(135deg,#1d7fa3,#2596be);">Da, pokaži mi kako 🔥</button>
-                <button class="btn-secondary" id="btn-spreman-3" data-male="Ne, nisam spreman"
+                <button class="btn btn--white" id="btn-spreman-2" onclick="handleSpreman()">Da, pokaži mi kako 🔥</button>
+                <button class="btn btn--line" id="btn-spreman-3" data-male="Ne, nisam spreman"
                     data-female="Ne, nisam spremna">Ne, nisam spreman</button>
             </div>
         </div>
 
-    </div><!-- /.quiz-wrapper -->
+    </main><!-- /.quiz-wrapper -->
 
     <script>
         // ── GOOGLE SHEETS CONFIG ── Paste your Apps Script Web App URL below
@@ -1263,7 +344,17 @@
         });
         // ----------------------------------------
 
+        // Traka napretka: redni broj pitanja po kartici
+        const questionNo = { '2': 1, '3': 2, '4': 3, '5': 4, '6': 5, '7': 6, '8': 7, '9': 8, '10': 9, '12': 10 };
+        function updateProgress(id) {
+            const no = questionNo[String(id)];
+            const done = ['14', '11', 'spreman'].includes(String(id));
+            document.getElementById('q-fill').style.transform = `scaleX(${done ? 1 : (no || 0) / 10})`;
+            document.getElementById('q-step').textContent = no ? `Pitanje ${no}/10` : '';
+        }
+
         function updateBackBtn(id) {
+            updateProgress(id);
             const btn = document.getElementById('global-back-btn');
             const num = parseInt(String(id));
             (navHistory.length > 0 && !NO_BACK.has(num)) ? btn.classList.add('visible') : btn.classList.remove('visible');
@@ -1317,9 +408,9 @@
 
         function showError(inputId, msg) {
             const el = document.getElementById(inputId);
-            el.style.borderColor = '#e55';
+            el.style.borderColor = '#e5604d';
             let err = el.parentElement.querySelector('.input-error');
-            if (!err) { err = document.createElement('p'); err.className = 'input-error'; err.style.cssText = 'color:#ff6b6b;font-size:0.78rem;margin-top:6px;'; el.parentElement.appendChild(err); }
+            if (!err) { err = document.createElement('p'); err.className = 'input-error'; err.style.cssText = 'color:#ff6b6b;font-size:0.9rem;margin-top:8px;'; el.parentElement.appendChild(err); }
             err.textContent = msg;
             setTimeout(() => { el.style.borderColor = ''; if (err.parentNode) err.remove(); }, 3000);
         }
@@ -1362,6 +453,7 @@
 
         function showLoader() {
             trackCard('11'); // Record loader
+            updateBackBtn('11');
             document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
             const card11 = document.getElementById('card-11');
             card11.classList.add('active');

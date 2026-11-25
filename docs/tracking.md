@@ -22,7 +22,7 @@ Postojeća PostHog imena se ne mijenjaju. Spec ime → stvarno ime:
 | Landing / VSL učitan | `$pageview` | `$pageview` (auto) | `PageView` | — | pixel |
 | Start quiza | `quiz_started` | `quiz_started` (novo) | `ViewContent` `{content_name:'quiz'}` | — | pixel |
 | Svako pitanje | `quiz_step` | `quiz_step_reached` (`step_id`, `step_name`, `step_index`) | — | — | — |
-| Kraj quiza | `quiz_completed` | `quiz_completed` (+ odgovori, `event_id`) | `Lead` | UUID iz preglednika | pixel + CAPI (n8n) |
+| Kraj quiza | `quiz_completed` | `quiz_completed` (+ odgovori, `event_id`, `has_phone`; broj ide u person property `phone`) | `Lead` | UUID iz preglednika | pixel + CAPI (n8n) |
 | Rezultat (tip tijela) | — | `quiz_result_viewed` (novo, `bodytype`) | — | — | — |
 | VSL učitan | `vsl_view` | `vsl_viewed` | `ViewContent` `{content_name:'vsl'}` | — | pixel |
 | 50 % / 75 % videa | `vsl_50`, `vsl_75` | `vsl_50`, `vsl_75` (novo, jednom po posjetu) | — | — | — |
@@ -59,6 +59,7 @@ Ključevi: `utm_source utm_medium utm_campaign utm_id utm_term utm_content fbcli
   "fbc": "fb.1.1764067000000.IwAR…",
   "email": "ime@primjer.hr",
   "first_name": "Ivan",
+  "phone": "385912345678",
   "ph_distinct_id": "ime@primjer.hr",
   "attribution": { "utm_source": "ig", "utm_content": "STATIC_JELACIC_4x5", "fbclid": "IwAR…", "ad_id": "…" },
   "quiz": { "gender": "Muško", "goal": "…", "bodytype": "krupan", "age": "25–34", "motivation": "…", "struggle": "…", "tried": "…", "diet": "…", "fear": "…" },
@@ -68,6 +69,7 @@ Ključevi: `utm_source utm_medium utm_campaign utm_id utm_term utm_content fbcli
 ```
 
 - `email` je sirov, malim slovima i trimano. Hashira ga n8n (SHA-256) prije slanja u Metu.
+- `phone` je neobavezan (polje u kvizu), samo znamenke s pozivnim brojem (`091…` → `385 91…`). n8n ga hashira u `user_data.ph`; pixel ga dobiva kroz advanced matching kad je spremljen u pregledniku.
 - IP adresu n8n uzima iz `x-forwarded-for` headera webhooka (prva adresa).
 - Za `InitiateCheckout`: `custom_data = { content_name: 'premium'|'standard', value: 500, currency: 'EUR' }`,
   `email`/`first_name` samo ako je osoba prošla quiz u tom pregledniku, `quiz` i `vsl_url` izostaju.
@@ -76,7 +78,7 @@ Ključevi: `utm_source utm_medium utm_campaign utm_id utm_term utm_content fbcli
 
 `SHEETS_URL` u `index.html` je deployment `Unified_Script.gs` (isti kao admin i SureCart webhook), `action: 'lead'`.
 Prije je quiz slao na zaseban `Tracking_Script` deployment, pa Purchase nije mogao naći lead po emailu. Uz stara polja (`name`, `email`, `gender`, `goal`) dodaje:
-`event_id, bodytype, age, motivation, struggle, tried, diet, fear, fbp, fbc, user_agent, ph_distinct_id,
+`event_id, phone, bodytype, age, motivation, struggle, tried, diet, fear, fbp, fbc, user_agent, ph_distinct_id,
 page_url` i sve ključeve atribucije na vrhu objekta. Apps Script ih piše u sheet `Leads` kao nove stupce
 desno od postojećih, da `Purchase` može po emailu naći `fbc`, `fbp`, user agent i UTM.
 
@@ -106,9 +108,9 @@ Workflow `n8n/ursa-tracking.json`, jedan webhook (`ursa-capi`):
 | --- | --- | --- | --- | --- |
 | `Lead` | CAPI `Lead` | 1 h | nema `vsl_viewed` | mail s linkom na VSL |
 | `Lead` | | +23 h | ima `vsl_checkout_clicked` ili `purchase` | stop |
-| | | | ima `vsl_50` | Slack `ursa-odobrenje`, ručno (bez automatske poruke) |
+| | | | ima `vsl_50` | Slack `ursa-odobrenje` sa svim odgovorima i brojem, ručno (bez automatske poruke) |
 | | | | inače | mail s jednim pitanjem o cilju |
-| `InitiateCheckout` | CAPI `InitiateCheckout` | 1 h | nema `purchase` | mail 1 |
+| `InitiateCheckout` | CAPI `InitiateCheckout` | 1 h | nema `purchase` | mail 1 + Slack `ursa-odobrenje` (broj, paket) |
 | | | +23 h | nema `purchase` | mail 2 |
 
 Meta custom audiences (bez n8n-a): `PageView` bez `ViewContent`, 7 dana; `ViewContent` (quiz) bez `Lead`, 14 dana.

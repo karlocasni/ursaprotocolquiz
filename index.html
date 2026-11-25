@@ -17,15 +17,17 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="icon" type="image/png" href="images/favicon.png" />
     <link rel="stylesheet" href="assets/ursa.css?v=1" />
-    <link rel="stylesheet" href="assets/quiz.css?v=1" />
+    <link rel="stylesheet" href="assets/quiz.css?v=2" />
     <!-- PostHog Snippet -->
     <script>
         !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once register_for_session unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group identify setPersonProperties setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags resetGroups onFeatureFlags addFeatureFlagsHandler onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey getNextSurveyStep".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
-        posthog.init('phc_fDON0VrLGNJfrRZtdpYKUuNj9G4GBvZILjOM7kadxP', {
+        posthog.init('phc_AuRfJaborn4gGwAvKQAzWJtkQ8KWBbk6ruoBPymR3jAo', {
             api_host: 'https://eu.i.posthog.com',
             defaults: '2026-01-30'
         })
     </script>
+    <!-- Meta pixel + atribucija (docs/tracking.md) -->
+    <script src="assets/track.js?v=1"></script>
 </head>
 
 <body>
@@ -45,7 +47,7 @@
             <div class="intro">
                 <h1 class="card-title">Još uvijek ne izgledaš onako kako želiš? Evo zašto i što točno trebaš promijeniti.</h1>
                 <p class="card-text">Klikni na gumb ispod, odgovori na nekoliko jednostavnih pitanja i odmah ćeš dobiti personalizirani video s točnim rješenjem za svoju situaciju. Traje samo 1–2 minute.</p>
-                <button class="btn" onclick="goTo(2)" id="btn-card1-start">Želim svoje rješenje →</button>
+                <button class="btn" onclick="startQuiz()" id="btn-card1-start">Želim svoje rješenje →</button>
             </div>
             <div class="intro-img"><img class="claws" src="images/web/claws.webp" alt=""><img src="images/web/ursa.webp" width="975" height="1300" alt="Ursa"></div>
         </div>
@@ -91,16 +93,16 @@
         <div class="card" id="card-5">
             <h2 class="card-title">Koji tip tijela najbolje opisuje tvoju trenutnu građu?</h2>
             <div class="options-grid">
-                <button class="body-type-btn" id="btn-tip-1" onclick="selectOption(this,'bodytype'); goTo(6)"><span
+                <button class="body-type-btn" id="btn-tip-1" data-value="mrsav" onclick="selectOption(this,'bodytype'); goTo(6)"><span
                         data-male="Mršav" data-female="Mršava">Mršav</span><img class="bt-img" src="images/web/mrsav.webp"
                         alt="Mršav" /></button>
-                <button class="body-type-btn" id="btn-tip-2" onclick="selectOption(this,'bodytype'); goTo(6)"><span
+                <button class="body-type-btn" id="btn-tip-2" data-value="prosjecan" onclick="selectOption(this,'bodytype'); goTo(6)"><span
                         data-male="Prosječan" data-female="Prosječna">Prosječan</span><img class="bt-img"
                         src="images/web/prosjEcan.webp" alt="Prosječan" /></button>
-                <button class="body-type-btn" id="btn-tip-3" onclick="selectOption(this,'bodytype'); goTo(6)"><span
+                <button class="body-type-btn" id="btn-tip-3" data-value="krupan" onclick="selectOption(this,'bodytype'); goTo(6)"><span
                         data-male="Krupan" data-female="Krupna">Krupan</span><img class="bt-img" src="images/web/krupan.webp"
                         alt="Krupan" /></button>
-                <button class="body-type-btn" id="btn-tip-4" onclick="selectOption(this,'bodytype'); goTo(6)"><span
+                <button class="body-type-btn" id="btn-tip-4" data-value="pretezak" onclick="selectOption(this,'bodytype'); goTo(6)"><span
                         data-male="Pretežak" data-female="Preteška">Pretežak</span><img class="bt-img"
                         src="images/web/pretezak.webp" alt="Pretežak" /></button>
             </div>
@@ -232,7 +234,26 @@
         <!-- CARD 14 — EMAIL -->
         <div class="card" id="card-14">
             <h2 class="card-title">Prikupili smo sve što nam treba. Tvoj personalizirani video je spreman.</h2>
-            <button class="btn" id="btn-email-submit" onclick="submitEmail()">Pokaži mi rješenje</button>
+            <div class="q-form">
+                <p class="q-form-lead">Upiši email da ti pošaljemo rezultat i link na video, da ga ne izgubiš.</p>
+                <div class="input-group"><i class="fa-solid fa-envelope"></i><input type="email" id="input-email"
+                        placeholder="Tvoj email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" /></div>
+                <button class="btn" id="btn-email-submit" onclick="submitEmail()">Pokaži mi rješenje</button>
+                <p class="q-form-note">Bez spama. Šaljemo samo tvoj plan i par poruka o njemu, a odjaviti se možeš kad god želiš.</p>
+            </div>
+        </div>
+
+        <!-- CARD REZULTAT — tip tijela (za kreativ "koji si od 4") -->
+        <div class="card" id="card-rezultat">
+            <div class="card-header-label">Tvoj rezultat</div>
+            <h2 class="card-title"><span id="rez-name">Tvoj</span> tip tijela je <mark id="rez-type">Prosječan</mark></h2>
+            <div class="result">
+                <img class="result-img" id="rez-img" src="images/web/prosjEcan.webp" alt="" />
+                <div class="result-body">
+                    <p class="result-text" id="rez-text"></p>
+                    <button class="btn" id="btn-rezultat-nastavi" onclick="goTo('spreman')">Pogledaj svoj plan →</button>
+                </div>
+            </div>
         </div>
 
         <!-- CARD SPREMAN -->
@@ -251,12 +272,16 @@
     </main><!-- /.quiz-wrapper -->
 
     <script>
-        // ── GOOGLE SHEETS CONFIG ── Paste your Apps Script Web App URL below
-        const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbw2PFjFAa5jg-4feMIx55xyJtUxG45aGVldy_LoWfz1XPzy6Pde36n7_W4RK5cGNeaZ/exec';
+        // Apps Script (Unified_Script.gs, isti deployment kao admin): leadovi u tab 'Leads', dropoff, SureCart webhook
+        const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyWQsjnenPCvl_S3hKMjeDwc_af4Q7k0zHT2mLV0DvaCoMKx7fRTYHAcfE_n5-DksO4Xg/exec';
 
-        const state = { name: 'Prijatelju', email: '', gender: '', goal: '', goalLabel: '' };
+        // Svi odgovori iz quiza; ključevi su imena propertyja na quiz_completed
+        const state = {
+            name: 'Prijatelju', email: '', gender: '', goal: '', goalLabel: '',
+            bodytype: '', age: '', motivation: '', struggle: '', tried: '', diet: '', fear: ''
+        };
         const navHistory = [];
-        const NO_BACK = new Set([1, 11]);
+        const NO_BACK = new Set(['1', '11', 'rezultat']);
 
         // --- TAKING CARE OF DROPOFF TRACKING ---
         const sessionId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
@@ -276,24 +301,31 @@
             'Loading ekran...',
             'Video je spreman',
             'Zadnji ekran (Spreman)',
-            'Završio kviz (VSL)'
+            'Završio kviz (VSL)',
+            'Rezultat (Tip tijela)'
         ];
 
+        // step_index u PostHogu ostaje isti kao prije (povijest podataka); novi korak dobiva 15
         const stepMapping = {
             '1': 0, '2': 1, '3': 2, '4': 3, '5': 4, '6': 5, '7': 6, '8': 7, '9': 8, '10': 9, '12': 10,
-            '11': 11, '14': 12, 'spreman': 13, 'vsl': 14
+            '11': 11, '14': 12, 'spreman': 13, 'vsl': 14, 'rezultat': 15
         };
+        // Stvarni redoslijed kartica, za "dokle je stigao" u Sheetu (Dropoffs)
+        const FLOW = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '12', '14', '11', 'rezultat', 'spreman', 'vsl'];
 
         let currentMaxStepIndex = 0;
+        let maxFlowRank = 0;
         let hasSubmittedDropoff = false;
 
         function trackCard(id) {
             let index = stepMapping[String(id)];
             if (index !== undefined) {
-                if (index > currentMaxStepIndex) {
+                const rank = FLOW.indexOf(String(id));
+                if (rank > maxFlowRank) {
+                    maxFlowRank = rank;
                     currentMaxStepIndex = index;
                 }
-                
+
                 // Track into PostHog
                 if (window.posthog) {
                     let stepName = dropoffSteps[index];
@@ -348,7 +380,7 @@
         const questionNo = { '2': 1, '3': 2, '4': 3, '5': 4, '6': 5, '7': 6, '8': 7, '9': 8, '10': 9, '12': 10 };
         function updateProgress(id) {
             const no = questionNo[String(id)];
-            const done = ['14', '11', 'spreman'].includes(String(id));
+            const done = ['14', '11', 'rezultat', 'spreman'].includes(String(id));
             document.getElementById('q-fill').style.transform = `scaleX(${done ? 1 : (no || 0) / 10})`;
             document.getElementById('q-step').textContent = no ? `Pitanje ${no}/10` : '';
         }
@@ -356,8 +388,7 @@
         function updateBackBtn(id) {
             updateProgress(id);
             const btn = document.getElementById('global-back-btn');
-            const num = parseInt(String(id));
-            (navHistory.length > 0 && !NO_BACK.has(num)) ? btn.classList.add('visible') : btn.classList.remove('visible');
+            (navHistory.length > 0 && !NO_BACK.has(String(id))) ? btn.classList.add('visible') : btn.classList.remove('visible');
         }
 
         function goBack() {
@@ -397,7 +428,53 @@
         function selectOption(btn, group) {
             btn.closest('.options-grid').querySelectorAll('.option-btn,.body-type-btn').forEach(b => b.classList.remove('selected'));
             btn.classList.add('selected');
-            if (group === 'goal') { state.goal = btn.textContent.trim(); state.goalLabel = btn.textContent.trim(); }
+            // Muški tekst odgovora kao stabilna vrijednost, da isti odgovor ima istu vrijednost za oba spola
+            const clean = s => (s || '').replace(/\s+/g, ' ').trim();
+            const value = btn.dataset.value || clean(btn.dataset.male) || clean(btn.textContent);
+            if (group === 'goal') { state.goal = clean(btn.textContent); state.goalLabel = state.goal; }
+            else if (group in state) state[group] = value;
+        }
+
+        function startQuiz() {
+            if (window.posthog) posthog.capture('quiz_started');
+            UrsaTrack.pixel('ViewContent', { content_name: 'quiz' });
+            goTo(2);
+        }
+
+        // ---------- Rezultat: tip tijela ----------
+        const BODY_TYPES = {
+            mrsav: {
+                img: 'images/web/mrsav.webp', m: 'Mršav', f: 'Mršava',
+                text: 'Tijelo ti troši puno energije i teško dobivaš na masi, pa te trening bez dovoljno hrane vrti u krug. Kod tebe sve počinje od jasnog plana prehrane i treninga snage koji iz tjedna u tjedan traži malo više.'
+            },
+            prosjecan: {
+                img: 'images/web/prosjEcan.webp', m: 'Prosječan', f: 'Prosječna',
+                text: { m: 'Nisi ni debeo ni mršav, ali tijelu nedostaje oblik. Kod tebe ne treba ništa ekstremno: istovremeno spuštaš masnoću i gradiš mišiće, uz plan koji te drži na pravom putu.', f: 'Nisi ni debela ni mršava, ali tijelu nedostaje oblik. Kod tebe ne treba ništa ekstremno: istovremeno spuštaš masnoću i gradiš mišiće, uz plan koji te drži na pravom putu.' }
+            },
+            krupan: {
+                img: 'images/web/krupan.webp', m: 'Krupan', f: 'Krupna',
+                text: 'Imaš dobru bazu snage i mase, ali ispod je sloj masnoće koji skriva rezultat. Tvoj ključ je spuštanje masnoće bez gubitka mišića, a to bez preciznog plana rijetko kome uspije.'
+            },
+            pretezak: {
+                img: 'images/web/pretezak.webp', m: 'Pretežak', f: 'Preteška',
+                text: { m: 'Višak kilograma ti je trenutno najveća prepreka i toga si svjestan. Ne trebaš savršenstvo ni gladovanje, trebaš plan prehrane i kretanja koji možeš pratiti iz dana u dan.', f: 'Višak kilograma ti je trenutno najveća prepreka i toga si svjesna. Ne trebaš savršenstvo ni gladovanje, trebaš plan prehrane i kretanja koji možeš pratiti iz dana u dan.' }
+            }
+        };
+
+        function showResult() {
+            const t = BODY_TYPES[state.bodytype] || BODY_TYPES.prosjecan;
+            const g = state.gender === 'Žensko' ? 'f' : 'm';
+            document.getElementById('rez-name').textContent = state.name && state.name !== 'Prijatelju' ? state.name + ', tvoj' : 'Tvoj';
+            document.getElementById('rez-type').textContent = t[g];
+            const img = document.getElementById('rez-img');
+            img.src = t.img; img.alt = t[g];
+            document.getElementById('rez-text').textContent = typeof t.text === 'string' ? t.text : t.text[g];
+            trackCard('rezultat');
+            if (window.posthog) posthog.capture('quiz_result_viewed', { bodytype: state.bodytype || 'nepoznato' });
+            document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+            document.getElementById('card-rezultat').classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            updateBackBtn('rezultat');
         }
 
         function selectGender(btn, gender) {
@@ -423,29 +500,63 @@
             goTo(7);
         }
 
-        async function submitEmail() {
-            // Track in PostHog
-            if (window.posthog) {
-                posthog.capture('quiz_completed', {
-                    name: state.name,
-                    gender: state.gender,
-                    goal: state.goalLabel
-                });
-            }
+        let leadSent = false;
 
-            if (SHEETS_URL && !SHEETS_URL.includes('YOUR_APPS_SCRIPT')) {
-                try {
-                    await fetch(SHEETS_URL, {
+        function vslUrl(base) {
+            const p = { name: state.name, goal: state.goalLabel || state.goal, gender: state.gender };
+            if (state.bodytype) p.bodytype = state.bodytype;
+            return base + '?' + new URLSearchParams(p).toString();
+        }
+
+        function submitEmail() {
+            const email = document.getElementById('input-email').value.trim().toLowerCase();
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { showError('input-email', 'Upiši ispravnu email adresu.'); return; }
+            state.email = email;
+            UrsaTrack.person.save(email, state.name !== 'Prijatelju' ? state.name : '');
+
+            // Jedan UUID po leadu: isti ide u PostHog, pixel i CAPI (dedup)
+            if (!leadSent) {
+                leadSent = true;
+                const eventId = UrsaTrack.uuid();
+                const answers = {
+                    gender: state.gender, goal: state.goalLabel, bodytype: state.bodytype, age: state.age,
+                    motivation: state.motivation, struggle: state.struggle, tried: state.tried, diet: state.diet, fear: state.fear
+                };
+
+                if (window.posthog) {
+                    posthog.identify(email, { email: email, name: state.name, gender: state.gender, bodytype: state.bodytype });
+                    posthog.capture('quiz_completed', Object.assign({ name: state.name, event_id: eventId }, answers, {
+                        $set_once: { prvi_quiz: new Date().toISOString() }
+                    }));
+                }
+
+                UrsaTrack.pixel('Lead', { content_name: 'quiz' }, eventId);
+                UrsaTrack.server('Lead', eventId, {
+                    email: email,
+                    first_name: state.name !== 'Prijatelju' ? state.name : '',
+                    quiz: answers,
+                    vsl_url: vslUrl(new URL('vsl.html', location.href).toString()),
+                    custom_data: { content_name: 'quiz' }
+                });
+
+                if (SHEETS_URL && !SHEETS_URL.includes('YOUR_APPS_SCRIPT')) {
+                    const attr = UrsaTrack.attr;
+                    fetch(SHEETS_URL, {
                         method: 'POST',
-                        body: JSON.stringify({
+                        keepalive: true,
+                        body: JSON.stringify(Object.assign({
                             action: 'lead',
                             name: state.name,
-                            email: 'no-email',
-                            gender: state.gender,
-                            goal: state.goalLabel
-                        })
-                    });
-                } catch (e) { console.warn('Sheets save failed:', e); }
+                            email: email,
+                            event_id: eventId,
+                            fbp: UrsaTrack.fbp,
+                            fbc: UrsaTrack.fbc,
+                            user_agent: navigator.userAgent,
+                            ph_distinct_id: window.posthog && posthog.get_distinct_id ? posthog.get_distinct_id() : '',
+                            page_url: location.href
+                        }, answers, attr))
+                    }).catch(e => console.warn('Sheets save failed:', e));
+                }
             }
             navHistory.push('14');
             showLoader();
@@ -469,14 +580,7 @@
                 if (pct === 99) s[2].classList.add('done');
                 if (pct >= 100) {
                     clearInterval(iv); pEl.textContent = '100%';
-                    setTimeout(() => {
-                        trackCard('spreman'); // Record they reached spreman
-                        document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
-                        document.getElementById('card-spreman').classList.add('active');
-                        applyGender();
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                        updateBackBtn('spreman');
-                    }, 500);
+                    setTimeout(showResult, 500);
                 }
             }, 80);
         }
@@ -489,17 +593,14 @@
             sessionStorage.setItem('ursa_name', state.name);
             sessionStorage.setItem('ursa_goal', state.goalLabel || state.goal);
             sessionStorage.setItem('ursa_gender', state.gender);
+            sessionStorage.setItem('ursa_bodytype', state.bodytype);
 
-            // Build URL with params
-            const params = new URLSearchParams({
-                name: state.name,
-                goal: state.goalLabel || state.goal,
-                gender: state.gender
-            });
-            window.location.href = 'vsl.html?' + params.toString();
+            // name/goal/gender/bodytype + atribucija (utm_*, fbclid, ad_id, adset_id, placement)
+            window.location.href = UrsaTrack.carry(vslUrl('vsl.html'));
         }
 
         document.getElementById('input-name').addEventListener('keydown', e => { if (e.key === 'Enter') submitName(); });
+        document.getElementById('input-email').addEventListener('keydown', e => { if (e.key === 'Enter') submitEmail(); });
     </script>
 </body>
 

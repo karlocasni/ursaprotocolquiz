@@ -37,7 +37,7 @@ body { min-height: 100svh; display: flex; flex-direction: column; }
 .body-type-btn:hover span, .body-type-btn.selected span { background: var(--y); color: var(--ink); }
 
 /* ---------- Ime ---------- */
-#card-6 .q-form { width: min(100%, 560px); margin: 0 auto; }
+#card-6 .q-form, #card-14 .q-form { width: min(100%, 560px); margin: 0 auto; }
 .input-group { position: relative; margin-bottom: 14px; }
 .input-group > i { position: absolute; left: 22px; top: 34px; transform: translateY(-50%); color: var(--faint); }
 .input-group input { width: 100%; height: 68px; padding: 0 22px 0 56px; border: 2px solid var(--line); border-radius: 8px; background: var(--bg-2); color: #fff; font: 600 1.1rem var(--body); }
@@ -60,7 +60,16 @@ body { min-height: 100svh; display: flex; flex-direction: column; }
 
 /* ---------- Kraj kviza ---------- */
 .stack-btns { display: grid; gap: 14px; width: min(100%, 560px); margin: 0 auto; }
-#card-14 .btn { width: min(100%, 460px); margin: 0 auto; min-height: 72px; font-size: 1.2rem; }
+#card-14 .btn { width: 100%; min-height: 72px; font-size: 1.2rem; }
+.q-form-lead { color: var(--muted); text-align: center; margin: 0 auto 18px; max-width: 44ch; }
+.q-form-note { color: var(--faint); font-size: 0.88rem; text-align: center; margin-top: 14px; }
+
+/* ---------- Rezultat (tip tijela) ---------- */
+#card-rezultat .card-title mark { background: none; color: var(--y); }
+.result { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: clamp(20px, 4vw, 56px); align-items: center; width: min(100%, 900px); margin: 0 auto; }
+.result-img { justify-self: center; height: clamp(240px, 42vh, 420px); width: auto; max-width: 100%; object-fit: contain; border-radius: 8px; background: linear-gradient(180deg, #2a2d31, var(--bg-2)); padding: 18px 18px 0; }
+.result-text { color: var(--muted); font-size: 1.12rem; line-height: 1.6; margin-bottom: 26px; }
+.result .btn { width: 100%; min-height: 68px; font-size: 1.15rem; }
 
 /* ---------- Početni ekran ---------- */
 #card-1 { max-width: none; padding: 0; position: relative; overflow: hidden; }
@@ -87,6 +96,9 @@ body { min-height: 100svh; display: flex; flex-direction: column; }
     .body-type-btn { padding-top: 12px; }
     .body-type-btn span { padding: 11px 6px; font-size: 1rem; }
     #card-11.active, #card-14.active, #card-spreman.active { justify-content: center; }
+    .result { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+    .result-img { height: 30vh; min-height: 180px; }
+    .result-text { font-size: 1.02rem; margin-bottom: 18px; text-align: center; }
     #card-1 { padding: 0; }
     #card-1.active { display: flex; flex-direction: column; }
     .intro { align-self: auto; padding: 16px 18px 0; }

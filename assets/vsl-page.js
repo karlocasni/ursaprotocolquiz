@@ -13,6 +13,7 @@
     // Bez sale.js (npr. stara stranica iz cachea) ponuda radi s redovnim cijenama
     const sale = window.UrsaSale || { active: false, stripHtml: () => '', barHtml: () => '', priceHtml: (plan, regular) => `<p class="price">${regular}<span>€</span></p>`, url: (plan, regular) => regular, start: () => {} };
     const WHATSAPP = 'https://wa.me/385992088022?text=%20URSAPROTOCOL';
+    const REGULAR = { premium: 597, standard: 397 }; // isto kao priceHtml u offerHtml()
 
     const body = document.body;
     const PAGE = body.dataset.page;
@@ -20,11 +21,20 @@
     const store = (() => { try { return window.sessionStorage; } catch (e) { return null; } })();
     const fromQuiz = key => params.get(key) || (store && store.getItem('ursa_' + key)) || '';
     const isFemale = body.dataset.gender === 'f' || (body.dataset.gender === 'auto' && fromQuiz('gender') === 'Žensko');
+    const BODY_TYPES = {
+        mrsav: ['Mršav', 'Mršava', 'mrsav.webp'],
+        prosjecan: ['Prosječan', 'Prosječna', 'prosjEcan.webp'],
+        krupan: ['Krupan', 'Krupna', 'krupan.webp'],
+        pretezak: ['Pretežak', 'Preteška', 'pretezak.webp']
+    };
+    const bodytype = BODY_TYPES[fromQuiz('bodytype')] ? fromQuiz('bodytype') : '';
+    // Bez track.js (stara stranica iz cachea) sve radi kao prije, samo bez pixela i atribucije
+    const T = window.UrsaTrack || { pixel: () => {}, server: () => {}, carry: u => u, uuid: () => String(Date.now()) + Math.random().toString(16).slice(2), setCookie: () => {} };
 
     // ---------- Analitika (PostHog) ----------
     function track(event, props, leaving) {
         if (!window.posthog) return;
-        const common = { vsl_page: PAGE, vsl_gender: isFemale ? 'Žensko' : 'Muško', vsl_from_quiz: params.has('goal'), vsl_version: '2026-11', vsl_sale: sale.active };
+        const common = { vsl_page: PAGE, vsl_gender: isFemale ? 'Žensko' : 'Muško', vsl_from_quiz: params.has('goal'), vsl_version: '2026-11', vsl_sale: sale.active, vsl_bodytype: bodytype || 'nepoznato' };
         try { posthog.capture(event, Object.assign(common, props), leaving ? { transport: 'sendBeacon' } : undefined); } catch (e) {}
     }
 
@@ -288,6 +298,17 @@
         if (said) said.textContent = forGender(said.textContent);
     }
 
+    // Tip tijela iz quiza (kreativ "koji si od 4"): mala oznaka iznad naslova
+    const heroTitle = document.querySelector('.hero h1');
+    if (bodytype && heroTitle) {
+        const [m, f, img] = BODY_TYPES[bodytype];
+        const tag = document.createElement('p');
+        tag.className = 'hero-type';
+        tag.innerHTML = `<img src="images/web/${img}" alt="" width="40" height="40"><span>Tvoj tip tijela: <b></b></span>`;
+        tag.querySelector('b').textContent = isFemale ? f : m;
+        heroTitle.before(tag);
+    }
+
     const d = new Date();
     d.setDate(d.getDate() + 90);
     document.getElementById('date-badge').textContent = d.toLocaleDateString('hr-HR', { day: 'numeric', month: 'numeric', year: 'numeric' }) + ' → To je datum. Točno 90 dana od danas.';
@@ -341,9 +362,19 @@
 
     // ---------- Player ----------
     const videoEl = document.getElementById('vsl-video');
+    // Diskretni pragovi gledanja, jednom po posjetu (vsl_video_progress ostaje kakav je)
+    const milestones = [[0.5, 'vsl_50'], [0.75, 'vsl_75']];
+    function watchMilestones(t) {
+        const dur = player && player.duration;
+        if (!dur || !isFinite(dur)) return;
+        while (milestones.length && t / dur >= milestones[0][0]) {
+            const [, name] = milestones.shift();
+            track(name, { second: Math.round(t), percent: Math.round(t / dur * 100) });
+        }
+    }
     const player = UrsaPlayer.create(videoEl, {
         start: () => track('vsl_video_started', { seconds_to_start: Math.round((Date.now() - openedAt) / 1000) }),
-        time: lockProgress,
+        time: t => { lockProgress(t); watchMilestones(t); },
         mark: (s, dur) => track('vsl_video_progress', { second: s, percent: Math.round(s / dur * 100) }),
         pause: s => track('vsl_video_paused', { second: Math.round(s) }),
         resume: s => track('vsl_video_resumed', { second: Math.round(s) }),
@@ -385,7 +416,23 @@
         const buy = e.target.closest('[data-buy]');
         if (buy) {
             visit.checkout = true;
-            track('vsl_checkout_clicked', { plan: buy.dataset.buy, second: Math.round(player.time) }, true);
+            const plan = buy.dataset.buy;
+            const value = sale.active && sale.price ? sale.price(plan) : REGULAR[plan];
+            // Jedan UUID po kliku: isti ide u PostHog, pixel i CAPI (dedup)
+            const eventId = T.uuid();
+            track('vsl_checkout_clicked', { plan: plan, second: Math.round(player.time), event_id: eventId, value: value }, true);
+            T.pixel('InitiateCheckout', { content_name: plan, value: value, currency: 'EUR' }, eventId);
+            T.server('InitiateCheckout', eventId, { custom_data: { content_name: plan, value: value, currency: 'EUR' } });
+            // Za Purchase na checkout poddomeni (docs/checkout-pixel.html)
+            T.setCookie('ursa_ck', JSON.stringify({ plan: plan, value: value, currency: 'EUR', ic_event_id: eventId }), 7);
+            // Atribucija ide i na checkout; kratka odgoda da pixel stigne poslati event prije odlaska sa stranice
+            const href = T.carry(buy.href, bodytype ? { bodytype: bodytype } : null);
+            if (!e.defaultPrevented && buy.target !== '_blank' && !(e.metaKey || e.ctrlKey || e.shiftKey)) {
+                e.preventDefault();
+                setTimeout(() => { location.href = href; }, 300);
+            } else {
+                buy.href = href;
+            }
         }
     });
 
@@ -422,4 +469,5 @@
     window.addEventListener('pagehide', leave);
 
     track('vsl_viewed', { locked: !visit.opened });
+    T.pixel('ViewContent', { content_name: 'vsl', content_category: PAGE });
 })();

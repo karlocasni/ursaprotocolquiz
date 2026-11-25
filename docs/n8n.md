@@ -38,8 +38,8 @@ Imena neka budu točno ovakva, onda ih nodovi lakše nađu. Nakon importa otvori
 | --- | --- | --- | --- | --- |
 | `Meta CAPI token` | **Query Auth** | Name: `access_token`, Value: token | Meta Events Manager → tvoj dataset (pixel) → **Settings** → **Conversions API** → **Generate access token** | `Meta CAPI` |
 | `PostHog personal API key` | **Header Auth** | Name: `Authorization`, Value: `Bearer <phx_ključ>` | PostHog (EU) → avatar → **Settings** → **Personal API keys** → **Create**. Scope: projekt Ursa, **Query: Read** (ako upit vrati 403, dodaj i **Person: Read**) | 4× `… PostHog check …` |
-| `Resend` | **Header Auth** | Name: `Authorization`, Value: `Bearer <re_ključ>` | resend.com → **API Keys**. Ako već postoji credential iz email sekvence (`Resend` ili `Authorization Resend`), samo ga odaberi | 4× `… email …` |
-| `Slack` | **Slack API** (Access Token) | Access Token: `xoxb-…` | api.slack.com/apps → tvoja aplikacija → **OAuth & Permissions** → Bot Token Scopes: `chat:write` → **Install to Workspace** → kopiraj *Bot User OAuth Token*. U Slacku u `#ursa-odobrenje` upiši `/invite @ImeAplikacije` | `Slack: javi se ručno` |
+| `Resend` (postojeći credential **Ursa**, tip Resend API — već spojen) | **Header Auth** | Name: `Authorization`, Value: `Bearer <re_ključ>` | resend.com → **API Keys**. Ako već postoji credential iz email sekvence (`Resend` ili `Authorization Resend`), samo ga odaberi | 4× `… email …` |
+| `Slack` (postojeći credential **SLACK_BOT** — već spojen) | **Slack API** (Access Token) | Access Token: `xoxb-…` | api.slack.com/apps → tvoja aplikacija → **OAuth & Permissions** → Bot Token Scopes: `chat:write` → **Install to Workspace** → kopiraj *Bot User OAuth Token*. U Slacku u `#ursa-odobrenje` upiši `/invite @ImeAplikacije` | `Slack: javi se ručno` |
 
 Pošiljatelj mailova je `Ursa <ursa@nemaneide.com>` (isto kao postojeća sekvenca), domena mora biti verificirana u Resendu.
 

@@ -122,3 +122,22 @@ Meta custom audiences (bez n8n-a): `PageView` bez `ViewContent`, 7 dana; `ViewCo
    jedan event s oznakom "Deduplicated" (Browser + Server). Dva zasebna = dedup ne radi.
 3. EMQ ≥ 6.0 na `Lead` i `Purchase`.
 4. Obriši `META_TEST_EVENT_CODE`. Tek onda kampanja smije s PAUSED.
+
+## PostHog dashboard
+
+`Ursa funnel` (ID `1151378`, prikvačen): https://eu.posthog.com/project/367703/dashboard/1151378
+
+1. Funnel `quiz_started → quiz_completed → vsl_viewed → vsl_50 → vsl_checkout_clicked → purchase` (7 dana, zadnjih 30)
+2. Isti funnel po oglasu: breakdown po **event** propertyju `utm_content`, first touch
+3. Leadovi, checkouti i kupnje po danu (jedinstveni ljudi)
+4. Prihod po danu (`purchase.value`)
+5. Leadovi po oglasu (`quiz_completed` po `utm_content`)
+6. Odustajanje u kvizu (`quiz_step_reached` po `step_name`)
+7. Udio leadova s brojem (`quiz_completed.has_phone`)
+8. Povratak iz mailova (`$pageview` s `utm_medium=abandon`, po `utm_campaign`)
+9. VSL gledanost (`vsl_viewed`, `vsl_50`, `vsl_75`)
+
+Oglas se čita iz event propertyja `utm_content`, ne iz `$initial_utm_content`: u ovom projektu
+person property `$initial_utm_content` ostaje prazan (provjereno HogQL-om 25. 11. 2026.).
+Grafove je napravio n8n privremenim workflowom preko credentiala "PostHog personal API key"
+(ključ "n8n ursa", prava Query read + Dashboard/Insight write); privremeni workflow je obrisan.

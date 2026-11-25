@@ -1,0 +1,1194 @@
+{
+  "name": "Ursa Tracking (Meta CAPI + abandon)",
+  "nodes": [
+    {
+      "id": "4b841f25-2d52-4b6e-ab21-005f22377302",
+      "name": "README",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -260,
+        -360
+      ],
+      "parameters": {
+        "width": 760,
+        "height": 300,
+        "color": 7,
+        "content": "## URSA TRACKING — Meta CAPI + abandon sekvence\nUgovor: `docs/tracking.md` u repou. Upute: `docs/n8n.md`.\n\n**Nakon importa:**\n1. **Config**: upiši `META_PIXEL_ID` i `POSTHOG_PROJECT_ID` (ostalo je već postavljeno).\n2. Credentials: **Meta CAPI token** (Query Auth), **PostHog personal API key** (Header Auth), **Resend** (Header Auth), **Slack** (Slack API).\n3. Test na sebi (Wait privremeno 2 min), vrati Wait na 1 h / 23 h, pa **Activate**.\n\nBez ispravnog emaila ide samo CAPI. Mailovi i Slack idu samo ako PostHog za taj email ima `quiz_completed` (Lead) ili `vsl_checkout_clicked` (checkout)."
+      }
+    },
+    {
+      "id": "3540356c-7751-44c8-a885-5eb7855b6139",
+      "name": "Note Lead",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        860,
+        200
+      ],
+      "parameters": {
+        "width": 2240,
+        "height": 480,
+        "color": 4,
+        "content": "## Lead (kraj quiza)\n1 h: nema `vsl_viewed` → mail s linkom na VSL. +23 h: checkout/purchase → stop; `vsl_50` → Slack (ručno, bez maila); gledao < 50 % → mail s jednim pitanjem; nije gledao ni nakon maila → ništa."
+      }
+    },
+    {
+      "id": "efd4abe5-465d-4cd9-a7ee-b19386eff578",
+      "name": "Note Checkout",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        860,
+        720
+      ],
+      "parameters": {
+        "width": 2240,
+        "height": 300,
+        "color": 5,
+        "content": "## InitiateCheckout (klik na checkout, samo s emailom)\n1 h: nema `purchase` → mail 1. +23 h: nema `purchase` → mail 2."
+      }
+    },
+    {
+      "id": "78aa107b-f6c2-48f8-a7df-11c69dfe1867",
+      "name": "Webhook ursa-capi",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -200,
+        380
+      ],
+      "webhookId": "7ea63a16-c437-46fc-a262-798f64ae1ab9",
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ursa-capi",
+        "responseMode": "onReceived",
+        "options": {
+          "noResponseBody": true
+        }
+      }
+    },
+    {
+      "id": "6580806e-4abb-4b28-afce-66421e46c642",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        20,
+        380
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8668451f-7e40-4d29-a49b-dae4c376a563",
+              "name": "META_PIXEL_ID",
+              "value": "SET_ME",
+              "type": "string"
+            },
+            {
+              "id": "55897f1c-b845-4df4-a34a-cbc39e6bbb48",
+              "name": "META_API_VERSION",
+              "value": "v26.0",
+              "type": "string"
+            },
+            {
+              "id": "d78af40f-2a2a-46a3-ac4b-5cae5fc40310",
+              "name": "META_TEST_EVENT_CODE",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "17193886-9645-4a50-a8bf-bfd4ecb1d2d0",
+              "name": "POSTHOG_PROJECT_ID",
+              "value": "SET_ME",
+              "type": "string"
+            },
+            {
+              "id": "ac17b48d-2d92-476b-acf5-69b174a971d1",
+              "name": "POSTHOG_HOST",
+              "value": "https://eu.posthog.com",
+              "type": "string"
+            },
+            {
+              "id": "cd31ff9d-c70f-4fac-acc0-327d9aef0c44",
+              "name": "SLACK_CHANNEL",
+              "value": "ursa-odobrenje",
+              "type": "string"
+            },
+            {
+              "id": "972b7ae5-07f6-4043-abd1-76d3c076bf52",
+              "name": "EMAIL_FROM",
+              "value": "Ursa <ursa@nemaneide.com>",
+              "type": "string"
+            },
+            {
+              "id": "a5d6ef53-55f7-4e70-a124-88161cc7178e",
+              "name": "STOP_EMAILS",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "4090a4ff-0e75-4bf3-a30b-4fedcc22f4c4",
+      "name": "Parse payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        380
+      ],
+      "parameters": {
+        "jsCode": "// Parse payload: čita form-urlencoded polje `payload` (JSON), priprema Meta CAPI body,\n// PostHog HogQL upit i tekstove mailova. Vraća [] (= stop) za neispravan ulaz.\nconst crypto = require('crypto');\nconst cfg = $('Config').first().json;\nconst req = $('Webhook ursa-capi').first().json;\nconst headers = req.headers || {};\nconst body = req.body || {};\n\nlet p = null;\ntry {\n  if (typeof body.payload === 'string') p = JSON.parse(body.payload);\n  else if (body.payload && typeof body.payload === 'object') p = body.payload;\n  else if (typeof body.event_name === 'string') p = body;\n} catch (e) {\n  p = null;\n}\nif (!p || typeof p !== 'object' || Array.isArray(p)) return [];\n\nconst ALLOWED_EVENTS = ['Lead', 'InitiateCheckout'];\nconst eventName = p.event_name;\nconst eventId = p.event_id; // Meta dedup ključ s pixelom: ne dirati\nif (!ALLOWED_EVENTS.includes(eventName)) return [];\nif (typeof eventId !== 'string' || !eventId || eventId.length > 200) return [];\n\nconst str = (v, max = 500) => (typeof v === 'string' ? v.trim().slice(0, max) : '');\nconst obj = (v) => (v && typeof v === 'object' && !Array.isArray(v) ? v : {});\nconst sha256 = (s) => crypto.createHash('sha256').update(s, 'utf8').digest('hex');\nconst esc = (s) => String(s)\n  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')\n  .replace(/\"/g, '&quot;').replace(/'/g, '&#39;');\n\nconst now = Math.floor(Date.now() / 1000);\nlet eventTime = Number(p.event_time);\nif (eventTime > 1e12) eventTime = eventTime / 1000; // ms -> s\neventTime = Math.floor(eventTime);\nif (!Number.isFinite(eventTime) || eventTime < now - 7 * 86400) eventTime = now;\nif (eventTime > now) eventTime = now; // Meta odbija evente iz budućnosti\n\nconst email = str(p.email, 254).toLowerCase();\n// Strogo: samo \"obični\" emailovi, bez navodnika, razmaka i backslasha.\nconst EMAIL_RE = /^[a-z0-9._%+-]+@[a-z0-9-]+(\\.[a-z0-9-]+)*\\.[a-z]{2,24}$/;\nconst emailOk = EMAIL_RE.test(email);\nconst firstName = str(p.first_name, 60);\nconst quiz = obj(p.quiz);\nconst attribution = obj(p.attribution);\n\n// ---------- Meta CAPI ----------\nconst xff = String(headers['x-forwarded-for'] || '');\nconst ipRaw = xff.split(',')[0].trim();\nconst ip = /^[0-9a-fA-F:.]{3,45}$/.test(ipRaw) ? ipRaw : '';\nconst userAgent = str(p.user_agent, 1000) || str(headers['user-agent'], 1000);\nconst fbp = str(p.fbp, 300);\nconst fbc = str(p.fbc, 500);\n\nconst userData = {};\nif (emailOk) {\n  userData.em = [sha256(email)];\n  userData.external_id = [sha256(email)];\n}\nif (firstName) userData.fn = [sha256(firstName.toLowerCase())];\nif (ip) userData.client_ip_address = ip;\nif (userAgent) userData.client_user_agent = userAgent;\nif (fbp) userData.fbp = fbp;\nif (fbc) userData.fbc = fbc;\n\nconst capiEvent = {\n  event_name: eventName,\n  event_id: eventId,\n  event_time: eventTime,\n  action_source: 'website',\n  user_data: userData,\n};\nconst sourceUrl = str(p.event_source_url, 2000);\nif (sourceUrl) capiEvent.event_source_url = sourceUrl;\nif (p.custom_data && typeof p.custom_data === 'object') capiEvent.custom_data = p.custom_data;\n\nconst capiBody = { data: [capiEvent] };\nconst testCode = str(cfg.META_TEST_EVENT_CODE, 100);\nif (testCode) capiBody.test_event_code = testCode;\n\nconst pixelId = String(cfg.META_PIXEL_ID || '').trim();\nconst apiVersion = String(cfg.META_API_VERSION || 'v26.0').trim();\nconst capiReady = /^\\d{5,25}$/.test(pixelId) && /^v\\d+\\.\\d+$/.test(apiVersion);\nconst capiUrl = `https://graph.facebook.com/${apiVersion}/${pixelId}/events`;\n\n// ---------- Koji follow-up ----------\nconst phProject = String(cfg.POSTHOG_PROJECT_ID || '').trim();\nconst phHost = String(cfg.POSTHOG_HOST || 'https://eu.posthog.com').trim().replace(/\\/+$/, '');\nconst stopList = String(cfg.STOP_EMAILS || '').toLowerCase().split(/[\\s,;]+/).filter(Boolean);\n\nlet flow = 'none';\nlet skipReason = '';\nif (!emailOk) skipReason = 'no_valid_email';\nelse if (stopList.includes(email)) skipReason = 'stop_list';\nelse if (!/^\\d+$/.test(phProject)) skipReason = 'posthog_not_configured';\nelse flow = eventName === 'Lead' ? 'lead' : 'checkout';\n\n// Isti email + isti tok unutar 48 h -> bez druge sekvence (CAPI ide svejedno).\n// Static data se pamti samo u produkcijskim (aktivnim) izvršenjima.\nif (flow !== 'none') {\n  const sd = $getWorkflowStaticData('global');\n  const seen = (sd.seen && typeof sd.seen === 'object') ? sd.seen : {};\n  for (const k of Object.keys(seen)) if (now - seen[k] > 3 * 86400) delete seen[k];\n  const key = flow + ':' + email;\n  if (seen[key] && now - seen[key] < 2 * 86400) {\n    skipReason = 'duplicate_48h';\n    flow = 'none';\n  } else {\n    seen[key] = now;\n  }\n  sd.seen = seen;\n}\n\n// ---------- PostHog provjera ----------\n// Vrijednosti idu kroz HogQL placeholdere (\"values\"), email je uz to strogo validiran.\nconst since = eventTime - 15 * 60; // 15 min tolerancije za sat preglednika\nconst hogql = [\n  'SELECT',\n  \"  countIf(event = 'quiz_completed') AS quiz_completed,\",\n  \"  countIf(event = 'vsl_viewed') AS vsl_viewed,\",\n  \"  countIf(event = 'vsl_50') AS vsl_50,\",\n  \"  countIf(event = 'vsl_checkout_clicked') AS vsl_checkout_clicked,\",\n  \"  countIf(event = 'purchase') AS purchase\",\n  'FROM events',\n  \"WHERE event IN ('quiz_completed', 'vsl_viewed', 'vsl_50', 'vsl_checkout_clicked', 'purchase')\",\n  '  AND timestamp >= now() - INTERVAL 4 DAY',\n  '  AND toUnixTimestamp(timestamp) >= {since}',\n  '  AND (',\n  '    person_id IN (SELECT id FROM persons WHERE properties.email = {email})',\n  '    OR person_id IN (SELECT person_id FROM person_distinct_ids WHERE distinct_id = {email})',\n  '  )',\n].join('\\n');\nconst hogqlBody = {\n  query: { kind: 'HogQLQuery', query: hogql, values: { email, since } },\n  refresh: 'force_blocking',\n  name: 'ursa_abandon_check',\n};\nconst posthogQueryUrl = `${phHost}/api/projects/${phProject}/query/`;\n\n// ---------- Mailovi ----------\nconst gender = str(quiz.gender, 20).toLowerCase();\nconst female = gender.startsWith('ž') || gender.startsWith('z'); // 'Žensko'\nconst g = (m, f) => (female ? f : m);\nconst name = firstName ? firstName.charAt(0).toUpperCase() + firstName.slice(1) : '';\nconst hej = name ? `Hej ${name},` : 'Hej,';\nconst goal = str(quiz.goal, 200);\nconst OPT_OUT = 'Ako ne želiš ovakve poruke, samo odgovori STOP.';\nconst emailFrom = str(cfg.EMAIL_FROM, 200) || 'Ursa <ursa@nemaneide.com>';\nconst fromAddr = (emailFrom.match(/<([^>]+)>/) || [null, emailFrom])[1];\n\nfunction withUtm(url, campaign) {\n  const [beforeHash, hash] = url.split('#');\n  const [base, qs] = beforeHash.split('?');\n  const drop = ['utm_source', 'utm_medium', 'utm_campaign'];\n  const parts = (qs || '').split('&').filter((kv) => kv && !drop.includes(kv.split('=')[0]));\n  parts.push('utm_source=email', 'utm_medium=abandon', 'utm_campaign=' + encodeURIComponent(campaign));\n  return base + '?' + parts.join('&') + (hash !== undefined ? '#' + hash : '');\n}\nconst SAFE_URL = /^https:\\/\\/([a-z0-9-]+\\.)*ursaprotocol\\.com(\\/[^\\s\"'<>\\\\]*)?$/i;\n\nfunction vslLink() {\n  let url = str(p.vsl_url, 2000);\n  if (!SAFE_URL.test(url)) {\n    const q = [];\n    if (firstName) q.push('name=' + encodeURIComponent(firstName));\n    for (const k of ['goal', 'gender', 'bodytype']) {\n      if (str(quiz[k])) q.push(k + '=' + encodeURIComponent(str(quiz[k])));\n    }\n    url = 'https://ursaprotocol.com/vsl.html' + (q.length ? '?' + q.join('&') : '');\n  }\n  return withUtm(url, 'quiz_no_vsl');\n}\n\n// blocks: string = odlomak, {link, label} = link u svom redu\nfunction compose(subject, blocks, tag) {\n  const html = '<div style=\"font-family:Arial,sans-serif;font-size:15px;line-height:1.6;color:#1F2937;max-width:560px;\">'\n    + blocks.map((b) => (typeof b === 'string'\n      ? `<p>${esc(b)}</p>`\n      : `<p><a href=\"${esc(b.link)}\" style=\"color:#1F2937;font-weight:bold;\">${esc(b.label)}</a></p>`)).join('')\n    + `<p style=\"color:#6B7280;font-size:13px;margin-top:24px;\">${esc(OPT_OUT)}</p></div>`;\n  const text = blocks.map((b) => (typeof b === 'string' ? b : `${b.label}: ${b.link}`)).join('\\n\\n')\n    + '\\n\\n' + OPT_OUT;\n  return {\n    idempotency_key: `${eventId}:${tag}`.slice(0, 256),\n    request: {\n      from: emailFrom,\n      to: [email],\n      subject,\n      html,\n      text,\n      headers: { 'List-Unsubscribe': `<mailto:${fromAddr}?subject=STOP>` },\n    },\n  };\n}\n\nconst mail = {};\nif (flow === 'lead') {\n  mail.vsl = compose(\n    name ? `${name}, jesi ${g('stigao', 'stigla')} pogledati?` : `Jesi ${g('stigao', 'stigla')} pogledati?`,\n    [\n      hej,\n      `jesi ${g('stigao', 'stigla')} pogledati plan koji ti je izašao na kraju kviza? Složen je prema onome što si ${g('odgovorio', 'odgovorila')}, pa ga vrijedi pogledati dok su ti odgovori još svježi.`,\n      { link: vslLink(), label: 'Otvori svoj plan' },\n      'Ako ti nešto nije bilo jasno, pitaj slobodno. Samo odgovori na ovaj mail.',\n      '— Ursa',\n    ],\n    'lead_vsl',\n  );\n  mail.goal = compose(\n    name ? `${name}, jedno pitanje` : 'Jedno pitanje',\n    [\n      hej,\n      goal\n        ? `u kvizu si kao cilj ${g('označio', 'označila')}: ${goal}. Imam samo jedno pitanje: što te trenutno najviše koči da do toga dođeš?`\n        : 'imam samo jedno pitanje: što te trenutno najviše koči da dođeš do forme kakvu želiš?',\n      'Dovoljna je jedna ili dvije rečenice, samo odgovori na ovaj mail. Iz toga ću ti moći reći odakle bih ja krenuo na tvom mjestu.',\n      '— Ursa',\n    ],\n    'lead_goal',\n  );\n} else if (flow === 'checkout') {\n  const back = SAFE_URL.test(sourceUrl) ? withUtm(sourceUrl, 'checkout_24h') : '';\n  mail.ic1 = compose(\n    name ? `${name}, imaš li kakvo pitanje?` : 'Imaš li kakvo pitanje?',\n    [\n      hej,\n      'ako ti je oko programa ostalo kakvo pitanje, koliko vremena traži, kako izgleda trening ili što s prehranom, slobodno mi napiši.',\n      'Samo odgovori na ovaj mail. Lakše je to razjasniti u dvije poruke nego nagađati.',\n      '— Ursa',\n    ],\n    'checkout_1',\n  );\n  mail.ic2 = compose(\n    name ? `${name}, još samo ovo` : 'Još samo ovo',\n    [\n      hej,\n      'javljam se još jednom i onda te ne gnjavim.',\n      'Ako sad nije pravo vrijeme, potpuno razumijem. A ako je nešto drugo u pitanju, nešto ti nije jasno, imaš ozljedu, radiš u smjenama ili ne znaš je li ovo za tebe, napiši mi u jednoj rečenici pa ćemo vidjeti ima li smisla.',\n      ...(back ? [{ link: back, label: 'Plan ti je i dalje ovdje' }] : []),\n      '— Ursa',\n    ],\n    'checkout_2',\n  );\n}\n\nreturn [{\n  json: {\n    event_name: eventName,\n    event_id: eventId,\n    event_time: eventTime,\n    flow,\n    skip_reason: skipReason,\n    email: emailOk ? email : '',\n    first_name: firstName,\n    gender: str(quiz.gender, 20),\n    goal,\n    bodytype: str(quiz.bodytype, 100),\n    utm_content: str(attribution.utm_content, 200),\n    capi_ready: capiReady,\n    capi_url: capiUrl,\n    capi_body: capiBody,\n    posthog_query_url: posthogQueryUrl,\n    hogql_body: hogqlBody,\n    mail,\n  },\n}];\n"
+      }
+    },
+    {
+      "id": "f66c2d0f-aed4-4310-a7de-006a5bf7af74",
+      "name": "CAPI configured?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        460,
+        120
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "024cdae0-2def-4a37-aebc-07b0986766ee",
+              "leftValue": "={{ String($json.capi_ready) }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "3d20c3e8-a6ea-41f2-af7b-6a6fe2022ac2",
+      "name": "Meta CAPI",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        680,
+        100
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000,
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpQueryAuth": {
+          "name": "Meta CAPI token"
+        }
+      },
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.capi_url }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpQueryAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.capi_body) }}",
+        "options": {
+          "timeout": 20000
+        }
+      }
+    },
+    {
+      "id": "b7ec38a5-e700-47d4-a2df-34cc5d3af249",
+      "name": "Route by event",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        460,
+        560
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "35f08b3e-0204-4e56-a5b8-a227dafcecec",
+                    "leftValue": "={{ $json.flow }}",
+                    "rightValue": "lead",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "lead"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "f426a531-7c93-459b-a970-cb299ad332e6",
+                    "leftValue": "={{ $json.flow }}",
+                    "rightValue": "checkout",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "checkout"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "e77d3e3f-03f8-4667-ac9e-d17cfd58b04c",
+      "name": "Lead: wait 1h",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        900,
+        420
+      ],
+      "webhookId": "bcaf2f06-e779-410a-a786-73f1a73421bf",
+      "parameters": {
+        "amount": 1,
+        "unit": "hours"
+      }
+    },
+    {
+      "id": "8638d3d9-ce28-43c7-a4a9-2832475eacd0",
+      "name": "Lead: PostHog check 1h",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1120,
+        420
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "name": "PostHog personal API key"
+        }
+      },
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Parse payload').first().json.posthog_query_url }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('Parse payload').first().json.hogql_body) }}",
+        "options": {
+          "timeout": 60000
+        }
+      }
+    },
+    {
+      "id": "3dc26c83-4929-4779-a20c-2b1e1ec4892d",
+      "name": "Lead: read check 1h",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1340,
+        420
+      ],
+      "parameters": {
+        "jsCode": "// Lead, 1 h nakon kviza\nconst p = $('Parse payload').first().json;\nconst res = $input.first().json || {};\nconst cols = Array.isArray(res.columns) ? res.columns : [];\nconst row = Array.isArray(res.results) && Array.isArray(res.results[0]) ? res.results[0] : null;\nif (!row || !cols.length) {\n  // Bez pouzdanog odgovora ne šaljemo ništa (da ne pišemo nekome tko je već kupio).\n  throw new Error('PostHog upit nije vratio rezultat: ' + JSON.stringify(res).slice(0, 400));\n}\nconst c = {};\ncols.forEach((k, i) => { c[k] = Number(row[i]) || 0; });\n\nlet decision;\nif (!c.quiz_completed) decision = 'stop_unverified'; // email nije prošao quiz (zaštita javnog webhooka)\nelse if (c.vsl_checkout_clicked || c.purchase) decision = 'stop_converted';\nelse if (!c.vsl_viewed) decision = 'send_vsl_link';\nelse decision = 'wait';\n\nreturn [{ json: { check: '1h', decision, counts: c, email: p.email } }];\n"
+      }
+    },
+    {
+      "id": "d6a06efb-f0fd-47e8-aa39-80d23060add5",
+      "name": "Lead: 1h decision",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        1560,
+        420
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "69a847f4-f53d-4673-ad05-3e3271bf0bfc",
+                    "leftValue": "={{ $json.decision }}",
+                    "rightValue": "send_vsl_link",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "send_vsl_link"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "b54b8097-f930-4f9a-a80d-27a1de66bfc7",
+                    "leftValue": "={{ $json.decision }}",
+                    "rightValue": "wait",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "wait"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "3715f253-2918-403c-ab1f-469505f2e126",
+      "name": "Lead: email VSL link",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1780,
+        280
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "name": "Resend"
+        }
+      },
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.resend.com/emails",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Idempotency-Key",
+              "value": "={{ $('Parse payload').first().json.mail.vsl.idempotency_key }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('Parse payload').first().json.mail.vsl.request) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "7ec1ab9d-e06f-4067-aace-8c83a93d7612",
+      "name": "Lead: wait 23h",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2000,
+        420
+      ],
+      "webhookId": "9796a388-261b-49cc-a6ba-bd852422ec12",
+      "parameters": {
+        "amount": 23,
+        "unit": "hours"
+      }
+    },
+    {
+      "id": "741c63b2-1531-4623-ad78-0885871dedb1",
+      "name": "Lead: PostHog check 24h",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2220,
+        420
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "name": "PostHog personal API key"
+        }
+      },
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Parse payload').first().json.posthog_query_url }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('Parse payload').first().json.hogql_body) }}",
+        "options": {
+          "timeout": 60000
+        }
+      }
+    },
+    {
+      "id": "41b6efd6-fffd-4b93-a268-6e8f8db5f069",
+      "name": "Lead: read check 24h",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2440,
+        420
+      ],
+      "parameters": {
+        "jsCode": "// Lead, 24 h nakon kviza\nconst p = $('Parse payload').first().json;\nconst res = $input.first().json || {};\nconst cols = Array.isArray(res.columns) ? res.columns : [];\nconst row = Array.isArray(res.results) && Array.isArray(res.results[0]) ? res.results[0] : null;\nif (!row || !cols.length) {\n  // Bez pouzdanog odgovora ne šaljemo ništa (da ne pišemo nekome tko je već kupio).\n  throw new Error('PostHog upit nije vratio rezultat: ' + JSON.stringify(res).slice(0, 400));\n}\nconst c = {};\ncols.forEach((k, i) => { c[k] = Number(row[i]) || 0; });\n\nlet decision;\nif (!c.quiz_completed) decision = 'stop_unverified';\nelse if (c.vsl_checkout_clicked || c.purchase) decision = 'stop_converted';\nelse if (c.vsl_50) decision = 'slack';\nelse if (c.vsl_viewed) decision = 'ask_goal';\nelse decision = 'stop_no_vsl'; // mail s linkom je već otišao na 1 h, drugi ne šaljemo\n\nconst dash = (v) => (v ? String(v) : '—');\nconst f = /^(ž|z)/i.test(String(p.gender || ''));\nconst slackText = [\n  `*${dash(p.first_name)}* (${p.email})`,\n  `Spol: ${dash(p.gender)} | Cilj: ${dash(p.goal)} | Tip tijela: ${dash(p.bodytype)} | utm_content: ${dash(p.utm_content)}`,\n  `${f ? 'Pogledala' : 'Pogledao'} je više od 50 % VSL-a i nije ${f ? 'otišla' : 'otišao'} na checkout (24 h nakon kviza). Automatski mail nije poslan.`,\n  '*Javi se ručno.*',\n].join('\\n');\n\nreturn [{ json: { check: '24h', decision, counts: c, email: p.email, slack_text: slackText } }];\n"
+      }
+    },
+    {
+      "id": "7feaef29-c991-4180-a9af-0d7aee7896e4",
+      "name": "Lead: 24h decision",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        2660,
+        420
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "cc8c7146-29d6-4296-a199-6298b0116b28",
+                    "leftValue": "={{ $json.decision }}",
+                    "rightValue": "slack",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "slack"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "275ffb56-adfa-4bd9-aac2-010a45e037d2",
+                    "leftValue": "={{ $json.decision }}",
+                    "rightValue": "ask_goal",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "ask_goal"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "d031ee7d-5862-4157-a18d-393a0eff4fb0",
+      "name": "Slack: javi se ručno",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        2900,
+        280
+      ],
+      "credentials": {
+        "slackApi": {
+          "name": "Slack"
+        }
+      },
+      "parameters": {
+        "authentication": "accessToken",
+        "resource": "message",
+        "operation": "post",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ '#' + String($('Config').first().json.SLACK_CHANNEL).replace(/^#/, '') }}",
+          "mode": "name"
+        },
+        "messageType": "text",
+        "text": "={{ $json.slack_text }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      }
+    },
+    {
+      "id": "699dfede-1a27-4330-a537-9ad786ff21f9",
+      "name": "Lead: email goal question",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2900,
+        540
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "name": "Resend"
+        }
+      },
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.resend.com/emails",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Idempotency-Key",
+              "value": "={{ $('Parse payload').first().json.mail.goal.idempotency_key }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('Parse payload').first().json.mail.goal.request) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "1d030383-2f28-41f0-a851-1fa49e4e6cb5",
+      "name": "Checkout: wait 1h",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        900,
+        860
+      ],
+      "webhookId": "1dc69d3e-0f82-40a2-a3cc-0e53cc67e0bc",
+      "parameters": {
+        "amount": 1,
+        "unit": "hours"
+      }
+    },
+    {
+      "id": "71a8810a-db6c-4612-a6ed-92a90461a33b",
+      "name": "Checkout: PostHog check 1h",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1120,
+        860
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "name": "PostHog personal API key"
+        }
+      },
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Parse payload').first().json.posthog_query_url }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('Parse payload').first().json.hogql_body) }}",
+        "options": {
+          "timeout": 60000
+        }
+      }
+    },
+    {
+      "id": "25615694-09a9-4542-add8-6c4b39467b48",
+      "name": "Checkout: read check 1h",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1340,
+        860
+      ],
+      "parameters": {
+        "jsCode": "// InitiateCheckout, 1h nakon klika\nconst p = $('Parse payload').first().json;\nconst res = $input.first().json || {};\nconst cols = Array.isArray(res.columns) ? res.columns : [];\nconst row = Array.isArray(res.results) && Array.isArray(res.results[0]) ? res.results[0] : null;\nif (!row || !cols.length) {\n  // Bez pouzdanog odgovora ne šaljemo ništa (da ne pišemo nekome tko je već kupio).\n  throw new Error('PostHog upit nije vratio rezultat: ' + JSON.stringify(res).slice(0, 400));\n}\nconst c = {};\ncols.forEach((k, i) => { c[k] = Number(row[i]) || 0; });\n\nlet decision;\nif (!c.vsl_checkout_clicked) decision = 'stop_unverified'; // nema klika u PostHogu za taj email\nelse if (c.purchase) decision = 'stop_converted';\nelse decision = 'send';\n\nreturn [{ json: { check: '1h', decision, counts: c, email: p.email } }];\n"
+      }
+    },
+    {
+      "id": "3a64ed9f-874c-4f9f-ad29-ac93820a4882",
+      "name": "Checkout: no purchase 1h?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1560,
+        860
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "3f791bc0-9d2d-4dbb-a2d6-ab86c8385618",
+              "leftValue": "={{ $json.decision }}",
+              "rightValue": "send",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "7eeb38f1-ceb1-4ae0-a82e-d048bdbba402",
+      "name": "Checkout: email 1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1780,
+        860
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "name": "Resend"
+        }
+      },
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.resend.com/emails",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Idempotency-Key",
+              "value": "={{ $('Parse payload').first().json.mail.ic1.idempotency_key }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('Parse payload').first().json.mail.ic1.request) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "ed1add1f-f839-43e7-aa9b-f8f04fbef73b",
+      "name": "Checkout: wait 23h",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2000,
+        860
+      ],
+      "webhookId": "b57b14c3-4d19-4f7e-a01a-3d957dd41929",
+      "parameters": {
+        "amount": 23,
+        "unit": "hours"
+      }
+    },
+    {
+      "id": "2b6771bd-e948-4900-a6a3-9cb838416da4",
+      "name": "Checkout: PostHog check 24h",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2220,
+        860
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "name": "PostHog personal API key"
+        }
+      },
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Parse payload').first().json.posthog_query_url }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('Parse payload').first().json.hogql_body) }}",
+        "options": {
+          "timeout": 60000
+        }
+      }
+    },
+    {
+      "id": "74d99721-babf-438b-ac61-d83cc1ea2f5f",
+      "name": "Checkout: read check 24h",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2440,
+        860
+      ],
+      "parameters": {
+        "jsCode": "// InitiateCheckout, 24h nakon klika\nconst p = $('Parse payload').first().json;\nconst res = $input.first().json || {};\nconst cols = Array.isArray(res.columns) ? res.columns : [];\nconst row = Array.isArray(res.results) && Array.isArray(res.results[0]) ? res.results[0] : null;\nif (!row || !cols.length) {\n  // Bez pouzdanog odgovora ne šaljemo ništa (da ne pišemo nekome tko je već kupio).\n  throw new Error('PostHog upit nije vratio rezultat: ' + JSON.stringify(res).slice(0, 400));\n}\nconst c = {};\ncols.forEach((k, i) => { c[k] = Number(row[i]) || 0; });\n\nlet decision;\nif (!c.vsl_checkout_clicked) decision = 'stop_unverified'; // nema klika u PostHogu za taj email\nelse if (c.purchase) decision = 'stop_converted';\nelse decision = 'send';\n\nreturn [{ json: { check: '24h', decision, counts: c, email: p.email } }];\n"
+      }
+    },
+    {
+      "id": "820816cd-2e29-43ed-a4ae-01c2dc6aee15",
+      "name": "Checkout: no purchase 24h?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2660,
+        860
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8ceb4ec0-b181-4496-a68c-9bcc2d61e86f",
+              "leftValue": "={{ $json.decision }}",
+              "rightValue": "send",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "b86eedd4-9584-487d-a53d-63c02a109843",
+      "name": "Checkout: email 2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2900,
+        860
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "name": "Resend"
+        }
+      },
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.resend.com/emails",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Idempotency-Key",
+              "value": "={{ $('Parse payload').first().json.mail.ic2.idempotency_key }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('Parse payload').first().json.mail.ic2.request) }}",
+        "options": {}
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook ursa-capi": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Parse payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse payload": {
+      "main": [
+        [
+          {
+            "node": "CAPI configured?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Route by event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CAPI configured?": {
+      "main": [
+        [
+          {
+            "node": "Meta CAPI",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Route by event": {
+      "main": [
+        [
+          {
+            "node": "Lead: wait 1h",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Checkout: wait 1h",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lead: wait 1h": {
+      "main": [
+        [
+          {
+            "node": "Lead: PostHog check 1h",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lead: PostHog check 1h": {
+      "main": [
+        [
+          {
+            "node": "Lead: read check 1h",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lead: read check 1h": {
+      "main": [
+        [
+          {
+            "node": "Lead: 1h decision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lead: 1h decision": {
+      "main": [
+        [
+          {
+            "node": "Lead: email VSL link",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Lead: wait 23h",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lead: email VSL link": {
+      "main": [
+        [
+          {
+            "node": "Lead: wait 23h",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lead: wait 23h": {
+      "main": [
+        [
+          {
+            "node": "Lead: PostHog check 24h",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lead: PostHog check 24h": {
+      "main": [
+        [
+          {
+            "node": "Lead: read check 24h",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lead: read check 24h": {
+      "main": [
+        [
+          {
+            "node": "Lead: 24h decision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lead: 24h decision": {
+      "main": [
+        [
+          {
+            "node": "Slack: javi se ručno",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Lead: email goal question",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Checkout: wait 1h": {
+      "main": [
+        [
+          {
+            "node": "Checkout: PostHog check 1h",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Checkout: PostHog check 1h": {
+      "main": [
+        [
+          {
+            "node": "Checkout: read check 1h",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Checkout: read check 1h": {
+      "main": [
+        [
+          {
+            "node": "Checkout: no purchase 1h?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Checkout: no purchase 1h?": {
+      "main": [
+        [
+          {
+            "node": "Checkout: email 1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Checkout: email 1": {
+      "main": [
+        [
+          {
+            "node": "Checkout: wait 23h",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Checkout: wait 23h": {
+      "main": [
+        [
+          {
+            "node": "Checkout: PostHog check 24h",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Checkout: PostHog check 24h": {
+      "main": [
+        [
+          {
+            "node": "Checkout: read check 24h",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Checkout: read check 24h": {
+      "main": [
+        [
+          {
+            "node": "Checkout: no purchase 24h?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Checkout: no purchase 24h?": {
+      "main": [
+        [
+          {
+            "node": "Checkout: email 2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": []
+}

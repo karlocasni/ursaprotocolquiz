@@ -412,15 +412,14 @@
       "waitBetweenTries": 5000,
       "onError": "continueRegularOutput",
       "credentials": {
-        "httpHeaderAuth": {
-          "name": "Resend"
+        "resendApi": {
+          "name": "Ursa"
         }
       },
       "parameters": {
         "method": "POST",
         "url": "https://api.resend.com/emails",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpHeaderAuth",
+        "authentication": "predefinedCredentialType",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -437,7 +436,8 @@
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify($('Parse payload').first().json.mail.vsl.request) }}",
-        "options": {}
+        "options": {},
+        "nodeCredentialType": "resendApi"
       }
     },
     {
@@ -574,7 +574,7 @@
       ],
       "credentials": {
         "slackApi": {
-          "name": "Slack"
+          "name": "SLACK_BOT"
         }
       },
       "parameters": {
@@ -607,15 +607,14 @@
       "maxTries": 3,
       "waitBetweenTries": 5000,
       "credentials": {
-        "httpHeaderAuth": {
-          "name": "Resend"
+        "resendApi": {
+          "name": "Ursa"
         }
       },
       "parameters": {
         "method": "POST",
         "url": "https://api.resend.com/emails",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpHeaderAuth",
+        "authentication": "predefinedCredentialType",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -632,7 +631,8 @@
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify($('Parse payload').first().json.mail.goal.request) }}",
-        "options": {}
+        "options": {},
+        "nodeCredentialType": "resendApi"
       }
     },
     {
@@ -740,15 +740,14 @@
       "waitBetweenTries": 5000,
       "onError": "continueRegularOutput",
       "credentials": {
-        "httpHeaderAuth": {
-          "name": "Resend"
+        "resendApi": {
+          "name": "Ursa"
         }
       },
       "parameters": {
         "method": "POST",
         "url": "https://api.resend.com/emails",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpHeaderAuth",
+        "authentication": "predefinedCredentialType",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -765,7 +764,8 @@
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify($('Parse payload').first().json.mail.ic1.request) }}",
-        "options": {}
+        "options": {},
+        "nodeCredentialType": "resendApi"
       }
     },
     {
@@ -872,15 +872,14 @@
       "maxTries": 3,
       "waitBetweenTries": 5000,
       "credentials": {
-        "httpHeaderAuth": {
-          "name": "Resend"
+        "resendApi": {
+          "name": "Ursa"
         }
       },
       "parameters": {
         "method": "POST",
         "url": "https://api.resend.com/emails",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpHeaderAuth",
+        "authentication": "predefinedCredentialType",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -897,7 +896,8 @@
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify($('Parse payload').first().json.mail.ic2.request) }}",
-        "options": {}
+        "options": {},
+        "nodeCredentialType": "resendApi"
       }
     }
   ],

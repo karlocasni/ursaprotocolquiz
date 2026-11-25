@@ -1,8 +1,11 @@
 <!--
   Ursa: Meta pixel za checkout na nemaneide.ursaprotocol.com (SureCart / WordPress).
-  Ovo nije dio sajta na GitHub Pagesu. Zalijepi ga u <head> svih stranica checkout weba
-  (npr. plugin WPCode → Header, "Site Wide Header"). Ne instaliraj usput još jedan Meta plugin:
-  dva pixela = dvostruki eventi.
+  INSTALIRANO 25. 11. 2026. kroz plugin "Simple Custom CSS and JS" (Custom Code → "Ursa Meta pixel
+  (checkout + Purchase)", post 316, JS, Internal, <head>, Frontend). Ovo je referentna kopija.
+
+  SureCart sam šalje AddToCart/InitiateCheckout/Purchase čim postoji window.fbq. Stub ispod ih
+  blokira (InitiateCheckout već ide s VSL-a s dedupom; SureCartov Purchase nema naš eventID),
+  a propušta PageView i naš Purchase (window.__ursaAllow).
 
   Što radi:
   - PageView na svakoj stranici checkouta
@@ -18,10 +21,16 @@
 (function () {
   var PIXEL_ID = '1375315374544689';
   var ORDER_PARAMS = ['sc_order', 'order_id', 'order'];
+  var BLOCK = /^(InitiateCheckout|AddToCart|AddPaymentInfo|Purchase)$/;
   if (!PIXEL_ID || PIXEL_ID === 'SET_ME') return;
 
   !function (f, b, e, v, n, t, s) {
-    if (f.fbq) return; n = f.fbq = function () { n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments); };
+    if (f.fbq) return;
+    n = f.fbq = function () {
+      var a = arguments;
+      if (a[0] === 'track' && BLOCK.test(a[1]) && !f.__ursaAllow) return; // SureCartovi eventi
+      n.callMethod ? n.callMethod.apply(n, a) : n.queue.push(a);
+    };
     if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0'; n.queue = []; t = b.createElement(e); t.async = !0;
     t.src = v; s = b.getElementsByTagName(e)[0]; s.parentNode.insertBefore(t, s);
   }(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
@@ -41,6 +50,8 @@
   var data = { currency: ck.currency || 'EUR' };
   if (ck.value) data.value = Number(ck.value);
   if (ck.plan) data.content_name = ck.plan;
+  window.__ursaAllow = true;
   fbq('track', 'Purchase', data, { eventID: orderId });
+  window.__ursaAllow = false;
 })();
 </script>

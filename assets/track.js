@@ -64,8 +64,23 @@
     const person = {
         get email() { return ls.get('ursa_email') || ''; },
         get name() { return ls.get('ursa_first_name') || ''; },
-        save(email, name) { if (email) ls.set('ursa_email', email); if (name) ls.set('ursa_first_name', name); }
+        get phone() { return ls.get('ursa_phone') || ''; },
+        save(email, name, phone) {
+            if (email) ls.set('ursa_email', email);
+            if (name) ls.set('ursa_first_name', name);
+            if (phone) ls.set('ursa_phone', phone);
+        }
     };
+
+    // Broj u E.164 bez '+', kako ga Meta želi: 091 234 5678 -> 385912345678, 00385... -> 385...
+    function normPhone(raw) {
+        let d = String(raw || '').replace(/[^0-9+]/g, '');
+        if (d.startsWith('+')) d = d.slice(1);
+        else if (d.startsWith('00')) d = d.slice(2);
+        else if (d.startsWith('0')) d = '385' + d.slice(1);
+        d = d.replace(/\D/g, '');
+        return d.length >= 8 && d.length <= 15 ? d : '';
+    }
 
     // ---------- Meta pixel ----------
     if (PIXEL_ID) {
@@ -77,6 +92,7 @@
         const match = {};
         if (person.email) match.em = person.email;
         if (person.name) match.fn = person.name.toLowerCase();
+        if (normPhone(person.phone)) match.ph = normPhone(person.phone);
         fbq('init', PIXEL_ID, match);
         fbq('track', 'PageView');
     }
@@ -98,6 +114,7 @@
             fbc: getCookie('_fbc'),
             email: person.email,
             first_name: person.name,
+            phone: normPhone(person.phone),
             ph_distinct_id: window.posthog && posthog.get_distinct_id ? posthog.get_distinct_id() : '',
             attribution: attr
         }, extra || {});
@@ -114,7 +131,7 @@
 
     window.UrsaTrack = {
         get attr() { return Object.assign({}, attr); },
-        carry, uuid, pixel, server, person, setCookie,
+        carry, uuid, pixel, server, person, normPhone, setCookie,
         get fbp() { return getCookie('_fbp'); },
         get fbc() { return getCookie('_fbc'); }
     };

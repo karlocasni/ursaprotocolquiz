@@ -27,7 +27,7 @@
         })
     </script>
     <!-- Meta pixel + atribucija (docs/tracking.md) -->
-    <script src="assets/track.js?v=1"></script>
+    <script src="assets/track.js?v=2"></script>
 </head>
 
 <body>
@@ -238,8 +238,10 @@
                 <p class="q-form-lead">Upiši email da ti pošaljemo rezultat i link na video, da ga ne izgubiš.</p>
                 <div class="input-group"><i class="fa-solid fa-envelope"></i><input type="email" id="input-email"
                         placeholder="Tvoj email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" /></div>
+                <div class="input-group"><i class="fa-solid fa-phone"></i><input type="tel" id="input-phone"
+                        placeholder="Broj mobitela (neobavezno)" autocomplete="tel" inputmode="tel" /></div>
                 <button class="btn" id="btn-email-submit" onclick="submitEmail()">Pokaži mi rješenje</button>
-                <p class="q-form-note">Bez spama. Šaljemo samo tvoj plan i par poruka o njemu, a odjaviti se možeš kad god želiš.</p>
+                <p class="q-form-note">Bez spama. Šaljemo samo tvoj plan i par poruka o njemu, a odjaviti se možeš kad god želiš. Broj nam treba samo ako želiš da te nazovemo.</p>
             </div>
         </div>
 
@@ -511,8 +513,12 @@
         function submitEmail() {
             const email = document.getElementById('input-email').value.trim().toLowerCase();
             if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { showError('input-email', 'Upiši ispravnu email adresu.'); return; }
+            const phoneRaw = document.getElementById('input-phone').value.trim();
+            const phone = phoneRaw ? UrsaTrack.normPhone(phoneRaw) : '';
+            if (phoneRaw && !phone) { showError('input-phone', 'Upiši ispravan broj mobitela ili ostavi polje prazno.'); return; }
             state.email = email;
-            UrsaTrack.person.save(email, state.name !== 'Prijatelju' ? state.name : '');
+            state.phone = phone ? '+' + phone : '';
+            UrsaTrack.person.save(email, state.name !== 'Prijatelju' ? state.name : '', state.phone);
 
             // Jedan UUID po leadu: isti ide u PostHog, pixel i CAPI (dedup)
             if (!leadSent) {
@@ -524,8 +530,9 @@
                 };
 
                 if (window.posthog) {
-                    posthog.identify(email, { email: email, name: state.name, gender: state.gender, bodytype: state.bodytype });
-                    posthog.capture('quiz_completed', Object.assign({ name: state.name, event_id: eventId }, answers, {
+                    posthog.identify(email, Object.assign({ email: email, name: state.name, gender: state.gender, bodytype: state.bodytype },
+                        state.phone ? { phone: state.phone } : {}));
+                    posthog.capture('quiz_completed', Object.assign({ name: state.name, event_id: eventId, has_phone: !!state.phone }, answers, {
                         $set_once: { prvi_quiz: new Date().toISOString() }
                     }));
                 }
@@ -548,6 +555,7 @@
                             action: 'lead',
                             name: state.name,
                             email: email,
+                            phone: state.phone,
                             event_id: eventId,
                             fbp: UrsaTrack.fbp,
                             fbc: UrsaTrack.fbc,
@@ -601,6 +609,7 @@
 
         document.getElementById('input-name').addEventListener('keydown', e => { if (e.key === 'Enter') submitName(); });
         document.getElementById('input-email').addEventListener('keydown', e => { if (e.key === 'Enter') submitEmail(); });
+        document.getElementById('input-phone').addEventListener('keydown', e => { if (e.key === 'Enter') submitEmail(); });
     </script>
 </body>
 

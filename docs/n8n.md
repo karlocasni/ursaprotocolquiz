@@ -57,6 +57,7 @@ Otvori node **Config** i upiši:
 | `SLACK_CHANNEL` | `ursa-odobrenje` |
 | `EMAIL_FROM` | `Ursa <ursa@nemaneide.com>` |
 | `STOP_EMAILS` | prazno; tu upisuješ adrese onih koji odgovore STOP, odvojene zarezom |
+| `URSA_PHONE` | Ursin broj za poziv i WhatsApp u svakom mailu (prije potpisa). U repou prazno, u živom n8n-u upisan. Prazno = mailovi bez tog reda. |
 
 Odgovori na mailove (pitanja, STOP) stižu u `ursa@nemaneide.com`. STOP se ne obrađuje automatski: adresu dodaj u `STOP_EMAILS`.
 

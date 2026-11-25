@@ -438,7 +438,7 @@ const ATTRIBUTION_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_id', 
 // Original 'Leads' columns. Never reorder or rename: old rows depend on them.
 const LEAD_BASE_HEADERS = ["Timestamp", "Ime", "Email", "Vrsta", "Cilj", "DatumPrijave"];
 // Added to the RIGHT of the existing columns. Rows are written by header name, so order drift is harmless.
-const LEAD_EXTRA_HEADERS = ['event_id', 'bodytype', 'age', 'motivation', 'struggle', 'tried', 'diet', 'fear']
+const LEAD_EXTRA_HEADERS = ['event_id', 'bodytype', 'age', 'motivation', 'struggle', 'tried', 'diet', 'fear', 'phone']
     .concat(ATTRIBUTION_KEYS)
     .concat(['fbp', 'fbc', 'user_agent', 'ph_distinct_id', 'page_url']);
 const LEAD_QUIZ_KEYS = ['bodytype', 'age', 'motivation', 'struggle', 'tried', 'diet', 'fear'];

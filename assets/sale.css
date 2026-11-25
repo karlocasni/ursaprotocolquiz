@@ -1,0 +1,74 @@
+/* Popust za studeni (uz assets/sale.js) */
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+:root { --bn: #e3141b; --bn-dark: #7d070b; }
+
+/* Traka na vrhu ponude */
+.sale-strip { position: relative; display: flex; align-items: center; justify-content: center; gap: 2px 18px; flex-wrap: wrap; min-height: 46px; padding: 9px 18px; background: linear-gradient(90deg, #b80d13, var(--bn) 35%, var(--bn) 65%, #b80d13); color: #fff; font-size: 0.95rem; font-weight: 600; line-height: 1.3; text-decoration: none; overflow: hidden; }
+.sale-strip::after { content: ''; position: absolute; inset: 0 auto 0 0; width: 150px; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent); transform: translateX(-160px) skewX(-20deg); animation: strip-shine 3.6s ease-in-out infinite; pointer-events: none; }
+@keyframes strip-shine { 0%, 25% { left: 0; transform: translateX(-160px) skewX(-20deg); } 70%, 100% { left: 100%; transform: translateX(60px) skewX(-20deg); } }
+.sale-strip b { font-family: var(--display); font-variation-settings: 'wdth' 116; font-weight: 800; font-size: 1.02rem; letter-spacing: -0.005em; }
+.sale-strip em { font-style: normal; white-space: nowrap; }
+.sale-strip u { text-underline-offset: 3px; text-decoration-thickness: 1px; }
+.sale-strip:hover u { text-decoration-thickness: 2px; }
+.sale-strip i { display: inline-block; font-style: normal; animation: strip-arrow 1.2s ease-in-out infinite; }
+@keyframes strip-arrow { 50% { transform: translateY(3px); } }
+
+/* Banner iznad cijena */
+.sale-bar { position: relative; display: grid; grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.15fr) auto; align-items: center; gap: clamp(18px, 2.6vw, 44px); margin: clamp(20px, 3vw, 44px) 0 clamp(34px, 4.4vw, 64px); padding: clamp(22px, 2.6vw, 38px) clamp(22px, 3vw, 46px) clamp(22px, 2.6vw, 38px) 0; border-radius: 14px; background: #050505; scroll-margin-top: clamp(80px, 7vw, 104px); }
+.sale-bar::before { content: ''; position: absolute; inset: 0; border-radius: inherit; background: linear-gradient(100deg, var(--bn) 0%, var(--bn-dark) 62%, #300204 100%); clip-path: polygon(0 0, 46% 0, 41% 15%, 58% 9%, 47% 30%, 72% 30%, 50% 48%, 79% 60%, 50% 66%, 64% 88%, 45% 80%, 47% 100%, 0 100%); }
+.sale-bar > * { position: relative; }
+.sale-badge { width: 118%; max-width: none; margin: -24% 0 -9% -5%; transform: rotate(-3deg); filter: drop-shadow(0 18px 30px rgba(0, 0, 0, 0.6)); }
+.sale-badge.is-armed { opacity: 0; }
+.sale-bar-text { padding-left: clamp(10px, 3vw, 56px); }
+.sale-bar-text p { font-weight: 600; font-size: 1.08rem; color: #fff; text-shadow: 0 1px 10px rgba(0, 0, 0, 0.7); }
+.sale-bar-text p:last-child { text-wrap: balance; }
+.sale-bar-text .sale-bar-title { margin: 2px 0 10px; font-family: var(--display); font-variation-settings: 'wdth' 118; font-weight: 800; font-size: clamp(2rem, 3.7vw, 3.5rem); line-height: 0.98; letter-spacing: -0.025em; }
+.sale-clock { display: flex; gap: 8px; }
+.sale-clock div { min-width: clamp(58px, 5.4vw, 82px); padding: 12px 8px 10px; border-radius: 8px; background: #fff; color: var(--ink); text-align: center; overflow: hidden; }
+.sale-clock b { display: block; font-family: var(--display); font-variation-settings: 'wdth' 108; font-weight: 800; font-size: clamp(1.8rem, 2.9vw, 2.7rem); line-height: 1.05; font-variant-numeric: tabular-nums; }
+.sale-clock span { color: #4c4f54; font-size: 0.88rem; font-weight: 600; }
+
+.sale-price { flex: none; }
+.sale-was { display: flex; align-items: center; gap: 12px; min-height: 34px; margin-bottom: 4px; opacity: 0; transform: translateY(16px); }
+.sale-was s { font-weight: 700; font-size: 1.3rem; color: var(--muted); text-decoration: line-through 2px var(--bn); }
+.plan--top .sale-was s { color: #63666b; }
+.sale-was b { padding: 4px 11px; border-radius: 4px; background: var(--bn); color: #fff; font-size: 0.98rem; line-height: 1.5; transform: scale(0.4); transform-origin: 0 50%; opacity: 0; white-space: nowrap; }
+.sale-stage { position: relative; width: fit-content; }
+.sale-stage .price { font-variant-numeric: tabular-nums; }
+.sale-num b { font: inherit; }
+.sale-cut { position: absolute; inset: 0; opacity: 0; clip-path: polygon(-12% -20%, 76% -20%, 36% 120%, -12% 120%); }
+.sale-cut--2 { clip-path: polygon(76% -20%, 112% -20%, 112% 120%, 36% 120%); }
+.sale-claw { position: absolute; left: 50%; top: -78%; width: 20px; height: 256%; margin-left: -10px; opacity: 0; background: var(--bn); clip-path: polygon(62% 0, 100% 26%, 84% 62%, 30% 100%, 0 54%, 18% 22%); pointer-events: none; }
+.sale-claw:nth-of-type(1) { margin-left: -64px; }
+.sale-claw:nth-of-type(3) { margin-left: 44px; }
+.sale-parts { min-height: 1.6em; margin-top: 6px; color: var(--muted); font-weight: 600; opacity: 0; }
+.plan--top .sale-parts { color: #55585d; }
+
+.sale-price.is-hit .sale-num { color: var(--y); }
+.plan--top .sale-price.is-hit .sale-num { color: var(--ink); }
+.sale-price.is-low .sale-num { color: var(--y); }
+.plan--top .sale-price.is-low .sale-num { color: var(--ink); }
+.is-low .sale-was { opacity: 1; transform: none; transition: opacity 0.3s ease, transform 0.35s cubic-bezier(0.2, 0.8, 0.3, 1); }
+.is-low .sale-was b { opacity: 1; transform: none; transition: opacity 0.15s ease 0.22s, transform 0.4s cubic-bezier(0.2, 1.5, 0.4, 1) 0.22s; }
+.is-low .sale-parts { opacity: 1; transition: opacity 0.4s ease 0.35s; }
+
+@media (max-width: 1120px) {
+    .sale-bar { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1fr); }
+    .sale-badge { grid-row: 1 / 3; }
+    .sale-bar-text { align-self: end; }
+    .sale-clock { margin-left: clamp(10px, 3vw, 56px); }
+    .sale-bar::before { clip-path: polygon(0 0, 46% 0, 41% 15%, 52% 12%, 46% 34%, 58% 40%, 47% 52%, 60% 66%, 47% 70%, 55% 90%, 44% 84%, 46% 100%, 0 100%); }
+}
+
+@media (max-width: 680px) {
+    .sale-strip { gap: 0 clamp(8px, 3vw, 14px); padding: 9px 10px; font-size: clamp(0.8rem, 3.7vw, 0.95rem); }
+    .sale-strip b { font-size: 1.06em; }
+    .sale-bar { display: flow-root; margin-top: 30px; padding: 0 18px 22px; text-align: center; scroll-margin-top: 76px; }
+    .sale-bar::before { clip-path: polygon(0 0, 100% 0, 100% 44%, 88% 56%, 84% 49%, 70% 62%, 62% 52%, 50% 66%, 40% 52%, 30% 62%, 18% 50%, 12% 58%, 0 46%); background: linear-gradient(170deg, var(--bn) 0%, var(--bn-dark) 70%); }
+    .sale-badge { width: calc(100% + 24px); margin: -74px -12px 8px; }
+    .sale-bar-text { padding: 0; margin-bottom: 18px; }
+    .sale-bar-text .sale-bar-title { font-size: clamp(1.7rem, 8.4vw, 2.3rem); margin: 0 0 6px; }
+    .sale-clock { margin: 0; }
+    .sale-clock div { flex: 1; min-width: 0; padding: 10px 4px 8px; }
+}

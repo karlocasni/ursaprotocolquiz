@@ -791,6 +791,7 @@
         .stats-300 { background: rgba(45, 212, 191, 0.15); color: #2dd4bf; border-color: rgba(45, 212, 191, 0.25); }
         .stats-400 { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border-color: rgba(56, 189, 248, 0.25); }
         .stats-400rate { background: rgba(56, 189, 248, 0.25); color: #7dd3fc; border-color: rgba(56, 189, 248, 0.4); }
+        .stats-500 { background: rgba(250, 204, 21, 0.15); color: #facc15; border-color: rgba(250, 204, 21, 0.25); }
         .stats-600 { background: rgba(251, 146, 60, 0.15); color: #fb923c; border-color: rgba(251, 146, 60, 0.25); }
         .stats-600rate { background: rgba(251, 146, 60, 0.25); color: #fdba74; border-color: rgba(251, 146, 60, 0.4); }
         .stats-paid { background: rgba(34, 197, 94, 0.2); color: #4ade80; border-color: rgba(34, 197, 94, 0.35); }
@@ -982,6 +983,11 @@
                 <div class="kpi-sub" id="kpi400Sub">Paket 90 dana</div>
             </div>
             <div class="kpi-card">
+                <div class="kpi-label"><i class="fa-solid fa-tag" style="color:#facc15"></i> 500€ (180 dana)</div>
+                <div class="kpi-value" style="color: #facc15;" id="kpi500">0</div>
+                <div class="kpi-sub" id="kpi500Sub">Paket 180 dana (popust)</div>
+            </div>
+            <div class="kpi-card">
                 <div class="kpi-label"><i class="fa-solid fa-tag" style="color:#fb923c"></i> 600€ (180 dana)</div>
                 <div class="kpi-value" style="color: #fb923c;" id="kpi600">0</div>
                 <div class="kpi-sub" id="kpi600Sub">Paket 180 dana</div>
@@ -1020,6 +1026,7 @@
                         <option value="all">Svi paketi / oznake</option>
                         <option value="300€">300€ (90 dana, popust)</option>
                         <option value="400€">400€ (90 dana)</option>
+                        <option value="500€">500€ (180 dana, popust)</option>
                         <option value="600€">600€ (180 dana)</option>
                         <option value="Jednokratno">Jednokratno</option>
                         <option value="2 rate">2 rate</option>
@@ -1140,10 +1147,11 @@
         let activePopoverRowIdx = null;
 
         // Notion Color Presets
-        const STANDARD_BADGES = ['300€', '400€', '600€', 'Jednokratno', '2 rate'];
+        const STANDARD_BADGES = ['300€', '400€', '500€', '600€', 'Jednokratno', '2 rate'];
         const NOTION_PILL_CLASSES = {
             '300€': 'notion-pill-teal',
             '400€': 'notion-pill-blue',
+            '500€': 'notion-pill-yellow',
             '600€': 'notion-pill-orange',
             'Jednokratno': 'notion-pill-green',
             '2 rate': 'notion-pill-purple'
@@ -1377,8 +1385,14 @@
                     badgesSet.add('400€');
                     matched = true;
                 }
+                // 500€ – novi checkout šalje "180 dana - ...", stari "Potpuna transformacija (180 dana) - ..." i ostaje 600€
+                const isNewCheckout180 = lower.startsWith('180 dana -');
+                if (isNewCheckout180) {
+                    badgesSet.add('500€');
+                    matched = true;
+                }
                 // 600€ (180 dana)
-                if (lower.includes('180 dana') || lower.includes('180d') || lower.includes('600') || lower.includes('potpuna')) {
+                if (!isNewCheckout180 && (lower.includes('180 dana') || lower.includes('180d') || lower.includes('600') || lower.includes('potpuna'))) {
                     badgesSet.add('600€');
                     matched = true;
                 }
@@ -1534,6 +1548,7 @@
                 <option value="all">Svi paketi / oznake</option>
                 <option value="300€">300€ (90 dana, popust)</option>
                 <option value="400€">400€ (90 dana)</option>
+                <option value="500€">500€ (180 dana, popust)</option>
                 <option value="600€">600€ (180 dana)</option>
                 <option value="Jednokratno">Jednokratno</option>
                 <option value="2 rate">2 rate</option>
@@ -1628,6 +1643,8 @@
                 eur300Rate: 0,
                 eur400: 0,
                 eur400Rate: 0,
+                eur500: 0,
+                eur500Rate: 0,
                 eur600: 0,
                 eur600Rate: 0,
                 jednokratno: 0,
@@ -1643,6 +1660,7 @@
                 const badges = parseBadges(item.row[4]);
                 let is300 = badges.includes('300€');
                 let is400 = badges.includes('400€');
+                let is500 = badges.includes('500€');
                 let is600 = badges.includes('600€');
                 let is2Rate = badges.includes('2 rate');
                 let isJednokratno = badges.includes('Jednokratno');
@@ -1656,6 +1674,11 @@
                     s.eur400++;
                     if (is2Rate) s.eur400Rate++;
                     s.revenue += 400;
+                }
+                if (is500) {
+                    s.eur500++;
+                    if (is2Rate) s.eur500Rate++;
+                    s.revenue += 500;
                 }
                 if (is600) {
                     s.eur600++;
@@ -1680,6 +1703,9 @@
             }
             if (s.eur400 > 0) {
                 html += `<span class="stats-badge stats-400 ${active==='400'?'active-filter':''}" onclick="setGroupFilter('${groupId}', '400', event)">400€: ${s.eur400}</span>`;
+            }
+            if (s.eur500 > 0) {
+                html += `<span class="stats-badge stats-500 ${active==='500'?'active-filter':''}" onclick="setGroupFilter('${groupId}', '500', event)">500€: ${s.eur500}</span>`;
             }
             if (s.eur600 > 0) {
                 html += `<span class="stats-badge stats-600 ${active==='600'?'active-filter':''}" onclick="setGroupFilter('${groupId}', '600', event)">600€: ${s.eur600}</span>`;
@@ -1713,6 +1739,9 @@
 
             document.getElementById('kpi400').textContent = s.eur400;
             document.getElementById('kpi400Sub').textContent = `${s.eur400Rate} na rate, ${s.eur400 - s.eur400Rate} jednokratno`;
+
+            document.getElementById('kpi500').textContent = s.eur500;
+            document.getElementById('kpi500Sub').textContent = `${s.eur500Rate} na rate, ${s.eur500 - s.eur500Rate} jednokratno`;
 
             document.getElementById('kpi600').textContent = s.eur600;
             document.getElementById('kpi600Sub').textContent = `${s.eur600Rate} na rate, ${s.eur600 - s.eur600Rate} jednokratno`;
@@ -1831,6 +1860,7 @@
                 if (activeGroupFilter) {
                     if (activeGroupFilter === '300' && !badges.includes('300€')) return false;
                     if (activeGroupFilter === '400' && !badges.includes('400€')) return false;
+                    if (activeGroupFilter === '500' && !badges.includes('500€')) return false;
                     if (activeGroupFilter === '600' && !badges.includes('600€')) return false;
                     if (activeGroupFilter === 'jednokratno' && !badges.includes('Jednokratno')) return false;
                     if (activeGroupFilter === '2rate' && !badges.includes('2 rate')) return false;

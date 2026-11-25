@@ -10,6 +10,8 @@
         premium: 'https://nemaneide.ursaprotocol.com/checkout/',
         standard: 'https://nemaneide.ursaprotocol.com/checkout/'
     };
+    // Bez sale.js (npr. stara stranica iz cachea) ponuda radi s redovnim cijenama
+    const sale = window.UrsaSale || { active: false, stripHtml: () => '', barHtml: () => '', priceHtml: (plan, regular) => `<p class="price">${regular}<span>€</span></p>`, url: (plan, regular) => regular, start: () => {} };
     const WHATSAPP = 'https://wa.me/385992088022?text=%20URSAPROTOCOL';
 
     const body = document.body;
@@ -22,7 +24,7 @@
     // ---------- Analitika (PostHog) ----------
     function track(event, props, leaving) {
         if (!window.posthog) return;
-        const common = { vsl_page: PAGE, vsl_gender: isFemale ? 'Žensko' : 'Muško', vsl_from_quiz: params.has('goal'), vsl_version: '2026-11' };
+        const common = { vsl_page: PAGE, vsl_gender: isFemale ? 'Žensko' : 'Muško', vsl_from_quiz: params.has('goal'), vsl_version: '2026-11', vsl_sale: sale.active };
         try { posthog.capture(event, Object.assign(common, props), leaving ? { transport: 'sendBeacon' } : undefined); } catch (e) {}
     }
 
@@ -73,6 +75,7 @@
 
     function offerHtml() {
         return `
+        ${sale.stripHtml()}
         <section class="band value" data-section="1 Sto dobivas">
             <div class="wrap">
                 <h2>Evo sve što dobivaš da za 90 dana imaš tijelo koje si oduvijek htio:</h2>
@@ -100,6 +103,7 @@
 
         <section class="band band--2 pricing" data-section="4 Cijene">
             <div class="wrap">
+                ${sale.barHtml()}
                 <h2>Odaberi svoj plan:</h2>
                 <div class="plans">
                     <article class="plan plan--top" id="premium-plan">
@@ -109,14 +113,14 @@
                         <p class="plan-for">Za one koji žele ekskluzivni pristup Ursi i rezultate koji ostaju.</p>
                         ${list(FEATURES, 'ticks')}
                         <div class="plan-extra"><p>Ekskluzivno uz Premium:</p>${list(PREMIUM, 'ticks')}</div>
-                        <div class="plan-buy"><p class="price">597<span>€</span></p><a class="btn" id="btn-buy-797" href="${CHECKOUT.premium}" data-buy="premium">Želim krenuti →</a></div>
+                        <div class="plan-buy">${sale.priceHtml('premium', 597)}<a class="btn" id="btn-buy-797" href="${sale.url('premium', CHECKOUT.premium)}" data-buy="premium">Želim krenuti →</a></div>
                     </article>
                     <article class="plan">
                         <h3>Spreman za promjenu</h3>
                         <p class="plan-len">90 dana programa</p>
                         <p class="plan-for">Sve što trebaš za plan transformacije u 90 dana.</p>
                         ${list(FEATURES, 'ticks')}
-                        <div class="plan-buy"><p class="price">397<span>€</span></p><a class="btn btn--white" id="btn-buy-497" href="${CHECKOUT.standard}" data-buy="standard">Započni →</a></div>
+                        <div class="plan-buy">${sale.priceHtml('standard', 397)}<a class="btn btn--white" id="btn-buy-497" href="${sale.url('standard', CHECKOUT.standard)}" data-buy="standard">Započni →</a></div>
                     </article>
                 </div>
             </div>
@@ -263,6 +267,11 @@
     const pitch = document.getElementById('vsl-pitch');
     pitch.innerHTML = forGender(offerHtml());
 
+    sale.start(pitch, {
+        seen: (plan, price) => track('vsl_sale_seen', { plan: plan, price: price }),
+        regularUrl: plan => CHECKOUT[plan]
+    });
+
     const goalEl = document.getElementById('hero-goal');
     if (goalEl) {
         // Samo cijeli odgovori iz kviza; skraćen ili nepoznat tekst iz linka pada na općeniti cilj
@@ -367,7 +376,7 @@
 
     function goToPlans(where) {
         track('vsl_cta_clicked', { where: where });
-        document.getElementById('premium-plan').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        (pitch.querySelector('.sale-bar') || document.getElementById('premium-plan')).scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     pitch.addEventListener('click', e => {

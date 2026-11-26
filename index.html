@@ -602,6 +602,10 @@
             sessionStorage.setItem('ursa_goal', state.goalLabel || state.goal);
             sessionStorage.setItem('ursa_gender', state.gender);
             sessionStorage.setItem('ursa_bodytype', state.bodytype);
+            // Za WhatsApp poruku na VSL-u ("Ne znaš koji je paket za tebe?"): dob i iskustvo kako ih je osoba vidjela u kvizu
+            const shown = group => { const b = document.querySelector(`.selected[onclick*="'${group}'"]`); return b ? b.textContent.replace(/\s+/g, ' ').trim() : ''; };
+            sessionStorage.setItem('ursa_age', state.age);
+            sessionStorage.setItem('ursa_struggle', shown('struggle'));
 
             // name/goal/gender/bodytype + atribucija (utm_*, fbclid, ad_id, adset_id, placement)
             window.location.href = UrsaTrack.carry(vslUrl('vsl.html'));

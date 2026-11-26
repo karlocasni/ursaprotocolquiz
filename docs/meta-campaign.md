@@ -31,8 +31,8 @@ Kad `Purchase` dođe na ~50 tjedno, za optimizaciju na `Purchase` radi se nova S
 | Dataset/pixel | Ursa Protocol (ursaprotocol.com) | `1375315374544689` |
 | Kampanja | URSA_QUIZ_COLD_2026-11 | `120255092194980120` |
 | Ad set | BROAD_HR_25-54 | `120255092196950120` |
-| Ad | STATIC_ISTIPLAN_4x5 (prije STATIC_JELACIC_4x5) | `120255092206890120`, kreativa `29784618354475009` |
-| Ad | STATIC_LETAK_4x5 (prije STATIC_BILJEZNICA_4x5) | `120255092207080120`, kreativa `3436249950085852` |
+| Ad | STATIC_ISTIPLAN_4x5 (prije STATIC_JELACIC_4x5) | `120255092206890120`, kreativa `1859709491888206` (od 26. 11.; prije `29784618354475009`) |
+| Ad | STATIC_LETAK_4x5 (prije STATIC_BILJEZNICA_4x5) | `120255092207080120`, kreativa `1815041469705019` (od 26. 11.; prije `3436249950085852`) |
 | Publika | RT_LANDED_NO_QUIZ_7D | `120255092186730120` |
 | Publika | RT_QUIZ_NO_LEAD_14D | `120255092186980120` |
 | Publika (isključena) | EXCL_BUYERS_180D | `120255092187470120` |
@@ -49,6 +49,11 @@ URL parameters (polje Tracking → URL parameters, ne u sam URL):
 ```text
 utm_source={{site_source_name}}&utm_medium=paid_social&utm_campaign={{campaign.name}}&utm_id={{campaign.id}}&utm_term={{adset.name}}&utm_content={{ad.name}}&ad_id={{ad.id}}&adset_id={{adset.id}}&placement={{placement}}
 ```
+
+## Izmjene 26. 11. 2026. (preko API-ja, sve i dalje PAUSED)
+
+- **Multi-advertiser ads isključeni** na sva tri oglasa (`contextual_multi_ads.enroll_status = OPT_OUT`). Kreativa se nakon kreiranja ne može mijenjati, pa je svaki oglas dobio novu kreativu s istim tekstom, slikom/videom i `url_tags`. Imena oglasa su ista, pa `utm_content` ostaje isti.
+- **Lokacija: samo ljudi koji žive u Hrvatskoj.** `location_types` je bio `home`, `recent`, `frequently_in` (uključivao je i ljude koji su nedavno bili u HR). Poslan je samo `home`, a Meta ga sprema kao `home` + `frequently_in`, što je njena opcija "People living in this location".
 
 ## Custom audiences (abandon redovi bez kontakta)
 
@@ -98,7 +103,7 @@ Headline "Saznaj koji si od 4 tipa tijela" · Description "Besplatni kviz, 2 min
 
 Obje: Advantage+ creative i automatske preinake (tekst, slika, animacija) isključeni, isti `url_tags` kao prije.
 
-**VIDEO_4RAZLOGA_58s** (ad `120255099056770120`, kreativa `28531678013173914`, video `1118486477885143`)
+**VIDEO_4RAZLOGA_58s** (ad `120255099056770120`, kreativa `2269195926978322` od 26. 11., prije `28531678013173914`; video `1118486477885143`)
 
 `IMG_5903.MP4`, 57,6 s, 1080×1920. Vlasnik je 25. 11. 2026. odlučio da ide kao **dark post** (samo oglas, bez organske objave),
 iznimka od pravila iz briefa. Kod skaliranja i dupliciranja koristiti **isti post** (`effective_object_story_id`

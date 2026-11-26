@@ -106,6 +106,10 @@
 .plan-buy .btn { flex: 1 1 220px; }
 .price { font-family: var(--display); font-variation-settings: 'wdth' 116; font-weight: 800; font-size: clamp(3rem, 5vw, 4.4rem); line-height: 1; letter-spacing: -0.03em; }
 .price span { font-size: 0.5em; margin-left: 4px; vertical-align: 0.45em; }
+.plan-help { margin-top: clamp(16px, 2vw, 26px); padding: clamp(18px, 2.4vw, 26px) clamp(20px, 3vw, 34px); border: 1px solid var(--line); border-radius: 12px; display: flex; align-items: center; justify-content: space-between; gap: 16px 28px; flex-wrap: wrap; }
+.plan-help p { flex: 1 1 320px; max-width: 60ch; color: var(--muted); }
+.plan-help strong { color: #fff; }
+.plan-help .btn.wa { margin-top: 0; }
 
 /* ---------- Garancija ---------- */
 .guarantee { background: var(--y); color: var(--ink); overflow: hidden; }

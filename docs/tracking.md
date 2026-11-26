@@ -27,6 +27,7 @@ Postojeća PostHog imena se ne mijenjaju. Spec ime → stvarno ime:
 | VSL učitan | `vsl_view` | `vsl_viewed` | `ViewContent` `{content_name:'vsl'}` | — | pixel |
 | 50 % / 75 % videa | `vsl_50`, `vsl_75` | `vsl_50`, `vsl_75` (novo, jednom po posjetu) | — | — | — |
 | Klik na checkout | `checkout_started` | `vsl_checkout_clicked` (+ `event_id`) | `InitiateCheckout` `{value, currency:'EUR'}` | UUID iz preglednika | pixel + CAPI (n8n) |
+| Klik "Pitaj Ursu na WhatsApp" ispod paketa | — | `vsl_whatsapp_clicked` (`where: 'paket'`, `second`) | `Contact` | UUID iz preglednika | samo pixel |
 | Uplata | `purchase` | `purchase` (novo, šalje Apps Script) | `Purchase` `{value, currency:'EUR'}` | SureCart order ID | pixel (checkout) + CAPI (Apps Script) |
 
 Ostali postojeći eventi (`vsl_video_progress`, `vsl_left`, `vsl_offer_opened`, …) ostaju kakvi jesu.
@@ -141,3 +142,9 @@ Oglas se čita iz event propertyja `utm_content`, ne iz `$initial_utm_content`: 
 person property `$initial_utm_content` ostaje prazan (provjereno HogQL-om 25. 11. 2026.).
 Grafove je napravio n8n privremenim workflowom preko credentiala "PostHog personal API key"
 (ključ "n8n ursa", prava Query read + Dashboard/Insight write); privremeni workflow je obrisan.
+
+## WhatsApp gumb ispod paketa (VSL)
+
+Ispod oba paketa je okvir "Ne znaš koji je paket za tebe?" s gumbom "Pitaj Ursu na WhatsApp" (`assets/vsl-page.js`, `waPlanHref()`).
+Gumb otvara `wa.me/385992088022` s već napisanom porukom: ime, cilj, godine, tip tijela i iskustvo iz kviza. Polja kojih nema se izostave.
+Ime, cilj, spol i tip tijela dolaze iz URL-a (pa rade i iz linka u mailu). Godine i iskustvo dolaze samo iz `sessionStorage` (`ursa_age`, `ursa_struggle`, sprema ih kviz), pa ih nema kad netko dođe iz maila u novoj kartici.

@@ -77,6 +77,21 @@
         ['Imam još pitanja.', `Javi nam se porukom klikom na gumb ispod. Odgovaramo brzo.<a class="btn wa" href="${WHATSAPP}" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i> Pošalji poruku na WhatsApp</a>`]
     ];
 
+    // "Ne znaš koji je paket za tebe?": WhatsApp Ursi s već napisanom porukom (ime, cilj i odgovori iz kviza)
+    function waPlanHref() {
+        const name = fromQuiz('name');
+        const facts = [
+            ['Cilj', fromQuiz('goal')],
+            ['Godine', fromQuiz('age')],
+            ['Tip tijela', bodytype ? BODY_TYPES[bodytype][isFemale ? 1 : 0] : ''],
+            ['Iskustvo', fromQuiz('struggle')]
+        ].filter(f => f[1]);
+        const lines = [`Bok Ursa${name && name !== 'Prijatelju' ? ', ja sam ' + name : ''}. ${isFemale ? 'Pogledala' : 'Pogledao'} sam tvoj video i ne znam koji je paket za mene.`];
+        if (facts.length) lines.push('', ...facts.map(([k, v]) => `${k}: ${v}`));
+        lines.push('', 'Koji bi mi preporučio?');
+        return WHATSAPP.split('?')[0] + '?text=' + encodeURIComponent(lines.join('\n'));
+    }
+
     const check = '<i class="fa-solid fa-check" aria-hidden="true"></i>';
     const list = (items, cls) => `<ul class="${cls}">${items.map(i => `<li>${check}<span>${i}</span></li>`).join('')}</ul>`;
     const cta = (where, cls) => `<a class="btn ${cls || ''}" href="#premium-plan" data-cta="${where}">Želim krenuti →</a>`;
@@ -132,6 +147,10 @@
                         ${list(FEATURES, 'ticks')}
                         <div class="plan-buy">${sale.priceHtml('standard', 397)}<a class="btn btn--white" id="btn-buy-497" href="${sale.url('standard', CHECKOUT.standard)}" data-buy="standard">Započni →</a></div>
                     </article>
+                </div>
+                <div class="plan-help">
+                    <p><strong>Ne znaš koji je paket za tebe?</strong> Piši Ursi na WhatsApp. Poruka s tvojim odgovorima iz kviza je već napisana, samo je pošalješ.</p>
+                    <a class="btn wa" href="${waPlanHref()}" target="_blank" rel="noopener" data-wa="paket"><i class="fa-brands fa-whatsapp"></i> Pitaj Ursu na WhatsApp</a>
                 </div>
             </div>
         </section>
@@ -413,6 +432,12 @@
     pitch.addEventListener('click', e => {
         const jump = e.target.closest('[data-cta]');
         if (jump) { e.preventDefault(); goToPlans(jump.dataset.cta); return; }
+        const wa = e.target.closest('[data-wa]');
+        if (wa) {
+            track('vsl_whatsapp_clicked', { where: wa.dataset.wa, second: Math.round(player.time) }, true);
+            T.pixel('Contact', { content_name: wa.dataset.wa }, T.uuid());
+            return;
+        }
         const buy = e.target.closest('[data-buy]');
         if (buy) {
             visit.checkout = true;

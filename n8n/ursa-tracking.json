@@ -954,8 +954,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        500,
-        800
+        2832,
+        600
       ]
     },
     {
@@ -964,8 +964,8 @@
       "type": "n8n-nodes-base.slack",
       "typeVersion": 2.3,
       "position": [
-        740,
-        800
+        3056,
+        600
       ],
       "credentials": {
         "slackApi": {

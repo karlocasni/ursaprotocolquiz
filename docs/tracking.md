@@ -109,9 +109,9 @@ Workflow `n8n/ursa-tracking.json`, jedan webhook (`ursa-capi`):
 | --- | --- | --- | --- | --- |
 | `Lead` | CAPI `Lead` | 1 h | nema `vsl_viewed` | mail s linkom na VSL |
 | `Lead` | | +23 h | ima `vsl_checkout_clicked` ili `purchase` | stop |
-| | | | ima `vsl_50` | Slack `ursa-odobrenje` sa svim odgovorima i brojem, ručno (bez automatske poruke) |
+| | | | ima `vsl_50` | Slack `ursa-ads` sa svim odgovorima i brojem, ručno (bez automatske poruke) |
 | | | | inače | mail s jednim pitanjem o cilju |
-| `InitiateCheckout` | CAPI `InitiateCheckout` | 1 h | nema `purchase` | mail 1 + Slack `ursa-odobrenje` (broj, paket) |
+| `InitiateCheckout` | CAPI `InitiateCheckout` | 1 h | nema `purchase` | mail 1 + Slack `ursa-ads` (broj, paket) |
 | | | +23 h | nema `purchase` | mail 2 |
 
 Meta custom audiences (bez n8n-a): `PageView` bez `ViewContent`, 7 dana; `ViewContent` (quiz) bez `Lead`, 14 dana.

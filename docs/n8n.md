@@ -11,7 +11,7 @@ U datoteci nema nijednog tokena ni ključa. Sve tajne žive samo u n8n credentia
 3. **Meta CAPI** šalje event s istim `event_name` i `event_id` kao pixel (dedup). Ako Meta vrati grešku, mailovi idu dalje,
    a greška ostaje vidljiva u Executions.
 4. **Lead**: čeka 1 h → nema `vsl_viewed` → mail s linkom na VSL. Čeka još 23 h →
-   ima `vsl_checkout_clicked` ili `purchase` → stop; ima `vsl_50` → poruka u Slack `#ursa-odobrenje` (bez maila, javljaš se ručno);
+   ima `vsl_checkout_clicked` ili `purchase` → stop; ima `vsl_50` → poruka u Slack `#ursa-ads` (bez maila, javljaš se ručno);
    gledao manje od 50 % → mail s jednim pitanjem o cilju; nije gledao ni nakon prvog maila → ništa.
 5. **InitiateCheckout s emailom**: 1 h bez `purchase` → mail 1; još 23 h bez `purchase` → mail 2. Bez emaila samo CAPI.
 
@@ -39,7 +39,7 @@ Imena neka budu točno ovakva, onda ih nodovi lakše nađu. Nakon importa otvori
 | `Meta CAPI token` | **Query Auth** | Name: `access_token`, Value: token | Meta Events Manager → tvoj dataset (pixel) → **Settings** → **Conversions API** → **Generate access token** | `Meta CAPI` |
 | `PostHog personal API key` | **Header Auth** | Name: `Authorization`, Value: `Bearer <phx_ključ>` | PostHog (EU) → avatar → **Settings** → **Personal API keys** → **Create**. Scope: projekt Ursa, **Query: Read** (ako upit vrati 403, dodaj i **Person: Read**) | 4× `… PostHog check …` |
 | `Resend` (postojeći credential **Ursa**, tip Resend API — već spojen) | **Header Auth** | Name: `Authorization`, Value: `Bearer <re_ključ>` | resend.com → **API Keys**. Ako već postoji credential iz email sekvence (`Resend` ili `Authorization Resend`), samo ga odaberi | 4× `… email …` |
-| `Slack` (postojeći credential **SLACK_BOT** — već spojen) | **Slack API** (Access Token) | Access Token: `xoxb-…` | api.slack.com/apps → tvoja aplikacija → **OAuth & Permissions** → Bot Token Scopes: `chat:write` → **Install to Workspace** → kopiraj *Bot User OAuth Token*. U Slacku u `#ursa-odobrenje` upiši `/invite @ImeAplikacije` | `Slack: javi se ručno` |
+| `Slack` (postojeći credential **SLACK_BOT** — već spojen) | **Slack API** (Access Token) | Access Token: `xoxb-…` | api.slack.com/apps → tvoja aplikacija → **OAuth & Permissions** → Bot Token Scopes: `chat:write` → **Install to Workspace** → kopiraj *Bot User OAuth Token*. U Slacku u `#ursa-ads` upiši `/invite @ImeAplikacije` | `Slack: novi lead`, `Slack: javi se ručno`, `Slack: checkout bez kupnje` |
 
 Pošiljatelj mailova je `Ursa <ursa@nemaneide.com>` (isto kao postojeća sekvenca), domena mora biti verificirana u Resendu.
 
@@ -54,7 +54,8 @@ Otvori node **Config** i upiši:
 | `META_TEST_EVENT_CODE` | prazno. Samo za testiranje: kod iz Events Manager → **Test events** (npr. `TEST12345`). Poslije obavezno obrisati. |
 | `POSTHOG_PROJECT_ID` | već upisano: `367703`. Dok je `SET_ME`, nema mailova ni Slacka. |
 | `POSTHOG_HOST` | `https://eu.posthog.com` |
-| `SLACK_CHANNEL` | `ursa-odobrenje` |
+| `SLACK_CHANNEL` | `ursa-odobrenje` (više se ne koristi u ovom workflowu) |
+| `SLACK_ADS_CHANNEL` | `ursa-ads`: svi Slack alerti iz ovog workflowa (novi lead, 24 h, checkout bez kupnje) |
 | `EMAIL_FROM` | `Ursa <ursa@nemaneide.com>` |
 | `STOP_EMAILS` | prazno; tu upisuješ adrese onih koji odgovore STOP, odvojene zarezom |
 | `URSA_PHONE` | Ursin broj za poziv i WhatsApp u svakom mailu (prije potpisa). U repou prazno, u živom n8n-u upisan. Prazno = mailovi bez tog reda. |
@@ -75,7 +76,7 @@ Frontend šalje na produkcijski URL (`/webhook/ursa-capi`), pa je najlakše test
    - n8n → **Executions**: izvršenje je u stanju *Waiting*.
    - Ne otvaraj VSL → nakon ~2 min stiže mail „jesi stigao/stigla pogledati?“ s linkom (`utm_source=email…`).
    - Za drugi korak: otvori VSL i pogledaj malo (ispod 50 %) → nakon drugog čekanja stiže mail s pitanjem o cilju.
-     Pogledaj više od pola → umjesto maila poruka u `#ursa-odobrenje`. Klikni checkout → ništa.
+     Pogledaj više od pola → umjesto maila poruka u `#ursa-ads`. Klikni checkout → ništa.
    - Checkout tok: s emailom iz quiza klikni checkout i ne plati → mail 1, pa mail 2.
 5. Kad sve radi: vrati čekanja na **1 hour** i **23 hours**, obriši `META_TEST_EVENT_CODE`, spremi.
    Izvršenja koja već čekaju zadržavaju postavke s kojima su krenula.
@@ -100,4 +101,16 @@ Gore desno prebaci **Inactive → Active** (u novijim verzijama gumb **Publish**
 - **Nikad ne stiže mail**: otvori `… read check …` u izvršenju. `stop_unverified` znači da PostHog za taj email ne nalazi
   `quiz_completed` / `vsl_checkout_clicked` (provjeri da quiz radi `posthog.identify(email)`).
 - **Izvršenje pada na `… PostHog check …`**: krivi `POSTHOG_PROJECT_ID`, ključ bez scopea *Query: Read*, ili krivi host.
-- **Slack greška `not_in_channel`**: pozovi bota u `#ursa-odobrenje`.
+- **Slack greška `not_in_channel` ili `channel_not_found`**: kanal `#ursa-ads` mora postojati i bot mora biti u njemu (`/invite @ImeAplikacije`). Slack čvorovi imaju *On Error → Continue*, pa greška u Slacku ne zaustavlja mailove ni CAPI.
+
+## Slack `#ursa-ads` (od 27. 11. 2026.)
+
+Sve obavijesti o leadovima iz oglasa idu u `#ursa-ads`, a `#ursa-odobrenje` ostaje za kupnje (Apps Script).
+
+| Čvor | Kada | Što piše |
+| --- | --- | --- |
+| `Slack: novi lead` | odmah kad netko ostavi email u kvizu | ime, spol, dob, mobitel, email, cilj, tip tijela, motivacija, problem, što je probao/la, prehrana, strah, oglas, link na osobu u PostHogu |
+| `Slack: javi se ručno` | 24 h nakon kviza, odgledao/la više od pola VSL-a, bez checkouta | isto + poziv da se javiš ručno |
+| `Slack: checkout bez kupnje` | 1 h nakon klika na checkout, bez kupnje | mobitel, email, paket, oglas, PostHog |
+
+Testni leadovi s adresama iz `STOP_EMAILS` ne šalju obavijest o novom leadu.

@@ -133,6 +133,12 @@
               "name": "URSA_PHONE",
               "value": "",
               "type": "string"
+            },
+            {
+              "id": "5b0e7c1a-2f4d-4a8e-9c61-ursaadsch001",
+              "name": "SLACK_ADS_CHANNEL",
+              "value": "ursa-ads",
+              "type": "string"
             }
           ]
         },
@@ -590,7 +596,7 @@
         "select": "channel",
         "channelId": {
           "__rl": true,
-          "value": "={{ '#' + String($('Config').first().json.SLACK_CHANNEL).replace(/^#/, '') }}",
+          "value": "={{ '#' + String($('Config').first().json.SLACK_ADS_CHANNEL).replace(/^#/, '') }}",
           "mode": "name"
         },
         "messageType": "text",
@@ -598,7 +604,8 @@
         "otherOptions": {
           "includeLinkToWorkflow": false
         }
-      }
+      },
+      "onError": "continueRegularOutput"
     },
     {
       "id": "699dfede-1a27-4330-a537-9ad786ff21f9",
@@ -927,7 +934,7 @@
         "select": "channel",
         "channelId": {
           "__rl": true,
-          "value": "={{ '#' + String($('Config').first().json.SLACK_CHANNEL).replace(/^#/, '') }}",
+          "value": "={{ '#' + String($('Config').first().json.SLACK_ADS_CHANNEL).replace(/^#/, '') }}",
           "mode": "name"
         },
         "messageType": "text",
@@ -935,7 +942,53 @@
         "otherOptions": {
           "includeLinkToWorkflow": false
         }
-      }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Odmah nakon kviza: obavijest u Slack (#ursa-ads) sa svim podacima o novom leadu\nconst p = $json;\nif (p.event_name !== 'Lead' || !p.email || p.skip_reason === 'stop_list') return [];\nconst dash = (v) => (v ? String(v) : '—');\nconst f = String(p.gender || '').toLowerCase().startsWith('ž');\nconst cfg = $('Config').first().json;\nconst personUrl = `https://eu.posthog.com/project/${cfg.POSTHOG_PROJECT_ID}/person/${encodeURIComponent(p.email)}`;\nconst slackText = [\n  `:new: *Novi lead: ${dash(p.first_name)}* (${dash(p.gender)}, ${dash(p.age)})`,\n  `*Mobitel:* ${p.phone ? p.phone : (f ? 'nije ostavila' : 'nije ostavio')}`,\n  `*Email:* ${p.email}`,\n  `*Cilj:* ${dash(p.goal)} | *Tip tijela:* ${dash(p.bodytype)}`,\n  `*Motivacija:* ${dash(p.motivation)}`,\n  `*Najveći problem:* ${dash(p.struggle)}`,\n  `*Što je probao/la:* ${dash(p.tried)}`,\n  `*Prehrana:* ${dash(p.diet)}`,\n  `*Strah:* ${dash(p.fear)}`,\n  `*Oglas:* ${dash(p.utm_content)}`,\n  `*PostHog:* ${personUrl}`,\n].join('\\n');\nreturn [{ json: { email: p.email, slack_text: slackText } }];\n"
+      },
+      "id": "c1a2b3c4-0000-4e61-8b9a-leadslacktxt1",
+      "name": "Lead: Slack tekst",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        500,
+        800
+      ]
+    },
+    {
+      "id": "a7c4e2b0-5d3f-4e61-8b9a-slacknovilead1",
+      "name": "Slack: novi lead",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        740,
+        800
+      ],
+      "credentials": {
+        "slackApi": {
+          "name": "SLACK_BOT"
+        }
+      },
+      "parameters": {
+        "authentication": "accessToken",
+        "resource": "message",
+        "operation": "post",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ '#' + String($('Config').first().json.SLACK_ADS_CHANNEL).replace(/^#/, '') }}",
+          "mode": "name"
+        },
+        "messageType": "text",
+        "text": "={{ $json.slack_text }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "onError": "continueRegularOutput"
     }
   ],
   "pinData": {},
@@ -972,6 +1025,11 @@
           },
           {
             "node": "Route by event",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Lead: Slack tekst",
             "type": "main",
             "index": 0
           }
@@ -1225,6 +1283,17 @@
           }
         ],
         []
+      ]
+    },
+    "Lead: Slack tekst": {
+      "main": [
+        [
+          {
+            "node": "Slack: novi lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     }
   },

@@ -148,3 +148,10 @@ Grafove je napravio n8n privremenim workflowom preko credentiala "PostHog person
 Ispod oba paketa je okvir "Ne znaš koji je paket za tebe?" s gumbom "Pitaj Ursu na WhatsApp" (`assets/vsl-page.js`, `waPlanHref()`).
 Gumb otvara `wa.me/385992088022` s već napisanom porukom: ime, cilj, godine, tip tijela i iskustvo iz kviza. Polja kojih nema se izostave.
 Ime, cilj, spol i tip tijela dolaze iz URL-a (pa rade i iz linka u mailu). Godine i iskustvo dolaze samo iz `sessionStorage` (`ursa_age`, `ursa_struggle`, sprema ih kviz), pa ih nema kad netko dođe iz maila u novoj kartici.
+
+### Insight "Gdje ljudi odustaju: od stranice do kupnje" (28. 11. 2026.)
+
+Na dashboardu 1151378, link: https://eu.posthog.com/project/367703/insights/SBT7Sicj
+Koraci: prva kartica kviza (`quiz_step_reached` step_index 0) → `quiz_started` → ekran za email (`quiz_step_reached` step_index 12)
+→ `quiz_completed` → `vsl_video_started` → `vsl_50` → cijene (`vsl_section_viewed` section `4 Cijene`) → `vsl_checkout_clicked` → `purchase`.
+Prozor 7 dana, od 26. 11. 2026. Najveći pad između dva stupca je mjesto gdje odustaje najviše ljudi.

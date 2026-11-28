@@ -1,0 +1,292 @@
+{
+  "name": "Ursa: dnevni mail leadova",
+  "nodes": [
+    {
+      "id": "note",
+      "name": "README",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -260
+      ],
+      "parameters": {
+        "width": 700,
+        "height": 220,
+        "content": "## Ursa: dnevni mail leadova\nSvako jutro u 9:00 (Europe/Zagreb) šalje Ursi mail sa svim leadovima iz oglasa od jučer: prvo oni s mobitelom, pa zainteresirani bez broja, pa ostali. U prilogu leadovi.csv za Excel.\n**Ručno: svi leadovi od starta** šalje sve od 26. 11. 2026.\n`EMAIL_TO` u Configu je prazan u repou (javni repo); pravi primatelji su upisani samo u n8n."
+      }
+    },
+    {
+      "id": "d1",
+      "name": "Svako jutro u 9",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * *"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "d2",
+      "name": "Ručno: svi leadovi od starta",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        200
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "d3",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        100
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c1",
+              "name": "EMAIL_TO",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "c2",
+              "name": "EMAIL_FROM",
+              "value": "Ursa leadovi <ursa@nemaneide.com>",
+              "type": "string"
+            },
+            {
+              "id": "c3",
+              "name": "SKIP_EMAILS",
+              "value": "capi-test@ursaprotocol.com",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "d4",
+      "name": "Upiti",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        100
+      ],
+      "parameters": {
+        "jsCode": "// Koji leadovi: ručno pokretanje = svi od pokretanja kampanje, raspored u 9:00 = jučerašnji dan\nconst daily = $('Svako jutro u 9').isExecuted;\nconst mode = daily ? 'daily' : 'all';\nconst W = daily\n  ? \"timestamp >= toStartOfDay(now()) - INTERVAL 1 DAY AND timestamp < toStartOfDay(now())\"\n  : \"timestamp >= toDateTime('2026-11-26 16:00:00')\";\nconst AD = \"(properties.utm_medium = 'paid_social' OR person.properties.$initial_utm_medium = 'paid_social')\";\nconst q1 = `SELECT person.properties.email AS email, argMin(properties.name, timestamp), any(person.properties.phone), argMin(properties.gender, timestamp), argMin(properties.age, timestamp), argMin(properties.goal, timestamp), argMin(properties.bodytype, timestamp), argMin(properties.motivation, timestamp), argMin(properties.struggle, timestamp), argMin(properties.tried, timestamp), argMin(properties.diet, timestamp), argMin(properties.fear, timestamp), min(timestamp), argMin(coalesce(properties.utm_content, person.properties.$initial_utm_content), timestamp) FROM events WHERE event = 'quiz_completed' AND ${AD} AND ${W} AND notEmpty(toString(person.properties.email)) GROUP BY email ORDER BY min(timestamp) LIMIT 2000`;\nconst q2 = `SELECT person.properties.email AS email, countIf(event = 'vsl_50') > 0, countIf(event = 'vsl_checkout_clicked') > 0, countIf(event = 'purchase') > 0, countIf(event = 'vsl_whatsapp_clicked') > 0 FROM events WHERE event IN ('vsl_50', 'vsl_checkout_clicked', 'purchase', 'vsl_whatsapp_clicked') AND timestamp >= toDateTime('2026-11-20 00:00:00') AND person_id IN (SELECT person_id FROM events WHERE event = 'quiz_completed' AND ${W}) GROUP BY email LIMIT 5000`;\nreturn [{ json: { mode, q1, q2 } }];\n"
+      }
+    },
+    {
+      "id": "d5",
+      "name": "PostHog: leadovi",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        100
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://eu.posthog.com/api/projects/367703/query/",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ query: { kind: 'HogQLQuery', query: $('Upiti').first().json.q1 } }) }}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "name": "PostHog personal API key"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "d6",
+      "name": "PostHog: statusi",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        100
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://eu.posthog.com/api/projects/367703/query/",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ query: { kind: 'HogQLQuery', query: $('Upiti').first().json.q2 } }) }}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "name": "PostHog personal API key"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "d7",
+      "name": "Složi mail",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        100
+      ],
+      "parameters": {
+        "jsCode": "// Složi mail s leadovima iz oglasa (HTML + CSV prilog za Excel)\nconst cfg = $('Config').first().json;\nconst mode = $('Upiti').first().json.mode; // 'all' | 'daily'\nconst leadsRows = ($('PostHog: leadovi').first().json.results) || [];\nconst statusRows = ($('PostHog: statusi').first().json.results) || [];\n\nconst esc = (s) => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\"/g, '&quot;');\nconst dash = (v) => (v == null || v === '' ? '—' : String(v));\nconst tz = 'Europe/Zagreb';\nconst fmt = (iso) => {\n  const d = new Date(iso);\n  return isNaN(d) ? '' : d.toLocaleString('hr-HR', { timeZone: tz, day: 'numeric', month: 'numeric', hour: '2-digit', minute: '2-digit' });\n};\nconst fmtDay = (d) => d.toLocaleDateString('hr-HR', { timeZone: tz, day: 'numeric', month: 'numeric', year: 'numeric' });\n\nconst status = {};\nfor (const r of statusRows) status[String(r[0] || '').toLowerCase()] = { half: !!r[1], checkout: !!r[2], bought: !!r[3], wa: !!r[4] };\n\nconst skip = String(cfg.SKIP_EMAILS || '').toLowerCase().split(/[\\s,;]+/).filter(Boolean);\nconst leads = [];\nfor (const r of leadsRows) {\n  const email = String(r[0] || '').trim().toLowerCase();\n  if (!email || skip.includes(email)) continue;\n  const phone = String(r[2] || '').replace(/[^\\d+]/g, '');\n  const st = status[email] || {};\n  leads.push({\n    email, name: r[1] && r[1] !== 'Prijatelju' ? String(r[1]) : '', phone,\n    gender: r[3], age: r[4], goal: r[5], bodytype: r[6], motivation: r[7], struggle: r[8], tried: r[9], diet: r[10], fear: r[11],\n    at: r[12], ad: r[13] || '',\n    half: !!st.half, checkout: !!st.checkout, bought: !!st.bought, wa: !!st.wa,\n  });\n}\n// Toplina: kupio na kraj, checkout > pola videa > ostali; unutar iste razine najnoviji prvi\nconst heat = (l) => (l.bought ? -1 : (l.checkout ? 3 : 0) + (l.half ? 2 : 0) + (l.wa ? 1 : 0));\nconst sortFn = (a, b) => heat(b) - heat(a) || String(b.at).localeCompare(String(a.at));\nconst withPhone = leads.filter((l) => l.phone).sort(sortFn);\nconst hotNoPhone = leads.filter((l) => !l.phone && !l.bought && (l.half || l.checkout)).sort(sortFn);\nconst rest = leads.filter((l) => !l.phone && !(l.half || l.checkout) || (!l.phone && l.bought)).sort(sortFn);\n\nconst badges = (l) => {\n  const b = [];\n  if (l.bought) b.push(['KUPIO/LA', '#15803d']);\n  if (l.checkout && !l.bought) b.push(['kliknuo/la checkout', '#b91c1c']);\n  if (l.half) b.push(['pogledao/la pola videa', '#b45309']);\n  if (l.wa) b.push(['kliknuo/la WhatsApp', '#047857']);\n  return b.map(([t, c]) => `<b style=\"background:${c};color:#fff;font-size:11px;padding:1px 6px;border-radius:9px;\">${t}</b> `).join('');\n};\nconst card = (l) => {\n  const digits = l.phone.replace(/\\D/g, '');\n  const contact = l.phone\n    ? `<a href=\"tel:${esc(l.phone)}\" style=\"color:#111827;font-weight:bold;font-size:16px;text-decoration:none;\">${esc(l.phone)}</a> &nbsp;·&nbsp; <a href=\"https://wa.me/${digits}\" style=\"color:#047857;font-weight:bold;\">WhatsApp</a> &nbsp;·&nbsp; `\n    : '';\n  return `<tr><td style=\"padding:12px 14px;border-bottom:1px solid #e5e7eb;\">\n<div style=\"font-size:16px;font-weight:bold;color:#111827;\">${esc(l.name || 'Bez imena')} <span style=\"font-weight:normal;color:#6b7280;font-size:13px;\">${esc(dash(l.gender))}, ${esc(dash(l.age))} · ${esc(fmt(l.at))}</span></div>\n<div style=\"margin:4px 0 6px;\">${badges(l)}</div>\n<div style=\"font-size:14px;margin-bottom:6px;\">${contact}<a href=\"mailto:${esc(l.email)}\" style=\"color:#1d4ed8;\">${esc(l.email)}</a></div>\n<div style=\"font-size:13px;color:#374151;line-height:1.5;\"><b>Cilj:</b> ${esc(dash(l.goal))} · <b>Tip tijela:</b> ${esc(dash(l.bodytype))}<br><b>Najveći problem:</b> ${esc(dash(l.struggle))}<br><b>Strah:</b> ${esc(dash(l.fear))}<br><b>Motivacija:</b> ${esc(dash(l.motivation))}</div>\n</td></tr>`;\n};\nconst line = (l) => `<tr><td style=\"padding:6px 14px;border-bottom:1px solid #f3f4f6;font-size:13px;color:#374151;\"><b>${esc(l.name || 'Bez imena')}</b> · <a href=\"mailto:${esc(l.email)}\" style=\"color:#1d4ed8;\">${esc(l.email)}</a> · ${esc(dash(l.goal))} · ${esc(dash(l.bodytype))} <span style=\"color:#9ca3af;\">${esc(fmt(l.at))}</span> ${badges(l)}</td></tr>`;\nconst section = (title, note, rows) => rows ? `<h2 style=\"font-size:17px;color:#111827;margin:28px 0 4px;\">${title}</h2><p style=\"margin:0 0 8px;color:#6b7280;font-size:13px;\">${note}</p><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"border:1px solid #e5e7eb;border-radius:8px;border-collapse:separate;\">${rows}</table>` : '';\n\nconst now = new Date();\nconst yesterday = new Date(now.getTime() - 24 * 3600 * 1000);\nconst title = mode === 'all'\n  ? `Svi leadovi iz oglasa od 26. 11. 2026. do danas`\n  : `Novi leadovi iz oglasa za ${fmtDay(yesterday)}`;\nconst bought = leads.filter((l) => l.bought).length;\nconst subject = mode === 'all'\n  ? `Svi leadovi iz oglasa: ${leads.length} (${withPhone.length} s brojem)`\n  : (leads.length ? `Leadovi iz oglasa ${fmtDay(yesterday)}: ${leads.length} novih (${withPhone.length} s brojem)` : `Leadovi iz oglasa ${fmtDay(yesterday)}: nema novih`);\n\nconst html = `<div style=\"font-family:Arial,Helvetica,sans-serif;max-width:680px;margin:0 auto;color:#111827;\">\n<h1 style=\"font-size:21px;margin:0 0 6px;\">${title}</h1>\n<p style=\"margin:0 0 4px;font-size:14px;color:#374151;\"><b>${leads.length}</b> leadova · <b>${withPhone.length}</b> s brojem mobitela · <b>${hotNoPhone.length}</b> zainteresiranih bez broja${bought ? ` · <b>${bought}</b> kupilo` : ''}</p>\n<p style=\"margin:0;font-size:13px;color:#6b7280;\">Unutar svake grupe na vrhu su najtopliji: kliknuli checkout, pa pogledali više od pola videa. Svi leadovi sa svim odgovorima su i u prilogu (leadovi.csv, otvara se u Excelu).</p>\n${leads.length ? '' : '<p style=\"font-size:15px;margin-top:20px;\">Jučer nije bilo novih leadova iz oglasa.</p>'}\n${section(`📞 S brojem mobitela (${withPhone.length})`, 'Klikni broj za poziv ili WhatsApp za poruku.', withPhone.map(card).join(''))}\n${section(`🔥 Zainteresirani bez broja (${hotNoPhone.length})`, 'Pogledali više od pola videa ili kliknuli checkout, a nisu kupili. Javi se mailom.', hotNoPhone.map(line).join(''))}\n${section(`Ostali leadovi (${rest.length})`, 'Ostavili email, ali još nisu pokazali veći interes.', rest.map(line).join(''))}\n<p style=\"margin-top:28px;font-size:12px;color:#9ca3af;\">Automatski mail iz n8n (workflow \"Ursa: dnevni mail leadova\"), svako jutro u 9:00 za prethodni dan. Podaci iz PostHoga.</p>\n</div>`;\n\nconst cols = ['Datum', 'Ime', 'Mobitel', 'Email', 'Spol', 'Dob', 'Cilj', 'Tip tijela', 'Motivacija', 'Najveći problem', 'Što je probao/la', 'Prehrana', 'Strah', 'Oglas', 'Pola videa', 'Checkout', 'WhatsApp klik', 'Kupio/la'];\nconst csvCell = (v) => { const s = String(v == null ? '' : v); return /[;\"\\n]/.test(s) ? '\"' + s.replace(/\"/g, '\"\"') + '\"' : s; };\nconst yn = (b) => (b ? 'da' : '');\nconst csv = [cols.join(';')].concat([...withPhone, ...hotNoPhone, ...rest].map((l) => [fmt(l.at), l.name, l.phone, l.email, l.gender, l.age, l.goal, l.bodytype, l.motivation, l.struggle, l.tried, l.diet, l.fear, l.ad, yn(l.half), yn(l.checkout), yn(l.wa), yn(l.bought)].map(csvCell).join(';'))).join('\\r\\n');\n\nconst to = String(cfg.EMAIL_TO || '').split(/[\\s,;]+/).filter(Boolean);\nconst request = { from: cfg.EMAIL_FROM, to, subject, html };\nif (leads.length) request.attachments = [{ filename: 'leadovi.csv', content: Buffer.from('﻿' + csv, 'utf8').toString('base64') }];\n\nreturn [{ json: { mode, count: leads.length, with_phone: withPhone.length, html_kb: Math.round(html.length / 1024), to_count: to.length, request } }];\n"
+      }
+    },
+    {
+      "id": "d8",
+      "name": "Resend: pošalji",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1320,
+        100
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "resendApi": {
+          "name": "Ursa"
+        }
+      },
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.resend.com/emails",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "resendApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.request) }}",
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Svako jutro u 9": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ručno: svi leadovi od starta": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Upiti",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upiti": {
+      "main": [
+        [
+          {
+            "node": "PostHog: leadovi",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PostHog: leadovi": {
+      "main": [
+        [
+          {
+            "node": "PostHog: statusi",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PostHog: statusi": {
+      "main": [
+        [
+          {
+            "node": "Složi mail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Složi mail": {
+      "main": [
+        [
+          {
+            "node": "Resend: pošalji",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Zagreb"
+  }
+}

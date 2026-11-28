@@ -114,3 +114,13 @@ Sve obavijesti o leadovima iz oglasa idu u `#ursa-ads`, a `#ursa-odobrenje` osta
 | `Slack: checkout bez kupnje` | 1 h nakon klika na checkout, bez kupnje | mobitel, email, paket, oglas, PostHog |
 
 Testni leadovi s adresama iz `STOP_EMAILS` ne šalju obavijest o novom leadu.
+
+## Workflow "Ursa: dnevni mail leadova" (od 28. 11. 2026., `n8n/ursa-dnevni-mail-leadova.json`)
+
+Ursa ne prati Slack, pa leadove iz oglasa dobiva na mail.
+
+- **Kada:** svako jutro u 9:00 (Europe/Zagreb), za prethodni dan. Ručni okidač **Ručno: svi leadovi od starta** šalje sve od 26. 11. 2026. (tako je poslan prvi mail, 28. 11.).
+- **Odakle:** PostHog. Leadovi su `quiz_completed` s `utm_medium = paid_social` (ili `$initial_utm_medium`), a statusi su `vsl_50`, `vsl_checkout_clicked`, `purchase` i `vsl_whatsapp_clicked`.
+- **Izgled:** prvo leadovi s mobitelom (kartica s brojem za poziv, WhatsApp linkom, emailom i odgovorima), pa zainteresirani bez broja (pola videa ili checkout), pa ostali. Unutar grupe najtopliji su na vrhu. Prilog `leadovi.csv` (separator `;`, UTF-8) otvara se u Excelu.
+- **Primatelji:** `EMAIL_TO` u Configu. U repou je prazan jer je repo javan; pravi primatelji (Ursa i vlasnik) upisani su samo u n8n.
+- Šalje se preko Resenda (credential **Ursa**) s `ursa@nemaneide.com`.
